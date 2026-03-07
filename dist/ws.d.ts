@@ -1,9 +1,8 @@
-export declare const PROTOCOL_VERSION = "2026-03-06";
+export declare const PROTOCOL_VERSION = "2026-03-07";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
     readonly AUDIO_CHUNK: "audio:chunk";
-    readonly MEDIA_AUDIO_CHUNK: "media:audio_chunk";
     readonly MEDIA_VIDEO_CHUNK: "media:video_chunk";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
@@ -16,6 +15,7 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_ENDED: "session:ended";
     readonly SESSION_PONG: "session:pong";
 };
+export declare const BINARY_MEDIA_AUDIO_CHUNK_TYPE: "media:audio_chunk_binary";
 export type ClientMessageType = (typeof CLIENT_MESSAGE_TYPES)[keyof typeof CLIENT_MESSAGE_TYPES];
 export type ServerMessageType = (typeof SERVER_MESSAGE_TYPES)[keyof typeof SERVER_MESSAGE_TYPES];
 export interface SessionStartMessage {
@@ -44,14 +44,17 @@ export interface AudioChunkMessage {
     sentAt: string;
     dataBase64: string;
 }
-export interface MediaAudioChunkMessage {
-    type: typeof CLIENT_MESSAGE_TYPES.MEDIA_AUDIO_CHUNK;
+export type SupportedPcmAudioMimeType = "audio/pcm;rate=16000;channels=1;format=s16le" | "audio/pcm;rate=24000;channels=1;format=s16le";
+export interface BinaryMediaAudioChunkHeader {
+    type: typeof BINARY_MEDIA_AUDIO_CHUNK_TYPE;
     sessionId: string;
     chunkId: number;
     timelineNs: string;
     durationMs: number;
-    mimeType: "audio/pcm;rate=16000;channels=1;format=s16le" | "audio/pcm;rate=24000;channels=1;format=s16le";
-    dataBase64: string;
+    mimeType: SupportedPcmAudioMimeType;
+}
+export interface BinaryMediaAudioChunkPayload extends Omit<BinaryMediaAudioChunkHeader, "type"> {
+    bytes: Uint8Array;
 }
 export interface MediaVideoChunkMessage {
     type: typeof CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK;
@@ -77,7 +80,7 @@ export interface SessionPingMessage {
     sessionId: string;
     sentAt: string;
 }
-export type ClientMessage = SessionStartMessage | AudioChunkMessage | MediaAudioChunkMessage | MediaVideoChunkMessage | SessionStopMessage | SessionPingMessage;
+export type ClientMessage = SessionStartMessage | AudioChunkMessage | MediaVideoChunkMessage | SessionStopMessage | SessionPingMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
@@ -89,6 +92,7 @@ export interface TranscriptPartialMessage {
     sessionId: string;
     eventId: string;
     segmentIndex: number;
+    source: TranscriptSource;
     text: string;
     receivedAt: string;
 }
@@ -97,9 +101,11 @@ export interface TranscriptFinalMessage {
     sessionId: string;
     eventId: string;
     segmentIndex: number;
+    source: TranscriptSource;
     text: string;
     receivedAt: string;
 }
+export type TranscriptSource = "input_audio" | "model_response";
 export interface SessionErrorMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ERROR;
     sessionId?: string;
@@ -119,3 +125,8 @@ export interface SessionPongMessage {
 }
 export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | SessionErrorMessage | SessionEndedMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
+export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
+export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {
+    header: BinaryMediaAudioChunkHeader;
+    bytes: Uint8Array;
+};
