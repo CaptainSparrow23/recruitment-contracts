@@ -3,7 +3,6 @@ export const WEBSOCKET_PATH = "/ws";
 
 export const CLIENT_MESSAGE_TYPES = {
   SESSION_START: "session:start",
-  AUDIO_CHUNK: "audio:chunk",
   MEDIA_VIDEO_CHUNK: "media:video_chunk",
   SESSION_STOP: "session:stop",
   SESSION_PING: "session:ping"
@@ -13,12 +12,17 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_STARTED: "session:started",
   TRANSCRIPT_PARTIAL: "transcript:partial",
   TRANSCRIPT_FINAL: "transcript:final",
+  SESSION_WARNING: "session:warning",
   SESSION_ERROR: "session:error",
   SESSION_ENDED: "session:ended",
   SESSION_PONG: "session:pong"
 } as const;
 
 export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary" as const;
+export const AUDIO_STREAM_IDS = {
+  MIC: "mic",
+  SYSTEM_AUDIO: "system_audio"
+} as const;
 
 const BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES = 4;
 const binaryFrameEncoder = new TextEncoder();
@@ -42,21 +46,13 @@ export interface CaptureConfig {
     channels: 1;
     format: "pcm_s16le";
     sampleRateHz: 16000 | 24000;
+    streams: AudioStreamId[];
   };
   video: {
     fps: 24;
     height: 1080;
     width: 1920;
   };
-}
-
-export interface AudioChunkMessage {
-  type: typeof CLIENT_MESSAGE_TYPES.AUDIO_CHUNK;
-  sessionId: string;
-  chunkId: number;
-  mimeType: string;
-  sentAt: string;
-  dataBase64: string;
 }
 
 export type SupportedPcmAudioMimeType =
@@ -66,6 +62,7 @@ export type SupportedPcmAudioMimeType =
 export interface BinaryMediaAudioChunkHeader {
   type: typeof BINARY_MEDIA_AUDIO_CHUNK_TYPE;
   sessionId: string;
+  streamId: AudioStreamId;
   chunkId: number;
   timelineNs: string;
   durationMs: number;
@@ -92,7 +89,6 @@ export interface MediaVideoChunkMessage {
 
 export type VideoChunkMimeType =
   | "video/mp4;codecs=avc1"
-  | "image/jpeg"
   | "video/webm"
   | "video/webm;codecs=vp8"
   | "video/webm;codecs=vp9";
@@ -112,7 +108,6 @@ export interface SessionPingMessage {
 
 export type ClientMessage =
   | SessionStartMessage
-  | AudioChunkMessage
   | MediaVideoChunkMessage
   | SessionStopMessage
   | SessionPingMessage;
@@ -130,6 +125,9 @@ export interface TranscriptPartialMessage {
   eventId: string;
   segmentIndex: number;
   source: TranscriptSource;
+  audioSource: TranscriptAudioSource;
+  segmentStartNs?: string;
+  segmentEndNs?: string;
   text: string;
   receivedAt: string;
 }
@@ -140,11 +138,25 @@ export interface TranscriptFinalMessage {
   eventId: string;
   segmentIndex: number;
   source: TranscriptSource;
+  audioSource: TranscriptAudioSource;
+  segmentStartNs?: string;
+  segmentEndNs?: string;
   text: string;
   receivedAt: string;
 }
 
 export type TranscriptSource = "input_audio" | "model_response";
+export type TranscriptAudioSource = AudioStreamId | "unknown";
+export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
+
+export interface SessionWarningMessage {
+  type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
+  sessionId: string;
+  eventId: string;
+  warningCode: "system_audio_unavailable" | "system_audio_resumed";
+  message: string;
+  occurredAt: string;
+}
 
 export interface SessionErrorMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_ERROR;
@@ -176,6 +188,7 @@ export type ServerMessage =
   | SessionStartedMessage
   | TranscriptPartialMessage
   | TranscriptFinalMessage
+  | SessionWarningMessage
   | SessionErrorMessage
   | SessionEndedMessage
   | SessionPongMessage;
@@ -188,14 +201,6 @@ export function isClientMessage(value: unknown): value is ClientMessage {
   switch (value.type) {
     case CLIENT_MESSAGE_TYPES.SESSION_START:
       return isTimestampedSessionMessage(value, "startedAt");
-    case CLIENT_MESSAGE_TYPES.AUDIO_CHUNK:
-      return (
-        typeof value.sessionId === "string" &&
-        typeof value.chunkId === "number" &&
-        typeof value.mimeType === "string" &&
-        typeof value.sentAt === "string" &&
-        typeof value.dataBase64 === "string"
-      );
     case CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK:
       return isMediaVideoChunkMessage(value);
     case CLIENT_MESSAGE_TYPES.SESSION_STOP:
@@ -217,6 +222,7 @@ export function encodeBinaryMediaAudioChunkFrame(
   const header: BinaryMediaAudioChunkHeader = {
     type: BINARY_MEDIA_AUDIO_CHUNK_TYPE,
     sessionId: payload.sessionId,
+    streamId: payload.streamId,
     chunkId: payload.chunkId,
     timelineNs: payload.timelineNs,
     durationMs: payload.durationMs,
@@ -327,6 +333,7 @@ function isCaptureConfig(value: unknown): value is CaptureConfig {
     value.audio.format === "pcm_s16le" &&
     isSupportedAudioSampleRate(value.audio.sampleRateHz) &&
     value.audio.channels === 1 &&
+    isSupportedAudioStreams(value.audio.streams) &&
     value.video.width === 1920 &&
     value.video.height === 1080 &&
     value.video.fps === 24
@@ -339,6 +346,7 @@ function isBinaryMediaAudioChunkPayload(
   return (
     isRecord(value) &&
     typeof value.sessionId === "string" &&
+    isAudioStreamId(value.streamId) &&
     typeof value.chunkId === "number" &&
     Number.isFinite(value.chunkId) &&
     value.chunkId > 0 &&
@@ -360,6 +368,7 @@ function isBinaryMediaAudioChunkHeader(
     isRecord(value) &&
     value.type === BINARY_MEDIA_AUDIO_CHUNK_TYPE &&
     typeof value.sessionId === "string" &&
+    isAudioStreamId(value.streamId) &&
     typeof value.chunkId === "number" &&
     Number.isFinite(value.chunkId) &&
     value.chunkId > 0 &&
@@ -383,6 +392,30 @@ function isSupportedPcmAudioMimeType(
     value === "audio/pcm;rate=16000;channels=1;format=s16le" ||
     value === "audio/pcm;rate=24000;channels=1;format=s16le"
   );
+}
+
+function isAudioStreamId(value: unknown): value is AudioStreamId {
+  return value === AUDIO_STREAM_IDS.MIC || value === AUDIO_STREAM_IDS.SYSTEM_AUDIO;
+}
+
+function isSupportedAudioStreams(value: unknown): value is AudioStreamId[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    return false;
+  }
+
+  const unique = new Set(value);
+
+  if (!unique.has(AUDIO_STREAM_IDS.MIC)) {
+    return false;
+  }
+
+  for (const streamId of unique) {
+    if (!isAudioStreamId(streamId)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function isMediaVideoChunkMessage(
@@ -409,7 +442,6 @@ function isMediaVideoChunkMessage(
 function isSupportedVideoChunkMimeType(value: unknown): value is VideoChunkMimeType {
   return (
     value === "video/mp4;codecs=avc1" ||
-    value === "image/jpeg" ||
     value === "video/webm" ||
     value === "video/webm;codecs=vp8" ||
     value === "video/webm;codecs=vp9"
