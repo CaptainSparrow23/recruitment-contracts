@@ -1,8 +1,9 @@
-export const PROTOCOL_VERSION = "2026-03-07";
+export const PROTOCOL_VERSION = "2026-03-09";
 export const WEBSOCKET_PATH = "/ws";
 export const CLIENT_MESSAGE_TYPES = {
     SESSION_START: "session:start",
     MEDIA_VIDEO_CHUNK: "media:video_chunk",
+    COPILOT_PROMPT: "copilot:prompt",
     SESSION_STOP: "session:stop",
     SESSION_PING: "session:ping"
 };
@@ -10,6 +11,8 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_STARTED: "session:started",
     TRANSCRIPT_PARTIAL: "transcript:partial",
     TRANSCRIPT_FINAL: "transcript:final",
+    COPILOT_STATUS: "copilot:status",
+    COPILOT_RESULT: "copilot:result",
     SESSION_WARNING: "session:warning",
     SESSION_ERROR: "session:error",
     SESSION_ENDED: "session:ended",
@@ -32,6 +35,8 @@ export function isClientMessage(value) {
             return isTimestampedSessionMessage(value, "startedAt");
         case CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK:
             return isMediaVideoChunkMessage(value);
+        case CLIENT_MESSAGE_TYPES.COPILOT_PROMPT:
+            return isCopilotPromptMessage(value);
         case CLIENT_MESSAGE_TYPES.SESSION_STOP:
             return isTimestampedSessionMessage(value, "endedAt");
         case CLIENT_MESSAGE_TYPES.SESSION_PING:
@@ -117,6 +122,30 @@ function isCaptureConfig(value) {
         value.video.width === 1920 &&
         value.video.height === 1080 &&
         value.video.fps === 24);
+}
+function isCopilotPromptMessage(value) {
+    if (!isRecord(value)) {
+        return false;
+    }
+    if (typeof value.sessionId !== "string" ||
+        value.sessionId.trim().length === 0 ||
+        typeof value.requestId !== "string" ||
+        value.requestId.trim().length === 0 ||
+        typeof value.requestedAt !== "string" ||
+        value.requestedAt.trim().length === 0 ||
+        !isCopilotIntent(value.intent)) {
+        return false;
+    }
+    if (value.intent === "ask") {
+        return (typeof value.question === "string" && value.question.trim().length > 0);
+    }
+    if (typeof value.question === "undefined") {
+        return true;
+    }
+    return typeof value.question === "string";
+}
+function isCopilotIntent(value) {
+    return value === "say_next" || value === "context_now" || value === "ask";
 }
 function isBinaryMediaAudioChunkPayload(value) {
     return (isRecord(value) &&

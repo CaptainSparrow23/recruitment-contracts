@@ -1,8 +1,9 @@
-export declare const PROTOCOL_VERSION = "2026-03-07";
+export declare const PROTOCOL_VERSION = "2026-03-09";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
     readonly MEDIA_VIDEO_CHUNK: "media:video_chunk";
+    readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
 };
@@ -10,6 +11,8 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_STARTED: "session:started";
     readonly TRANSCRIPT_PARTIAL: "transcript:partial";
     readonly TRANSCRIPT_FINAL: "transcript:final";
+    readonly COPILOT_STATUS: "copilot:status";
+    readonly COPILOT_RESULT: "copilot:result";
     readonly SESSION_WARNING: "session:warning";
     readonly SESSION_ERROR: "session:error";
     readonly SESSION_ENDED: "session:ended";
@@ -78,7 +81,16 @@ export interface SessionPingMessage {
     sessionId: string;
     sentAt: string;
 }
-export type ClientMessage = SessionStartMessage | MediaVideoChunkMessage | SessionStopMessage | SessionPingMessage;
+export type CopilotIntent = "say_next" | "context_now" | "ask";
+export interface CopilotPromptMessage {
+    type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
+    sessionId: string;
+    requestId: string;
+    requestedAt: string;
+    intent: CopilotIntent;
+    question?: string;
+}
+export type ClientMessage = SessionStartMessage | MediaVideoChunkMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
@@ -112,6 +124,62 @@ export interface TranscriptFinalMessage {
 export type TranscriptSource = "input_audio" | "model_response";
 export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
+export type CopilotStatus = "started" | "completed" | "failed";
+export type CopilotConfidence = "low" | "medium" | "high";
+export interface CopilotStatusMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_STATUS;
+    sessionId: string;
+    requestId: string;
+    intent: CopilotIntent;
+    status: CopilotStatus;
+    occurredAt: string;
+    errorCode?: "no_active_session" | "request_in_flight" | "invalid_prompt" | "provider_timeout" | "provider_error" | "invalid_response";
+    message?: string;
+}
+export interface CopilotSayNextResultPayload {
+    kind: "say_next";
+    bullets: [string, string, string];
+}
+export interface CopilotContextNowResultPayload {
+    kind: "context_now";
+    bullets: [string, string, string];
+}
+export interface CopilotAskResultPayload {
+    kind: "ask";
+    answer: string;
+    followUps: string[];
+}
+export interface CopilotSayNextResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "say_next";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    confidence: CopilotConfidence;
+    result: CopilotSayNextResultPayload;
+}
+export interface CopilotContextNowResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "context_now";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    confidence: CopilotConfidence;
+    result: CopilotContextNowResultPayload;
+}
+export interface CopilotAskResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "ask";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    confidence: CopilotConfidence;
+    result: CopilotAskResultPayload;
+}
+export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotContextNowResultMessage | CopilotAskResultMessage;
 export interface SessionWarningMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
     sessionId: string;
@@ -137,7 +205,7 @@ export interface SessionPongMessage {
     sessionId: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
 export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {

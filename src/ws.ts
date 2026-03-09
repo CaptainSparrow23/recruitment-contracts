@@ -1,9 +1,10 @@
-export const PROTOCOL_VERSION = "2026-03-07";
+export const PROTOCOL_VERSION = "2026-03-09";
 export const WEBSOCKET_PATH = "/ws";
 
 export const CLIENT_MESSAGE_TYPES = {
   SESSION_START: "session:start",
   MEDIA_VIDEO_CHUNK: "media:video_chunk",
+  COPILOT_PROMPT: "copilot:prompt",
   SESSION_STOP: "session:stop",
   SESSION_PING: "session:ping"
 } as const;
@@ -12,6 +13,8 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_STARTED: "session:started",
   TRANSCRIPT_PARTIAL: "transcript:partial",
   TRANSCRIPT_FINAL: "transcript:final",
+  COPILOT_STATUS: "copilot:status",
+  COPILOT_RESULT: "copilot:result",
   SESSION_WARNING: "session:warning",
   SESSION_ERROR: "session:error",
   SESSION_ENDED: "session:ended",
@@ -106,9 +109,21 @@ export interface SessionPingMessage {
   sentAt: string;
 }
 
+export type CopilotIntent = "say_next" | "context_now" | "ask";
+
+export interface CopilotPromptMessage {
+  type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
+  sessionId: string;
+  requestId: string;
+  requestedAt: string;
+  intent: CopilotIntent;
+  question?: string;
+}
+
 export type ClientMessage =
   | SessionStartMessage
   | MediaVideoChunkMessage
+  | CopilotPromptMessage
   | SessionStopMessage
   | SessionPingMessage;
 
@@ -149,6 +164,80 @@ export type TranscriptSource = "input_audio" | "model_response";
 export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
 
+export type CopilotStatus = "started" | "completed" | "failed";
+export type CopilotConfidence = "low" | "medium" | "high";
+
+export interface CopilotStatusMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_STATUS;
+  sessionId: string;
+  requestId: string;
+  intent: CopilotIntent;
+  status: CopilotStatus;
+  occurredAt: string;
+  errorCode?:
+    | "no_active_session"
+    | "request_in_flight"
+    | "invalid_prompt"
+    | "provider_timeout"
+    | "provider_error"
+    | "invalid_response";
+  message?: string;
+}
+
+export interface CopilotSayNextResultPayload {
+  kind: "say_next";
+  bullets: [string, string, string];
+}
+
+export interface CopilotContextNowResultPayload {
+  kind: "context_now";
+  bullets: [string, string, string];
+}
+
+export interface CopilotAskResultPayload {
+  kind: "ask";
+  answer: string;
+  followUps: string[];
+}
+
+export interface CopilotSayNextResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "say_next";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  confidence: CopilotConfidence;
+  result: CopilotSayNextResultPayload;
+}
+
+export interface CopilotContextNowResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "context_now";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  confidence: CopilotConfidence;
+  result: CopilotContextNowResultPayload;
+}
+
+export interface CopilotAskResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "ask";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  confidence: CopilotConfidence;
+  result: CopilotAskResultPayload;
+}
+
+export type CopilotResultMessage =
+  | CopilotSayNextResultMessage
+  | CopilotContextNowResultMessage
+  | CopilotAskResultMessage;
+
 export interface SessionWarningMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
   sessionId: string;
@@ -188,6 +277,8 @@ export type ServerMessage =
   | SessionStartedMessage
   | TranscriptPartialMessage
   | TranscriptFinalMessage
+  | CopilotStatusMessage
+  | CopilotResultMessage
   | SessionWarningMessage
   | SessionErrorMessage
   | SessionEndedMessage
@@ -203,6 +294,8 @@ export function isClientMessage(value: unknown): value is ClientMessage {
       return isTimestampedSessionMessage(value, "startedAt");
     case CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK:
       return isMediaVideoChunkMessage(value);
+    case CLIENT_MESSAGE_TYPES.COPILOT_PROMPT:
+      return isCopilotPromptMessage(value);
     case CLIENT_MESSAGE_TYPES.SESSION_STOP:
       return isTimestampedSessionMessage(value, "endedAt");
     case CLIENT_MESSAGE_TYPES.SESSION_PING:
@@ -338,6 +431,42 @@ function isCaptureConfig(value: unknown): value is CaptureConfig {
     value.video.height === 1080 &&
     value.video.fps === 24
   );
+}
+
+function isCopilotPromptMessage(
+  value: unknown
+): value is CopilotPromptMessage {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  if (
+    typeof value.sessionId !== "string" ||
+    value.sessionId.trim().length === 0 ||
+    typeof value.requestId !== "string" ||
+    value.requestId.trim().length === 0 ||
+    typeof value.requestedAt !== "string" ||
+    value.requestedAt.trim().length === 0 ||
+    !isCopilotIntent(value.intent)
+  ) {
+    return false;
+  }
+
+  if (value.intent === "ask") {
+    return (
+      typeof value.question === "string" && value.question.trim().length > 0
+    );
+  }
+
+  if (typeof value.question === "undefined") {
+    return true;
+  }
+
+  return typeof value.question === "string";
+}
+
+function isCopilotIntent(value: unknown): value is CopilotIntent {
+  return value === "say_next" || value === "context_now" || value === "ask";
 }
 
 function isBinaryMediaAudioChunkPayload(
