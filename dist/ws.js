@@ -1,4 +1,4 @@
-export const PROTOCOL_VERSION = "2026-03-09";
+export const PROTOCOL_VERSION = "2026-03-10";
 export const WEBSOCKET_PATH = "/ws";
 export const CLIENT_MESSAGE_TYPES = {
     SESSION_START: "session:start",
@@ -13,6 +13,7 @@ export const SERVER_MESSAGE_TYPES = {
     TRANSCRIPT_FINAL: "transcript:final",
     COPILOT_STATUS: "copilot:status",
     COPILOT_RESULT: "copilot:result",
+    QUALIFICATION_STATE: "qualification:state",
     SESSION_WARNING: "session:warning",
     SESSION_ERROR: "session:error",
     SESSION_ENDED: "session:ended",

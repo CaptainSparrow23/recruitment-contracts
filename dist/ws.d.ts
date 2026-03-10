@@ -1,4 +1,4 @@
-export declare const PROTOCOL_VERSION = "2026-03-09";
+export declare const PROTOCOL_VERSION = "2026-03-10";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
@@ -13,6 +13,7 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly TRANSCRIPT_FINAL: "transcript:final";
     readonly COPILOT_STATUS: "copilot:status";
     readonly COPILOT_RESULT: "copilot:result";
+    readonly QUALIFICATION_STATE: "qualification:state";
     readonly SESSION_WARNING: "session:warning";
     readonly SESSION_ERROR: "session:error";
     readonly SESSION_ENDED: "session:ended";
@@ -126,6 +127,7 @@ export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
 export type CopilotStatus = "started" | "completed" | "failed";
 export type CopilotConfidence = "low" | "medium" | "high";
+export type QualificationFieldStatus = "missing" | "partial" | "inferred" | "confirmed" | "not_applicable";
 export interface CopilotStatusMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_STATUS;
     sessionId: string;
@@ -180,6 +182,34 @@ export interface CopilotAskResultMessage {
     result: CopilotAskResultPayload;
 }
 export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotContextNowResultMessage | CopilotAskResultMessage;
+export interface QualificationFieldEvidence {
+    snapshotId: string;
+    segmentIndex: number;
+    role: "user" | "counterpart";
+    quote: string;
+    receivedAt: string;
+}
+export interface QualificationFieldState {
+    fieldId: string;
+    question: string;
+    value: string;
+    status: QualificationFieldStatus;
+    hasConflict: boolean;
+    confidenceScore: number;
+    confidence: CopilotConfidence;
+    evidence: QualificationFieldEvidence[];
+    lastUpdatedAt: string | null;
+    followUpRequired: boolean;
+    followUpQuestion: string | null;
+}
+export interface QualificationStateMessage {
+    type: typeof SERVER_MESSAGE_TYPES.QUALIFICATION_STATE;
+    sessionId: string;
+    updatedAt: string;
+    version: number;
+    source: "primary" | "reconcile" | "initialize";
+    fields: QualificationFieldState[];
+}
 export interface SessionWarningMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
     sessionId: string;
@@ -205,7 +235,7 @@ export interface SessionPongMessage {
     sessionId: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
 export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {

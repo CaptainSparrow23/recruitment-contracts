@@ -1,4 +1,4 @@
-export const PROTOCOL_VERSION = "2026-03-09";
+export const PROTOCOL_VERSION = "2026-03-10";
 export const WEBSOCKET_PATH = "/ws";
 
 export const CLIENT_MESSAGE_TYPES = {
@@ -15,6 +15,7 @@ export const SERVER_MESSAGE_TYPES = {
   TRANSCRIPT_FINAL: "transcript:final",
   COPILOT_STATUS: "copilot:status",
   COPILOT_RESULT: "copilot:result",
+  QUALIFICATION_STATE: "qualification:state",
   SESSION_WARNING: "session:warning",
   SESSION_ERROR: "session:error",
   SESSION_ENDED: "session:ended",
@@ -166,6 +167,12 @@ export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_
 
 export type CopilotStatus = "started" | "completed" | "failed";
 export type CopilotConfidence = "low" | "medium" | "high";
+export type QualificationFieldStatus =
+  | "missing"
+  | "partial"
+  | "inferred"
+  | "confirmed"
+  | "not_applicable";
 
 export interface CopilotStatusMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_STATUS;
@@ -238,6 +245,37 @@ export type CopilotResultMessage =
   | CopilotContextNowResultMessage
   | CopilotAskResultMessage;
 
+export interface QualificationFieldEvidence {
+  snapshotId: string;
+  segmentIndex: number;
+  role: "user" | "counterpart";
+  quote: string;
+  receivedAt: string;
+}
+
+export interface QualificationFieldState {
+  fieldId: string;
+  question: string;
+  value: string;
+  status: QualificationFieldStatus;
+  hasConflict: boolean;
+  confidenceScore: number;
+  confidence: CopilotConfidence;
+  evidence: QualificationFieldEvidence[];
+  lastUpdatedAt: string | null;
+  followUpRequired: boolean;
+  followUpQuestion: string | null;
+}
+
+export interface QualificationStateMessage {
+  type: typeof SERVER_MESSAGE_TYPES.QUALIFICATION_STATE;
+  sessionId: string;
+  updatedAt: string;
+  version: number;
+  source: "primary" | "reconcile" | "initialize";
+  fields: QualificationFieldState[];
+}
+
 export interface SessionWarningMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
   sessionId: string;
@@ -279,6 +317,7 @@ export type ServerMessage =
   | TranscriptFinalMessage
   | CopilotStatusMessage
   | CopilotResultMessage
+  | QualificationStateMessage
   | SessionWarningMessage
   | SessionErrorMessage
   | SessionEndedMessage
