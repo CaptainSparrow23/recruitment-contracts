@@ -127,7 +127,7 @@ export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
 export type CopilotStatus = "started" | "completed" | "failed";
 export type CopilotConfidence = "low" | "medium" | "high";
-export type QualificationFieldStatus = "missing" | "partial" | "inferred" | "confirmed" | "not_applicable";
+export type QualificationFieldStatus = "missing" | "partial" | "confirmed" | "not_applicable";
 export interface CopilotStatusMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_STATUS;
     sessionId: string;

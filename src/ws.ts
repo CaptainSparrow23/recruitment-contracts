@@ -170,7 +170,6 @@ export type CopilotConfidence = "low" | "medium" | "high";
 export type QualificationFieldStatus =
   | "missing"
   | "partial"
-  | "inferred"
   | "confirmed"
   | "not_applicable";
 
