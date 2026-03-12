@@ -77,14 +77,13 @@ export function decodeBinaryMediaAudioChunkFrame(frame) {
     const view = new DataView(frameBytes.buffer, frameBytes.byteOffset, frameBytes.byteLength);
     const headerLength = view.getUint32(0);
     if (headerLength <= 0 ||
-        headerLength >
+        headerLength >=
             frameBytes.byteLength - BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES) {
-        throw new Error("Binary media audio chunk header length is invalid.");
+        throw new Error(headerLength <= 0
+            ? "Binary media audio chunk header length is invalid."
+            : "Binary media audio chunk frame has no audio payload after the header.");
     }
     const payloadOffset = BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES + headerLength;
-    if (payloadOffset >= frameBytes.byteLength) {
-        throw new Error("Binary media audio chunk payload is empty.");
-    }
     let parsedHeader;
     try {
         parsedHeader = JSON.parse(binaryFrameDecoder.decode(frameBytes.subarray(BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES, payloadOffset)));
@@ -227,5 +226,5 @@ function isSupportedVideoChunkMimeType(value) {
         value === "video/webm;codecs=vp9");
 }
 function isRecord(value) {
-    return typeof value === "object" && value !== null;
+    return typeof value === "object" && value !== null && !Array.isArray(value);
 }

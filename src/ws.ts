@@ -297,11 +297,20 @@ export interface SessionErrorMessage {
   message: string;
 }
 
+export type SessionArtifactKind = "filled_template";
+
+export interface SessionArtifactRef {
+  artifactId: string;
+  kind: SessionArtifactKind;
+  fileName: string;
+}
+
 export interface SessionEndedMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_ENDED;
   sessionId: string;
   endedAt: string;
   reason: "client_stop" | "socket_closed";
+  artifacts?: SessionArtifactRef[];
 }
 
 export interface SessionPongMessage {
@@ -399,17 +408,17 @@ export function decodeBinaryMediaAudioChunkFrame(
 
   if (
     headerLength <= 0 ||
-    headerLength >
+    headerLength >=
       frameBytes.byteLength - BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES
   ) {
-    throw new Error("Binary media audio chunk header length is invalid.");
+    throw new Error(
+      headerLength <= 0
+        ? "Binary media audio chunk header length is invalid."
+        : "Binary media audio chunk frame has no audio payload after the header."
+    );
   }
 
   const payloadOffset = BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES + headerLength;
-
-  if (payloadOffset >= frameBytes.byteLength) {
-    throw new Error("Binary media audio chunk payload is empty.");
-  }
 
   let parsedHeader: unknown;
 
@@ -616,5 +625,5 @@ function isSupportedVideoChunkMimeType(value: unknown): value is VideoChunkMimeT
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

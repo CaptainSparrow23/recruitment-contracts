@@ -224,11 +224,18 @@ export interface SessionErrorMessage {
     code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "session_conflict" | "no_active_session" | "unsupported_message";
     message: string;
 }
+export type SessionArtifactKind = "filled_template";
+export interface SessionArtifactRef {
+    artifactId: string;
+    kind: SessionArtifactKind;
+    fileName: string;
+}
 export interface SessionEndedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ENDED;
     sessionId: string;
     endedAt: string;
     reason: "client_stop" | "socket_closed";
+    artifacts?: SessionArtifactRef[];
 }
 export interface SessionPongMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_PONG;
