@@ -11,7 +11,6 @@ export const CLIENT_MESSAGE_TYPES = {
 
 export const SERVER_MESSAGE_TYPES = {
   SESSION_STARTED: "session:started",
-  TRANSCRIPT_PARTIAL: "transcript:partial",
   TRANSCRIPT_FINAL: "transcript:final",
   COPILOT_STATUS: "copilot:status",
   COPILOT_RESULT: "copilot:result",
@@ -133,19 +132,6 @@ export interface SessionStartedMessage {
   sessionId: string;
   startedAt: string;
   protocolVersion: typeof PROTOCOL_VERSION;
-}
-
-export interface TranscriptPartialMessage {
-  type: typeof SERVER_MESSAGE_TYPES.TRANSCRIPT_PARTIAL;
-  sessionId: string;
-  eventId: string;
-  segmentIndex: number;
-  source: TranscriptSource;
-  audioSource: TranscriptAudioSource;
-  segmentStartNs?: string;
-  segmentEndNs?: string;
-  text: string;
-  receivedAt: string;
 }
 
 export interface TranscriptFinalMessage {
@@ -321,7 +307,6 @@ export interface SessionPongMessage {
 
 export type ServerMessage =
   | SessionStartedMessage
-  | TranscriptPartialMessage
   | TranscriptFinalMessage
   | CopilotStatusMessage
   | CopilotResultMessage

@@ -9,7 +9,6 @@ export const CLIENT_MESSAGE_TYPES = {
 };
 export const SERVER_MESSAGE_TYPES = {
     SESSION_STARTED: "session:started",
-    TRANSCRIPT_PARTIAL: "transcript:partial",
     TRANSCRIPT_FINAL: "transcript:final",
     COPILOT_STATUS: "copilot:status",
     COPILOT_RESULT: "copilot:result",
