@@ -81,7 +81,7 @@ export interface SessionPingMessage {
     sessionId: string;
     sentAt: string;
 }
-export type CopilotIntent = "say_next" | "context_now" | "ask";
+export type CopilotIntent = "say_next" | "ask" | "red_flags" | "insights" | "what_to_answer";
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
     sessionId: string;
@@ -114,6 +114,10 @@ export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
 export type CopilotStatus = "started" | "completed" | "failed";
 export type CopilotConfidence = "low" | "medium" | "high";
+export interface CopilotSource {
+    title: string;
+    url: string;
+}
 export type QualificationFieldStatus = "missing" | "partial" | "confirmed" | "not_applicable";
 export interface CopilotStatusMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_STATUS;
@@ -129,14 +133,35 @@ export interface CopilotSayNextResultPayload {
     kind: "say_next";
     bullets: [string, string, string];
 }
-export interface CopilotContextNowResultPayload {
-    kind: "context_now";
-    bullets: [string, string, string];
-}
 export interface CopilotAskResultPayload {
     kind: "ask";
     answer: string;
     followUps: string[];
+}
+export interface CopilotRedFlagsResultPayload {
+    kind: "red_flags";
+    items: Array<{
+        id: string;
+        label: string;
+        severity: "low" | "medium" | "high";
+        fieldIds: string[];
+    }>;
+    sources: CopilotSource[];
+}
+export interface CopilotInsightsResultPayload {
+    kind: "insights";
+    items: Array<{
+        topic: string;
+        explanation: string;
+        roleRelevance: string;
+        factualContext: string[];
+    }>;
+    sources: CopilotSource[];
+}
+export interface CopilotWhatToAnswerResultPayload {
+    kind: "what_to_answer";
+    answer: string;
+    supportPoints: string[];
 }
 export interface CopilotSayNextResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
@@ -148,16 +173,6 @@ export interface CopilotSayNextResultMessage {
     confidence: CopilotConfidence;
     result: CopilotSayNextResultPayload;
 }
-export interface CopilotContextNowResultMessage {
-    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-    sessionId: string;
-    requestId: string;
-    intent: "context_now";
-    generatedAt: string;
-    basedOnSegmentIndexes: number[];
-    confidence: CopilotConfidence;
-    result: CopilotContextNowResultPayload;
-}
 export interface CopilotAskResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
     sessionId: string;
@@ -168,7 +183,37 @@ export interface CopilotAskResultMessage {
     confidence: CopilotConfidence;
     result: CopilotAskResultPayload;
 }
-export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotContextNowResultMessage | CopilotAskResultMessage;
+export interface CopilotRedFlagsResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "red_flags";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    confidence: CopilotConfidence;
+    result: CopilotRedFlagsResultPayload;
+}
+export interface CopilotInsightsResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "insights";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    confidence: CopilotConfidence;
+    result: CopilotInsightsResultPayload;
+}
+export interface CopilotWhatToAnswerResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "what_to_answer";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    confidence: CopilotConfidence;
+    result: CopilotWhatToAnswerResultPayload;
+}
+export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotRedFlagsResultMessage | CopilotInsightsResultMessage | CopilotWhatToAnswerResultMessage;
 export interface QualificationFieldEvidence {
     snapshotId: string;
     segmentIndex: number;

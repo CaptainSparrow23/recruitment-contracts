@@ -144,7 +144,11 @@ function isCopilotPromptMessage(value) {
     return typeof value.question === "string";
 }
 function isCopilotIntent(value) {
-    return value === "say_next" || value === "context_now" || value === "ask";
+    return (value === "say_next" ||
+        value === "ask" ||
+        value === "red_flags" ||
+        value === "insights" ||
+        value === "what_to_answer");
 }
 function isBinaryMediaAudioChunkPayload(value) {
     return (isRecord(value) &&

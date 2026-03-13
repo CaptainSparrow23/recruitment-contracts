@@ -109,7 +109,12 @@ export interface SessionPingMessage {
   sentAt: string;
 }
 
-export type CopilotIntent = "say_next" | "context_now" | "ask";
+export type CopilotIntent =
+  | "say_next"
+  | "ask"
+  | "red_flags"
+  | "insights"
+  | "what_to_answer";
 
 export interface CopilotPromptMessage {
   type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
@@ -153,6 +158,10 @@ export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_
 
 export type CopilotStatus = "started" | "completed" | "failed";
 export type CopilotConfidence = "low" | "medium" | "high";
+export interface CopilotSource {
+  title: string;
+  url: string;
+}
 export type QualificationFieldStatus =
   | "missing"
   | "partial"
@@ -181,15 +190,38 @@ export interface CopilotSayNextResultPayload {
   bullets: [string, string, string];
 }
 
-export interface CopilotContextNowResultPayload {
-  kind: "context_now";
-  bullets: [string, string, string];
-}
-
 export interface CopilotAskResultPayload {
   kind: "ask";
   answer: string;
   followUps: string[];
+}
+
+export interface CopilotRedFlagsResultPayload {
+  kind: "red_flags";
+  items: Array<{
+    id: string;
+    label: string;
+    severity: "low" | "medium" | "high";
+    fieldIds: string[];
+  }>;
+  sources: CopilotSource[];
+}
+
+export interface CopilotInsightsResultPayload {
+  kind: "insights";
+  items: Array<{
+    topic: string;
+    explanation: string;
+    roleRelevance: string;
+    factualContext: string[];
+  }>;
+  sources: CopilotSource[];
+}
+
+export interface CopilotWhatToAnswerResultPayload {
+  kind: "what_to_answer";
+  answer: string;
+  supportPoints: string[];
 }
 
 export interface CopilotSayNextResultMessage {
@@ -203,17 +235,6 @@ export interface CopilotSayNextResultMessage {
   result: CopilotSayNextResultPayload;
 }
 
-export interface CopilotContextNowResultMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-  sessionId: string;
-  requestId: string;
-  intent: "context_now";
-  generatedAt: string;
-  basedOnSegmentIndexes: number[];
-  confidence: CopilotConfidence;
-  result: CopilotContextNowResultPayload;
-}
-
 export interface CopilotAskResultMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
   sessionId: string;
@@ -225,10 +246,45 @@ export interface CopilotAskResultMessage {
   result: CopilotAskResultPayload;
 }
 
+export interface CopilotRedFlagsResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "red_flags";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  confidence: CopilotConfidence;
+  result: CopilotRedFlagsResultPayload;
+}
+
+export interface CopilotInsightsResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "insights";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  confidence: CopilotConfidence;
+  result: CopilotInsightsResultPayload;
+}
+
+export interface CopilotWhatToAnswerResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "what_to_answer";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  confidence: CopilotConfidence;
+  result: CopilotWhatToAnswerResultPayload;
+}
+
 export type CopilotResultMessage =
   | CopilotSayNextResultMessage
-  | CopilotContextNowResultMessage
-  | CopilotAskResultMessage;
+  | CopilotAskResultMessage
+  | CopilotRedFlagsResultMessage
+  | CopilotInsightsResultMessage
+  | CopilotWhatToAnswerResultMessage;
 
 export interface QualificationFieldEvidence {
   snapshotId: string;
@@ -498,7 +554,13 @@ function isCopilotPromptMessage(
 }
 
 function isCopilotIntent(value: unknown): value is CopilotIntent {
-  return value === "say_next" || value === "context_now" || value === "ask";
+  return (
+    value === "say_next" ||
+    value === "ask" ||
+    value === "red_flags" ||
+    value === "insights" ||
+    value === "what_to_answer"
+  );
 }
 
 function isBinaryMediaAudioChunkPayload(
