@@ -136,7 +136,6 @@ export interface CopilotSayNextResultPayload {
 export interface CopilotAskResultPayload {
     kind: "ask";
     answer: string;
-    followUps: string[];
 }
 export interface CopilotRedFlagsResultPayload {
     kind: "red_flags";
@@ -144,7 +143,6 @@ export interface CopilotRedFlagsResultPayload {
         id: string;
         label: string;
         severity: "low" | "medium" | "high";
-        fieldIds: string[];
     }>;
     sources: CopilotSource[];
 }
@@ -161,7 +159,6 @@ export interface CopilotInsightsResultPayload {
 export interface CopilotWhatToAnswerResultPayload {
     kind: "what_to_answer";
     answer: string;
-    supportPoints: string[];
 }
 export interface CopilotSayNextResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
