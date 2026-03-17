@@ -2,6 +2,7 @@ import type { QualificationFieldState, SessionArtifactKind } from "./ws.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 
 export const HEALTH_PATH = "/health";
+export const READY_PATH = "/ready";
 export const ME_PATH = "/me";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
@@ -13,6 +14,16 @@ export interface HealthResponse {
   timestamp: string;
   uptimeSeconds: number;
   websocketPath: typeof WEBSOCKET_PATH;
+}
+
+export interface ReadinessResponse {
+  status: "ready" | "not_ready";
+  service: "recruitment-backend";
+  timestamp: string;
+  dependencies: {
+    database: "ready" | "not_ready";
+    objectStore: "ready" | "not_ready";
+  };
 }
 
 export interface SessionSummary {

@@ -30,6 +30,8 @@ export const AUDIO_STREAM_IDS = {
 const BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES = 4;
 const binaryFrameEncoder = new TextEncoder();
 const binaryFrameDecoder = new TextDecoder();
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type ClientMessageType =
   (typeof CLIENT_MESSAGE_TYPES)[keyof typeof CLIENT_MESSAGE_TYPES];
@@ -487,7 +489,7 @@ function isTimestampedSessionMessage(
   value: Record<string, unknown>,
   timeKey: "startedAt" | "endedAt" | "sentAt"
 ): boolean {
-  if (typeof value.sessionId !== "string" || typeof value[timeKey] !== "string") {
+  if (!isUuidString(value.sessionId) || typeof value[timeKey] !== "string") {
     return false;
   }
 
@@ -526,10 +528,8 @@ function isCopilotPromptMessage(
   }
 
   if (
-    typeof value.sessionId !== "string" ||
-    value.sessionId.trim().length === 0 ||
-    typeof value.requestId !== "string" ||
-    value.requestId.trim().length === 0 ||
+    !isUuidString(value.sessionId) ||
+    !isUuidString(value.requestId) ||
     typeof value.requestedAt !== "string" ||
     value.requestedAt.trim().length === 0 ||
     !isCopilotIntent(value.intent)
@@ -565,7 +565,7 @@ function isBinaryMediaAudioChunkPayload(
 ): value is BinaryMediaAudioChunkPayload {
   return (
     isRecord(value) &&
-    typeof value.sessionId === "string" &&
+    isUuidString(value.sessionId) &&
     isAudioStreamId(value.streamId) &&
     typeof value.chunkId === "number" &&
     Number.isFinite(value.chunkId) &&
@@ -587,7 +587,7 @@ function isBinaryMediaAudioChunkHeader(
   return (
     isRecord(value) &&
     value.type === BINARY_MEDIA_AUDIO_CHUNK_TYPE &&
-    typeof value.sessionId === "string" &&
+    isUuidString(value.sessionId) &&
     isAudioStreamId(value.streamId) &&
     typeof value.chunkId === "number" &&
     Number.isFinite(value.chunkId) &&
@@ -642,7 +642,7 @@ function isMediaVideoChunkMessage(
   value: Record<string, unknown>
 ): boolean {
   return (
-    typeof value.sessionId === "string" &&
+    isUuidString(value.sessionId) &&
     typeof value.chunkId === "number" &&
     typeof value.durationMs === "number" &&
     Number.isFinite(value.durationMs) &&
@@ -670,4 +670,12 @@ function isSupportedVideoChunkMimeType(value: unknown): value is VideoChunkMimeT
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isUuidString(value: unknown): value is string {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  return UUID_PATTERN.test(value.trim());
 }
