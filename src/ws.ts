@@ -18,6 +18,7 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_WARNING: "session:warning",
   SESSION_ERROR: "session:error",
   SESSION_ENDED: "session:ended",
+  SESSION_ARTIFACT_STATUS: "session:artifact_status",
   SESSION_PONG: "session:pong"
 } as const;
 
@@ -197,13 +198,16 @@ export interface CopilotAskResultPayload {
   answer: string;
 }
 
+export interface CopilotRedFlagItem {
+  id: string;
+  label: string;
+  severity: "low" | "medium" | "high";
+  evidenceSegmentIndexes?: number[];
+}
+
 export interface CopilotRedFlagsResultPayload {
   kind: "red_flags";
-  items: Array<{
-    id: string;
-    label: string;
-    severity: "low" | "medium" | "high";
-  }>;
+  items: CopilotRedFlagItem[];
   sources: CopilotSource[];
 }
 
@@ -351,7 +355,17 @@ export interface SessionEndedMessage {
   sessionId: string;
   endedAt: string;
   reason: "client_stop" | "socket_closed";
+  templateArtifactStatus?: "not_requested" | "pending" | "ready" | "failed";
   artifacts?: SessionArtifactRef[];
+}
+
+export interface SessionArtifactStatusMessage {
+  type: typeof SERVER_MESSAGE_TYPES.SESSION_ARTIFACT_STATUS;
+  sessionId: string;
+  occurredAt: string;
+  status: "pending" | "ready" | "failed";
+  artifact?: SessionArtifactRef;
+  message?: string;
 }
 
 export interface SessionPongMessage {
@@ -369,6 +383,7 @@ export type ServerMessage =
   | SessionWarningMessage
   | SessionErrorMessage
   | SessionEndedMessage
+  | SessionArtifactStatusMessage
   | SessionPongMessage;
 
 export function isClientMessage(value: unknown): value is ClientMessage {

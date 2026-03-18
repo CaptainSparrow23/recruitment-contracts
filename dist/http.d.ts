@@ -1,4 +1,4 @@
-import type { QualificationFieldState, SessionArtifactKind } from "./ws.js";
+import type { CopilotRedFlagItem, QualificationFieldState, SessionArtifactKind } from "./ws.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
 export declare const READY_PATH = "/ready";
@@ -37,6 +37,7 @@ export interface SessionDetail {
     endedAt: string;
     templateId: string | null;
     qualificationState: QualificationFieldState[];
+    redFlags: CopilotRedFlagItem[];
     artifacts: SessionArtifactDetail[];
     createdAt: string;
 }

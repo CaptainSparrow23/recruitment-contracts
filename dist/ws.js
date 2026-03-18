@@ -16,6 +16,7 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_WARNING: "session:warning",
     SESSION_ERROR: "session:error",
     SESSION_ENDED: "session:ended",
+    SESSION_ARTIFACT_STATUS: "session:artifact_status",
     SESSION_PONG: "session:pong"
 };
 export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary";

@@ -16,6 +16,7 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_WARNING: "session:warning";
     readonly SESSION_ERROR: "session:error";
     readonly SESSION_ENDED: "session:ended";
+    readonly SESSION_ARTIFACT_STATUS: "session:artifact_status";
     readonly SESSION_PONG: "session:pong";
 };
 export declare const BINARY_MEDIA_AUDIO_CHUNK_TYPE: "media:audio_chunk_binary";
@@ -137,13 +138,15 @@ export interface CopilotAskResultPayload {
     kind: "ask";
     answer: string;
 }
+export interface CopilotRedFlagItem {
+    id: string;
+    label: string;
+    severity: "low" | "medium" | "high";
+    evidenceSegmentIndexes?: number[];
+}
 export interface CopilotRedFlagsResultPayload {
     kind: "red_flags";
-    items: Array<{
-        id: string;
-        label: string;
-        severity: "low" | "medium" | "high";
-    }>;
+    items: CopilotRedFlagItem[];
     sources: CopilotSource[];
 }
 export interface CopilotInsightsResultPayload {
@@ -264,14 +267,23 @@ export interface SessionEndedMessage {
     sessionId: string;
     endedAt: string;
     reason: "client_stop" | "socket_closed";
+    templateArtifactStatus?: "not_requested" | "pending" | "ready" | "failed";
     artifacts?: SessionArtifactRef[];
+}
+export interface SessionArtifactStatusMessage {
+    type: typeof SERVER_MESSAGE_TYPES.SESSION_ARTIFACT_STATUS;
+    sessionId: string;
+    occurredAt: string;
+    status: "pending" | "ready" | "failed";
+    artifact?: SessionArtifactRef;
+    message?: string;
 }
 export interface SessionPongMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_PONG;
     sessionId: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
 export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {
