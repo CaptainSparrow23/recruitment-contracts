@@ -59,6 +59,23 @@ export interface SessionArtifactDetail {
   createdAt: string;
 }
 
+export type SessionTemplateBackfillJobStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed";
+
+export interface SessionTemplateBackfillJobDetail {
+  jobId: string;
+  sessionId: string;
+  templateId: string;
+  status: SessionTemplateBackfillJobStatus;
+  createdAt: string;
+  updatedAt: string;
+  artifact: SessionArtifactDetail | null;
+  errorMessage: string | null;
+}
+
 export interface SessionTranscriptEntry {
   role: "user" | "counterpart";
   text: string;
@@ -89,4 +106,16 @@ export interface SessionDetailResponse {
 
 export interface SessionTranscriptResponse {
   entries: SessionTranscriptEntry[];
+}
+
+export interface TriggerSessionTemplateBackfillRequest {
+  templateId: string;
+}
+
+export interface TriggerSessionTemplateBackfillResponse {
+  job: SessionTemplateBackfillJobDetail;
+}
+
+export interface SessionTemplateBackfillJobResponse {
+  job: SessionTemplateBackfillJobDetail;
 }
