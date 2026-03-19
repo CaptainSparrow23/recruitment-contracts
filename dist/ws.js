@@ -17,7 +17,8 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_ERROR: "session:error",
     SESSION_ENDED: "session:ended",
     SESSION_ARTIFACT_STATUS: "session:artifact_status",
-    SESSION_PONG: "session:pong"
+    SESSION_PONG: "session:pong",
+    COPILOT_DELTA: "copilot:delta"
 };
 export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary";
 export const AUDIO_STREAM_IDS = {

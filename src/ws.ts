@@ -19,7 +19,8 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_ERROR: "session:error",
   SESSION_ENDED: "session:ended",
   SESSION_ARTIFACT_STATUS: "session:artifact_status",
-  SESSION_PONG: "session:pong"
+  SESSION_PONG: "session:pong",
+  COPILOT_DELTA: "copilot:delta"
 } as const;
 
 export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary" as const;
@@ -289,6 +290,16 @@ export type CopilotResultMessage =
   | CopilotInsightsResultMessage
   | CopilotWhatToAnswerResultMessage;
 
+export type CopilotStreamableIntent = "what_to_answer" | "ask";
+
+export interface CopilotDeltaMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
+  sessionId: string;
+  requestId: string;
+  intent: CopilotStreamableIntent;
+  delta: string;
+}
+
 export interface QualificationFieldEvidence {
   snapshotId: string;
   segmentIndex: number;
@@ -379,6 +390,7 @@ export type ServerMessage =
   | TranscriptFinalMessage
   | CopilotStatusMessage
   | CopilotResultMessage
+  | CopilotDeltaMessage
   | QualificationStateMessage
   | SessionWarningMessage
   | SessionErrorMessage
