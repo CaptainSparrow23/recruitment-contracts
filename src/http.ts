@@ -119,3 +119,45 @@ export interface TriggerSessionTemplateBackfillResponse {
 export interface SessionTemplateBackfillJobResponse {
   job: SessionTemplateBackfillJobDetail;
 }
+
+export const SEARCH_PATH = "/search";
+export const CHAT_PATH = "/chat";
+
+export interface SearchResultItem {
+  sessionId: string;
+  startedAt: string;
+  endedAt: string;
+  durationSeconds: number;
+  templateId: string | null;
+  fieldCount: number;
+  capturedFieldCount: number;
+  snippetHtml: string;
+  relevance: number;
+}
+
+export interface SearchResponse {
+  results: SearchResultItem[];
+}
+
+export interface ChatRequest {
+  messages: Array<{ role: "user" | "assistant"; content: string }>;
+}
+
+export type ChatStreamEvent =
+  | { type: "delta"; content: string }
+  | {
+      type: "source";
+      sessionId: string;
+      startedAt: string;
+      endedAt: string;
+      snippet: string;
+    }
+  | {
+      type: "done";
+      sources: Array<{
+        sessionId: string;
+        startedAt: string;
+        endedAt: string;
+        snippet: string;
+      }>;
+    };
