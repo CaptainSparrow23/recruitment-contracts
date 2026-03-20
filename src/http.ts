@@ -30,6 +30,15 @@ export interface ReadinessResponse {
   };
 }
 
+export interface SummarizedRedFlag {
+  id: string;
+  summary: string;
+  detail: string;
+  severity: "low" | "medium" | "high";
+  evidenceSegmentIndexes: number[];
+  mergedFromIds: string[];
+}
+
 export interface SessionSummary {
   id: string;
   startedAt: string;
@@ -37,6 +46,8 @@ export interface SessionSummary {
   templateId: string | null;
   fieldCount: number;
   capturedFieldCount: number;
+  counterpartName: string | null;
+  meetingTitle: string | null;
   createdAt: string;
 }
 
@@ -47,6 +58,9 @@ export interface SessionDetail {
   templateId: string | null;
   qualificationState: QualificationFieldState[];
   redFlags: CopilotRedFlagItem[];
+  summarizedRedFlags: SummarizedRedFlag[];
+  counterpartName: string | null;
+  meetingTitle: string | null;
   artifacts: SessionArtifactDetail[];
   createdAt: string;
 }
@@ -145,6 +159,7 @@ export interface ChatRequest {
 
 export type ChatStreamEvent =
   | { type: "delta"; content: string }
+  | { type: "status"; message: string }
   | {
       type: "source";
       sessionId: string;
