@@ -18,7 +18,8 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_ENDED: "session:ended",
     SESSION_ARTIFACT_STATUS: "session:artifact_status",
     SESSION_PONG: "session:pong",
-    COPILOT_DELTA: "copilot:delta"
+    COPILOT_DELTA: "copilot:delta",
+    RED_FLAGS_STATE: "red_flags:state"
 };
 export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary";
 export const AUDIO_STREAM_IDS = {
@@ -147,7 +148,6 @@ function isCopilotPromptMessage(value) {
 function isCopilotIntent(value) {
     return (value === "say_next" ||
         value === "ask" ||
-        value === "red_flags" ||
         value === "insights" ||
         value === "what_to_answer");
 }

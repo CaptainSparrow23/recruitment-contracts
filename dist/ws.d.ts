@@ -19,6 +19,7 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_ARTIFACT_STATUS: "session:artifact_status";
     readonly SESSION_PONG: "session:pong";
     readonly COPILOT_DELTA: "copilot:delta";
+    readonly RED_FLAGS_STATE: "red_flags:state";
 };
 export declare const BINARY_MEDIA_AUDIO_CHUNK_TYPE: "media:audio_chunk_binary";
 export declare const AUDIO_STREAM_IDS: {
@@ -83,7 +84,7 @@ export interface SessionPingMessage {
     sessionId: string;
     sentAt: string;
 }
-export type CopilotIntent = "say_next" | "ask" | "red_flags" | "insights" | "what_to_answer";
+export type CopilotIntent = "say_next" | "ask" | "insights" | "what_to_answer";
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
     sessionId: string;
@@ -144,6 +145,7 @@ export interface CopilotRedFlagItem {
     label: string;
     severity: "low" | "medium" | "high";
     evidenceSegmentIndexes?: number[];
+    sources?: CopilotSource[];
 }
 export interface CopilotRedFlagsResultPayload {
     kind: "red_flags";
@@ -184,16 +186,6 @@ export interface CopilotAskResultMessage {
     confidence: CopilotConfidence;
     result: CopilotAskResultPayload;
 }
-export interface CopilotRedFlagsResultMessage {
-    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-    sessionId: string;
-    requestId: string;
-    intent: "red_flags";
-    generatedAt: string;
-    basedOnSegmentIndexes: number[];
-    confidence: CopilotConfidence;
-    result: CopilotRedFlagsResultPayload;
-}
 export interface CopilotInsightsResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
     sessionId: string;
@@ -214,7 +206,7 @@ export interface CopilotWhatToAnswerResultMessage {
     confidence: CopilotConfidence;
     result: CopilotWhatToAnswerResultPayload;
 }
-export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotRedFlagsResultMessage | CopilotInsightsResultMessage | CopilotWhatToAnswerResultMessage;
+export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotInsightsResultMessage | CopilotWhatToAnswerResultMessage;
 export type CopilotStreamableIntent = "what_to_answer" | "ask";
 export interface CopilotDeltaMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
@@ -250,6 +242,13 @@ export interface QualificationStateMessage {
     version: number;
     source: "primary" | "reconcile" | "initialize";
     fields: QualificationFieldState[];
+}
+export interface RedFlagsStateMessage {
+    type: typeof SERVER_MESSAGE_TYPES.RED_FLAGS_STATE;
+    sessionId: string;
+    updatedAt: string;
+    items: CopilotRedFlagItem[];
+    basedOnSegmentIndexes: number[];
 }
 export interface SessionWarningMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
@@ -292,7 +291,7 @@ export interface SessionPongMessage {
     sessionId: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
 export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {

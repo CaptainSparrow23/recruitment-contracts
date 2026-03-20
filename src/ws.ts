@@ -20,7 +20,8 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_ENDED: "session:ended",
   SESSION_ARTIFACT_STATUS: "session:artifact_status",
   SESSION_PONG: "session:pong",
-  COPILOT_DELTA: "copilot:delta"
+  COPILOT_DELTA: "copilot:delta",
+  RED_FLAGS_STATE: "red_flags:state"
 } as const;
 
 export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary" as const;
@@ -116,7 +117,6 @@ export interface SessionPingMessage {
 export type CopilotIntent =
   | "say_next"
   | "ask"
-  | "red_flags"
   | "insights"
   | "what_to_answer";
 
@@ -204,6 +204,7 @@ export interface CopilotRedFlagItem {
   label: string;
   severity: "low" | "medium" | "high";
   evidenceSegmentIndexes?: number[];
+  sources?: CopilotSource[];
 }
 
 export interface CopilotRedFlagsResultPayload {
@@ -250,17 +251,6 @@ export interface CopilotAskResultMessage {
   result: CopilotAskResultPayload;
 }
 
-export interface CopilotRedFlagsResultMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-  sessionId: string;
-  requestId: string;
-  intent: "red_flags";
-  generatedAt: string;
-  basedOnSegmentIndexes: number[];
-  confidence: CopilotConfidence;
-  result: CopilotRedFlagsResultPayload;
-}
-
 export interface CopilotInsightsResultMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
   sessionId: string;
@@ -286,7 +276,6 @@ export interface CopilotWhatToAnswerResultMessage {
 export type CopilotResultMessage =
   | CopilotSayNextResultMessage
   | CopilotAskResultMessage
-  | CopilotRedFlagsResultMessage
   | CopilotInsightsResultMessage
   | CopilotWhatToAnswerResultMessage;
 
@@ -329,6 +318,14 @@ export interface QualificationStateMessage {
   version: number;
   source: "primary" | "reconcile" | "initialize";
   fields: QualificationFieldState[];
+}
+
+export interface RedFlagsStateMessage {
+  type: typeof SERVER_MESSAGE_TYPES.RED_FLAGS_STATE;
+  sessionId: string;
+  updatedAt: string;
+  items: CopilotRedFlagItem[];
+  basedOnSegmentIndexes: number[];
 }
 
 export interface SessionWarningMessage {
@@ -392,6 +389,7 @@ export type ServerMessage =
   | CopilotResultMessage
   | CopilotDeltaMessage
   | QualificationStateMessage
+  | RedFlagsStateMessage
   | SessionWarningMessage
   | SessionErrorMessage
   | SessionEndedMessage
@@ -581,7 +579,6 @@ function isCopilotIntent(value: unknown): value is CopilotIntent {
   return (
     value === "say_next" ||
     value === "ask" ||
-    value === "red_flags" ||
     value === "insights" ||
     value === "what_to_answer"
   );
