@@ -39,6 +39,8 @@ export interface SummarizedRedFlag {
   mergedFromIds: string[];
 }
 
+export type SessionFinalizationStatus = "pending" | "ready" | "failed";
+
 export interface SessionSummary {
   id: string;
   startedAt: string;
@@ -49,6 +51,8 @@ export interface SessionSummary {
   counterpartName: string | null;
   meetingTitle: string | null;
   createdAt: string;
+  finalizationStatus?: SessionFinalizationStatus;
+  finalizationErrorMessage?: string | null;
 }
 
 export interface SessionDetail {
@@ -63,6 +67,8 @@ export interface SessionDetail {
   meetingTitle: string | null;
   artifacts: SessionArtifactDetail[];
   createdAt: string;
+  finalizationStatus?: SessionFinalizationStatus;
+  finalizationErrorMessage?: string | null;
 }
 
 export interface SessionArtifactDetail {

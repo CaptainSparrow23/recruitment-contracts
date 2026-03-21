@@ -134,14 +134,16 @@ export interface CopilotStatusMessage {
 }
 export interface CopilotSayNextResultPayload {
     kind: "say_next";
-    bullets: [string, string, string];
+    bullets: [string, string];
 }
 export interface CopilotAskResultPayload {
     kind: "ask";
     answer: string;
+    sources: CopilotSource[];
 }
 export interface CopilotRedFlagItem {
     id: string;
+    claim?: string;
     label: string;
     severity: "low" | "medium" | "high";
     evidenceSegmentIndexes?: number[];
@@ -165,6 +167,7 @@ export interface CopilotInsightsResultPayload {
 export interface CopilotWhatToAnswerResultPayload {
     kind: "what_to_answer";
     answer: string;
+    sources: CopilotSource[];
 }
 export interface CopilotSayNextResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
@@ -232,15 +235,13 @@ export interface QualificationFieldState {
     confidence: CopilotConfidence;
     evidence: QualificationFieldEvidence[];
     lastUpdatedAt: string | null;
-    followUpRequired: boolean;
-    followUpQuestion: string | null;
 }
 export interface QualificationStateMessage {
     type: typeof SERVER_MESSAGE_TYPES.QUALIFICATION_STATE;
     sessionId: string;
     updatedAt: string;
     version: number;
-    source: "primary" | "reconcile" | "initialize";
+    source: "primary" | "initialize";
     fields: QualificationFieldState[];
 }
 export interface RedFlagsStateMessage {
