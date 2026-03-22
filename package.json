@@ -17,6 +17,10 @@
     "./ws": {
       "types": "./dist/ws.d.ts",
       "import": "./dist/ws.js"
+    },
+    "./calendar": {
+      "types": "./dist/calendar.d.ts",
+      "import": "./dist/calendar.js"
     }
   },
   "files": [

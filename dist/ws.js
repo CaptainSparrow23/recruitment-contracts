@@ -1,4 +1,4 @@
-export const PROTOCOL_VERSION = "2026-03-10";
+export const PROTOCOL_VERSION = "2026-03-21";
 export const WEBSOCKET_PATH = "/ws";
 export const CLIENT_MESSAGE_TYPES = {
     SESSION_START: "session:start",
@@ -107,7 +107,8 @@ function isTimestampedSessionMessage(value, timeKey) {
         return false;
     }
     if (timeKey === "startedAt") {
-        return isCaptureConfig(value.captureConfig);
+        return (isCaptureConfig(value.captureConfig) &&
+            isOptionalCalendarContext(value.calendarContext));
     }
     return true;
 }
@@ -125,6 +126,48 @@ function isCaptureConfig(value) {
         value.video.width === 1920 &&
         value.video.height === 1080 &&
         value.video.fps === 24);
+}
+function isOptionalCalendarContext(value) {
+    return (typeof value === "undefined" ||
+        value === null ||
+        isSessionCalendarEventLink(value));
+}
+function isSessionCalendarEventLink(value) {
+    return (isRecord(value) &&
+        isCalendarProvider(value.provider) &&
+        typeof value.providerEventId === "string" &&
+        value.providerEventId.trim().length > 0 &&
+        (value.iCalUid === null ||
+            (typeof value.iCalUid === "string" && value.iCalUid.trim().length > 0)) &&
+        typeof value.calendarId === "string" &&
+        value.calendarId.trim().length > 0 &&
+        typeof value.calendarName === "string" &&
+        value.calendarName.trim().length > 0 &&
+        (value.title === null ||
+            (typeof value.title === "string" && value.title.trim().length > 0)) &&
+        typeof value.startsAt === "string" &&
+        value.startsAt.trim().length > 0 &&
+        typeof value.endsAt === "string" &&
+        value.endsAt.trim().length > 0 &&
+        (value.sourceTimeZone === null ||
+            (typeof value.sourceTimeZone === "string" &&
+                value.sourceTimeZone.trim().length > 0)) &&
+        Array.isArray(value.attendees) &&
+        value.attendees.every(isCalendarAttendeePreview) &&
+        (value.meetingUrl === null ||
+            (typeof value.meetingUrl === "string" &&
+                value.meetingUrl.trim().length > 0)));
+}
+function isCalendarAttendeePreview(value) {
+    return (isRecord(value) &&
+        (value.displayName === null ||
+            (typeof value.displayName === "string" &&
+                value.displayName.trim().length > 0)) &&
+        (value.email === null ||
+            (typeof value.email === "string" && value.email.trim().length > 0)));
+}
+function isCalendarProvider(value) {
+    return value === "google" || value === "microsoft";
 }
 function isCopilotPromptMessage(value) {
     if (!isRecord(value)) {

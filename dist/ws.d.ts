@@ -1,4 +1,5 @@
-export declare const PROTOCOL_VERSION = "2026-03-10";
+import type { SessionCalendarEventLink } from "./calendar.js";
+export declare const PROTOCOL_VERSION = "2026-03-21";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
@@ -33,6 +34,7 @@ export interface SessionStartMessage {
     sessionId: string;
     startedAt: string;
     captureConfig: CaptureConfig;
+    calendarContext?: SessionCalendarEventLink | null;
 }
 export interface CaptureConfig {
     audio: {

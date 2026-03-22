@@ -3,11 +3,15 @@ import type {
   QualificationFieldState,
   SessionArtifactKind
 } from "./ws.js";
+import type {
+  SessionCalendarEventLink
+} from "./calendar.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 
 export const HEALTH_PATH = "/health";
 export const READY_PATH = "/ready";
 export const ME_PATH = "/me";
+export const CALENDAR_PATH = "/calendar";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
 
@@ -50,6 +54,7 @@ export interface SessionSummary {
   capturedFieldCount: number;
   counterpartName: string | null;
   meetingTitle: string | null;
+  calendarEvent: SessionCalendarEventLink | null;
   createdAt: string;
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
@@ -65,6 +70,7 @@ export interface SessionDetail {
   summarizedRedFlags: SummarizedRedFlag[];
   counterpartName: string | null;
   meetingTitle: string | null;
+  calendarEvent: SessionCalendarEventLink | null;
   artifacts: SessionArtifactDetail[];
   createdAt: string;
   finalizationStatus?: SessionFinalizationStatus;
