@@ -117,7 +117,7 @@ export interface TranscriptFinalMessage {
 export type TranscriptSource = "input_audio" | "model_response";
 export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
-export type CopilotStatus = "started" | "completed" | "failed";
+export type CopilotStatus = "started" | "in_progress" | "completed" | "failed";
 export type CopilotConfidence = "low" | "medium" | "high";
 export interface CopilotSource {
     title: string;
