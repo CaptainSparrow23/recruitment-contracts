@@ -50,6 +50,8 @@ export interface SessionStartMessage {
   startedAt: string;
   captureConfig: CaptureConfig;
   calendarContext?: SessionCalendarEventLink | null;
+  jobDescriptionId?: string | null;
+  candidateResumeId?: string | null;
 }
 
 export interface CaptureConfig {
@@ -525,7 +527,9 @@ function isTimestampedSessionMessage(
   if (timeKey === "startedAt") {
     return (
       isCaptureConfig(value.captureConfig) &&
-      isOptionalCalendarContext(value.calendarContext)
+      isOptionalCalendarContext(value.calendarContext) &&
+      isOptionalUuidOrNull(value.jobDescriptionId) &&
+      isOptionalUuidOrNull(value.candidateResumeId)
     );
   }
 
@@ -753,6 +757,10 @@ function isSupportedVideoChunkMimeType(value: unknown): value is VideoChunkMimeT
     value === "video/webm;codecs=vp8" ||
     value === "video/webm;codecs=vp9"
   );
+}
+
+function isOptionalUuidOrNull(value: unknown): boolean {
+  return typeof value === "undefined" || value === null || isUuidString(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

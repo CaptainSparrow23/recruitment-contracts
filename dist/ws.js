@@ -108,7 +108,9 @@ function isTimestampedSessionMessage(value, timeKey) {
     }
     if (timeKey === "startedAt") {
         return (isCaptureConfig(value.captureConfig) &&
-            isOptionalCalendarContext(value.calendarContext));
+            isOptionalCalendarContext(value.calendarContext) &&
+            isOptionalUuidOrNull(value.jobDescriptionId) &&
+            isOptionalUuidOrNull(value.candidateResumeId));
     }
     return true;
 }
@@ -271,6 +273,9 @@ function isSupportedVideoChunkMimeType(value) {
         value === "video/webm" ||
         value === "video/webm;codecs=vp8" ||
         value === "video/webm;codecs=vp9");
+}
+function isOptionalUuidOrNull(value) {
+    return typeof value === "undefined" || value === null || isUuidString(value);
 }
 function isRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);

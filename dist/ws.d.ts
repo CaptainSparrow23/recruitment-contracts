@@ -35,6 +35,8 @@ export interface SessionStartMessage {
     startedAt: string;
     captureConfig: CaptureConfig;
     calendarContext?: SessionCalendarEventLink | null;
+    jobDescriptionId?: string | null;
+    candidateResumeId?: string | null;
 }
 export interface CaptureConfig {
     audio: {
