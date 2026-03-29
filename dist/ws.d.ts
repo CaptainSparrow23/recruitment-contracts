@@ -3,7 +3,6 @@ export declare const PROTOCOL_VERSION = "2026-03-21";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
-    readonly MEDIA_VIDEO_CHUNK: "media:video_chunk";
     readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
@@ -45,11 +44,6 @@ export interface CaptureConfig {
         sampleRateHz: 16000 | 24000;
         streams: AudioStreamId[];
     };
-    video: {
-        fps: 24;
-        height: 1080;
-        width: 1920;
-    };
 }
 export type SupportedPcmAudioMimeType = "audio/pcm;rate=16000;channels=1;format=s16le" | "audio/pcm;rate=24000;channels=1;format=s16le";
 export interface BinaryMediaAudioChunkHeader {
@@ -64,19 +58,6 @@ export interface BinaryMediaAudioChunkHeader {
 export interface BinaryMediaAudioChunkPayload extends Omit<BinaryMediaAudioChunkHeader, "type"> {
     bytes: Uint8Array;
 }
-export interface MediaVideoChunkMessage {
-    type: typeof CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK;
-    sessionId: string;
-    chunkId: number;
-    timelineNs: string;
-    durationMs: number;
-    keyframe: boolean;
-    width: number;
-    height: number;
-    mimeType: VideoChunkMimeType;
-    dataBase64: string;
-}
-export type VideoChunkMimeType = "video/mp4;codecs=avc1" | "video/webm" | "video/webm;codecs=vp8" | "video/webm;codecs=vp9";
 export interface SessionStopMessage {
     type: typeof CLIENT_MESSAGE_TYPES.SESSION_STOP;
     sessionId: string;
@@ -97,7 +78,7 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
 }
-export type ClientMessage = SessionStartMessage | MediaVideoChunkMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
+export type ClientMessage = SessionStartMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;

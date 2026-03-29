@@ -5,7 +5,6 @@ export const WEBSOCKET_PATH = "/ws";
 
 export const CLIENT_MESSAGE_TYPES = {
   SESSION_START: "session:start",
-  MEDIA_VIDEO_CHUNK: "media:video_chunk",
   COPILOT_PROMPT: "copilot:prompt",
   SESSION_STOP: "session:stop",
   SESSION_PING: "session:ping"
@@ -61,11 +60,6 @@ export interface CaptureConfig {
     sampleRateHz: 16000 | 24000;
     streams: AudioStreamId[];
   };
-  video: {
-    fps: 24;
-    height: 1080;
-    width: 1920;
-  };
 }
 
 export type SupportedPcmAudioMimeType =
@@ -86,25 +80,6 @@ export interface BinaryMediaAudioChunkPayload
   extends Omit<BinaryMediaAudioChunkHeader, "type"> {
   bytes: Uint8Array;
 }
-
-export interface MediaVideoChunkMessage {
-  type: typeof CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK;
-  sessionId: string;
-  chunkId: number;
-  timelineNs: string;
-  durationMs: number;
-  keyframe: boolean;
-  width: number;
-  height: number;
-  mimeType: VideoChunkMimeType;
-  dataBase64: string;
-}
-
-export type VideoChunkMimeType =
-  | "video/mp4;codecs=avc1"
-  | "video/webm"
-  | "video/webm;codecs=vp8"
-  | "video/webm;codecs=vp9";
 
 export interface SessionStopMessage {
   type: typeof CLIENT_MESSAGE_TYPES.SESSION_STOP;
@@ -136,7 +111,6 @@ export interface CopilotPromptMessage {
 
 export type ClientMessage =
   | SessionStartMessage
-  | MediaVideoChunkMessage
   | CopilotPromptMessage
   | SessionStopMessage
   | SessionPingMessage;
@@ -410,8 +384,6 @@ export function isClientMessage(value: unknown): value is ClientMessage {
   switch (value.type) {
     case CLIENT_MESSAGE_TYPES.SESSION_START:
       return isTimestampedSessionMessage(value, "startedAt");
-    case CLIENT_MESSAGE_TYPES.MEDIA_VIDEO_CHUNK:
-      return isMediaVideoChunkMessage(value);
     case CLIENT_MESSAGE_TYPES.COPILOT_PROMPT:
       return isCopilotPromptMessage(value);
     case CLIENT_MESSAGE_TYPES.SESSION_STOP:
@@ -541,7 +513,7 @@ function isCaptureConfig(value: unknown): value is CaptureConfig {
     return false;
   }
 
-  if (!isRecord(value.audio) || !isRecord(value.video)) {
+  if (!isRecord(value.audio)) {
     return false;
   }
 
@@ -549,10 +521,7 @@ function isCaptureConfig(value: unknown): value is CaptureConfig {
     value.audio.format === "pcm_s16le" &&
     isSupportedAudioSampleRate(value.audio.sampleRateHz) &&
     value.audio.channels === 1 &&
-    isSupportedAudioStreams(value.audio.streams) &&
-    value.video.width === 1920 &&
-    value.video.height === 1080 &&
-    value.video.fps === 24
+    isSupportedAudioStreams(value.audio.streams)
   );
 }
 
@@ -727,36 +696,6 @@ function isSupportedAudioStreams(value: unknown): value is AudioStreamId[] {
   }
 
   return true;
-}
-
-function isMediaVideoChunkMessage(
-  value: Record<string, unknown>
-): boolean {
-  return (
-    isUuidString(value.sessionId) &&
-    typeof value.chunkId === "number" &&
-    typeof value.durationMs === "number" &&
-    Number.isFinite(value.durationMs) &&
-    value.durationMs > 0 &&
-    typeof value.timelineNs === "string" &&
-    /^\d+$/.test(value.timelineNs) &&
-    typeof value.keyframe === "boolean" &&
-    typeof value.width === "number" &&
-    typeof value.height === "number" &&
-    value.width > 0 &&
-    value.height > 0 &&
-    isSupportedVideoChunkMimeType(value.mimeType) &&
-    typeof value.dataBase64 === "string"
-  );
-}
-
-function isSupportedVideoChunkMimeType(value: unknown): value is VideoChunkMimeType {
-  return (
-    value === "video/mp4;codecs=avc1" ||
-    value === "video/webm" ||
-    value === "video/webm;codecs=vp8" ||
-    value === "video/webm;codecs=vp9"
-  );
 }
 
 function isOptionalUuidOrNull(value: unknown): boolean {
