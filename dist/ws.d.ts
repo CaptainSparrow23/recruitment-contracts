@@ -9,6 +9,7 @@ export declare const CLIENT_MESSAGE_TYPES: {
 };
 export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_STARTED: "session:started";
+    readonly TRANSCRIPT_PARTIAL: "transcript:partial";
     readonly TRANSCRIPT_FINAL: "transcript:final";
     readonly COPILOT_STATUS: "copilot:status";
     readonly COPILOT_RESULT: "copilot:result";
@@ -90,6 +91,17 @@ export interface TranscriptFinalMessage {
     sessionId: string;
     eventId: string;
     segmentIndex: number;
+    source: TranscriptSource;
+    audioSource: TranscriptAudioSource;
+    segmentStartNs?: string;
+    segmentEndNs?: string;
+    text: string;
+    receivedAt: string;
+}
+export interface TranscriptPartialMessage {
+    type: typeof SERVER_MESSAGE_TYPES.TRANSCRIPT_PARTIAL;
+    sessionId: string;
+    eventId: string;
     source: TranscriptSource;
     audioSource: TranscriptAudioSource;
     segmentStartNs?: string;
@@ -277,7 +289,7 @@ export interface SessionPongMessage {
     sessionId: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
 export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {
