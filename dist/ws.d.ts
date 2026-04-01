@@ -1,8 +1,10 @@
 import type { SessionCalendarEventLink } from "./calendar.js";
-export declare const PROTOCOL_VERSION = "2026-03-21";
+export declare const PROTOCOL_VERSION = "2026-04-01";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
+    readonly TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial";
+    readonly TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final";
     readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
@@ -22,10 +24,12 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly COPILOT_DELTA: "copilot:delta";
     readonly RED_FLAGS_STATE: "red_flags:state";
 };
-export declare const BINARY_MEDIA_AUDIO_CHUNK_TYPE: "media:audio_chunk_binary";
 export declare const AUDIO_STREAM_IDS: {
     readonly MIC: "mic";
     readonly SYSTEM_AUDIO: "system_audio";
+};
+export declare const CAPTURE_TRANSPORTS: {
+    readonly RECALL_DESKTOP_SDK: "recall_desktop_sdk";
 };
 export type ClientMessageType = (typeof CLIENT_MESSAGE_TYPES)[keyof typeof CLIENT_MESSAGE_TYPES];
 export type ServerMessageType = (typeof SERVER_MESSAGE_TYPES)[keyof typeof SERVER_MESSAGE_TYPES];
@@ -38,27 +42,11 @@ export interface SessionStartMessage {
     jobDescriptionId?: string | null;
     candidateResumeId?: string | null;
 }
-export interface CaptureConfig {
-    audio: {
-        channels: 1;
-        format: "pcm_s16le";
-        sampleRateHz: 16000 | 24000;
-        streams: AudioStreamId[];
-    };
+export interface RecallDesktopSdkCaptureConfig {
+    transport: typeof CAPTURE_TRANSPORTS.RECALL_DESKTOP_SDK;
 }
-export type SupportedPcmAudioMimeType = "audio/pcm;rate=16000;channels=1;format=s16le" | "audio/pcm;rate=24000;channels=1;format=s16le";
-export interface BinaryMediaAudioChunkHeader {
-    type: typeof BINARY_MEDIA_AUDIO_CHUNK_TYPE;
-    sessionId: string;
-    streamId: AudioStreamId;
-    chunkId: number;
-    timelineNs: string;
-    durationMs: number;
-    mimeType: SupportedPcmAudioMimeType;
-}
-export interface BinaryMediaAudioChunkPayload extends Omit<BinaryMediaAudioChunkHeader, "type"> {
-    bytes: Uint8Array;
-}
+export type CaptureConfig = RecallDesktopSdkCaptureConfig;
+export type CaptureTransport = (typeof CAPTURE_TRANSPORTS)[keyof typeof CAPTURE_TRANSPORTS];
 export interface SessionStopMessage {
     type: typeof CLIENT_MESSAGE_TYPES.SESSION_STOP;
     sessionId: string;
@@ -70,6 +58,30 @@ export interface SessionPingMessage {
     sessionId: string;
     sentAt: string;
 }
+export interface RecallParticipantMetadata {
+    email?: string | null;
+    id: string;
+    isHost?: boolean;
+    name?: string | null;
+    platform?: string | null;
+}
+interface TranscriptIngestMessageBase {
+    eventId: string;
+    participant?: RecallParticipantMetadata | null;
+    receivedAt: string;
+    segmentEndNs?: string;
+    segmentStartNs?: string;
+    sessionId: string;
+    source: TranscriptSource;
+    audioSource: TranscriptAudioSource;
+    text: string;
+}
+export interface TranscriptIngestPartialMessage extends TranscriptIngestMessageBase {
+    type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL;
+}
+export interface TranscriptIngestFinalMessage extends TranscriptIngestMessageBase {
+    type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL;
+}
 export type CopilotIntent = "say_next" | "ask" | "insights" | "what_to_answer";
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
@@ -79,7 +91,7 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
 }
-export type ClientMessage = SessionStartMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
+export type ClientMessage = SessionStartMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
@@ -291,8 +303,4 @@ export interface SessionPongMessage {
 }
 export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
-export declare function encodeBinaryMediaAudioChunkFrame(payload: BinaryMediaAudioChunkPayload): Uint8Array;
-export declare function decodeBinaryMediaAudioChunkFrame(frame: ArrayBuffer | Uint8Array): {
-    header: BinaryMediaAudioChunkHeader;
-    bytes: Uint8Array;
-};
+export {};

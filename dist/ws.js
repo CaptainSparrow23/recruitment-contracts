@@ -1,7 +1,9 @@
-export const PROTOCOL_VERSION = "2026-03-21";
+export const PROTOCOL_VERSION = "2026-04-01";
 export const WEBSOCKET_PATH = "/ws";
 export const CLIENT_MESSAGE_TYPES = {
     SESSION_START: "session:start",
+    TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial",
+    TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final",
     COPILOT_PROMPT: "copilot:prompt",
     SESSION_STOP: "session:stop",
     SESSION_PING: "session:ping"
@@ -21,14 +23,13 @@ export const SERVER_MESSAGE_TYPES = {
     COPILOT_DELTA: "copilot:delta",
     RED_FLAGS_STATE: "red_flags:state"
 };
-export const BINARY_MEDIA_AUDIO_CHUNK_TYPE = "media:audio_chunk_binary";
 export const AUDIO_STREAM_IDS = {
     MIC: "mic",
     SYSTEM_AUDIO: "system_audio"
 };
-const BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES = 4;
-const binaryFrameEncoder = new TextEncoder();
-const binaryFrameDecoder = new TextDecoder();
+export const CAPTURE_TRANSPORTS = {
+    RECALL_DESKTOP_SDK: "recall_desktop_sdk"
+};
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function isClientMessage(value) {
     if (!isRecord(value) || typeof value.type !== "string") {
@@ -37,6 +38,9 @@ export function isClientMessage(value) {
     switch (value.type) {
         case CLIENT_MESSAGE_TYPES.SESSION_START:
             return isTimestampedSessionMessage(value, "startedAt");
+        case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL:
+        case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL:
+            return isTranscriptIngestMessage(value);
         case CLIENT_MESSAGE_TYPES.COPILOT_PROMPT:
             return isCopilotPromptMessage(value);
         case CLIENT_MESSAGE_TYPES.SESSION_STOP:
@@ -46,59 +50,6 @@ export function isClientMessage(value) {
         default:
             return false;
     }
-}
-export function encodeBinaryMediaAudioChunkFrame(payload) {
-    if (!isBinaryMediaAudioChunkPayload(payload)) {
-        throw new Error("Binary media audio chunk payload is invalid.");
-    }
-    const header = {
-        type: BINARY_MEDIA_AUDIO_CHUNK_TYPE,
-        sessionId: payload.sessionId,
-        streamId: payload.streamId,
-        chunkId: payload.chunkId,
-        timelineNs: payload.timelineNs,
-        durationMs: payload.durationMs,
-        mimeType: payload.mimeType
-    };
-    const headerBytes = binaryFrameEncoder.encode(JSON.stringify(header));
-    const frame = new Uint8Array(BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES +
-        headerBytes.length +
-        payload.bytes.length);
-    const view = new DataView(frame.buffer, frame.byteOffset, frame.byteLength);
-    view.setUint32(0, headerBytes.length);
-    frame.set(headerBytes, BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES);
-    frame.set(payload.bytes, BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES + headerBytes.length);
-    return frame;
-}
-export function decodeBinaryMediaAudioChunkFrame(frame) {
-    const frameBytes = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
-    if (frameBytes.byteLength <= BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES) {
-        throw new Error("Binary media audio chunk frame is too short.");
-    }
-    const view = new DataView(frameBytes.buffer, frameBytes.byteOffset, frameBytes.byteLength);
-    const headerLength = view.getUint32(0);
-    if (headerLength <= 0 ||
-        headerLength >=
-            frameBytes.byteLength - BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES) {
-        throw new Error(headerLength <= 0
-            ? "Binary media audio chunk header length is invalid."
-            : "Binary media audio chunk frame has no audio payload after the header.");
-    }
-    const payloadOffset = BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES + headerLength;
-    let parsedHeader;
-    try {
-        parsedHeader = JSON.parse(binaryFrameDecoder.decode(frameBytes.subarray(BINARY_MEDIA_AUDIO_HEADER_LENGTH_BYTES, payloadOffset)));
-    }
-    catch {
-        throw new Error("Binary media audio chunk header must be valid JSON.");
-    }
-    if (!isBinaryMediaAudioChunkHeader(parsedHeader)) {
-        throw new Error("Binary media audio chunk header is invalid.");
-    }
-    return {
-        header: parsedHeader,
-        bytes: frameBytes.subarray(payloadOffset)
-    };
 }
 function isTimestampedSessionMessage(value, timeKey) {
     if (!isUuidString(value.sessionId) || typeof value[timeKey] !== "string") {
@@ -113,16 +64,9 @@ function isTimestampedSessionMessage(value, timeKey) {
     return true;
 }
 function isCaptureConfig(value) {
-    if (!isRecord(value)) {
-        return false;
-    }
-    if (!isRecord(value.audio)) {
-        return false;
-    }
-    return (value.audio.format === "pcm_s16le" &&
-        isSupportedAudioSampleRate(value.audio.sampleRateHz) &&
-        value.audio.channels === 1 &&
-        isSupportedAudioStreams(value.audio.streams));
+    return (isRecord(value) &&
+        value.transport === CAPTURE_TRANSPORTS.RECALL_DESKTOP_SDK &&
+        Object.keys(value).length === 1);
 }
 function isOptionalCalendarContext(value) {
     return (typeof value === "undefined" ||
@@ -185,67 +129,62 @@ function isCopilotPromptMessage(value) {
     }
     return typeof value.question === "string";
 }
+function isTranscriptIngestMessage(value) {
+    if (!isRecord(value)) {
+        return false;
+    }
+    return (isUuidString(value.sessionId) &&
+        typeof value.eventId === "string" &&
+        value.eventId.trim().length > 0 &&
+        typeof value.receivedAt === "string" &&
+        value.receivedAt.trim().length > 0 &&
+        isTranscriptSource(value.source) &&
+        isTranscriptAudioSource(value.audioSource) &&
+        typeof value.text === "string" &&
+        value.text.trim().length > 0 &&
+        isOptionalTimelineNs(value.segmentStartNs) &&
+        isOptionalTimelineNs(value.segmentEndNs) &&
+        isOptionalRecallParticipantMetadata(value.participant));
+}
+function isOptionalRecallParticipantMetadata(value) {
+    return (typeof value === "undefined" ||
+        value === null ||
+        isRecallParticipantMetadata(value));
+}
+function isRecallParticipantMetadata(value) {
+    return (isRecord(value) &&
+        typeof value.id === "string" &&
+        value.id.trim().length > 0 &&
+        (typeof value.name === "undefined" ||
+            value.name === null ||
+            (typeof value.name === "string" && value.name.trim().length > 0)) &&
+        (typeof value.email === "undefined" ||
+            value.email === null ||
+            (typeof value.email === "string" && value.email.trim().length > 0)) &&
+        (typeof value.platform === "undefined" ||
+            value.platform === null ||
+            (typeof value.platform === "string" &&
+                value.platform.trim().length > 0)) &&
+        (typeof value.isHost === "undefined" || typeof value.isHost === "boolean"));
+}
+function isTranscriptSource(value) {
+    return value === "input_audio" || value === "model_response";
+}
+function isTranscriptAudioSource(value) {
+    return isAudioStreamId(value) || value === "unknown";
+}
+function isOptionalTimelineNs(value) {
+    return (typeof value === "undefined" ||
+        (typeof value === "string" && /^\d+$/.test(value)));
+}
 function isCopilotIntent(value) {
     return (value === "say_next" ||
         value === "ask" ||
         value === "insights" ||
         value === "what_to_answer");
 }
-function isBinaryMediaAudioChunkPayload(value) {
-    return (isRecord(value) &&
-        isUuidString(value.sessionId) &&
-        isAudioStreamId(value.streamId) &&
-        typeof value.chunkId === "number" &&
-        Number.isFinite(value.chunkId) &&
-        value.chunkId > 0 &&
-        typeof value.durationMs === "number" &&
-        Number.isFinite(value.durationMs) &&
-        value.durationMs > 0 &&
-        typeof value.timelineNs === "string" &&
-        /^\d+$/.test(value.timelineNs) &&
-        isSupportedPcmAudioMimeType(value.mimeType) &&
-        value.bytes instanceof Uint8Array &&
-        value.bytes.length > 0);
-}
-function isBinaryMediaAudioChunkHeader(value) {
-    return (isRecord(value) &&
-        value.type === BINARY_MEDIA_AUDIO_CHUNK_TYPE &&
-        isUuidString(value.sessionId) &&
-        isAudioStreamId(value.streamId) &&
-        typeof value.chunkId === "number" &&
-        Number.isFinite(value.chunkId) &&
-        value.chunkId > 0 &&
-        typeof value.durationMs === "number" &&
-        Number.isFinite(value.durationMs) &&
-        value.durationMs > 0 &&
-        typeof value.timelineNs === "string" &&
-        /^\d+$/.test(value.timelineNs) &&
-        isSupportedPcmAudioMimeType(value.mimeType));
-}
-function isSupportedAudioSampleRate(value) {
-    return value === 16000 || value === 24000;
-}
-function isSupportedPcmAudioMimeType(value) {
-    return (value === "audio/pcm;rate=16000;channels=1;format=s16le" ||
-        value === "audio/pcm;rate=24000;channels=1;format=s16le");
-}
 function isAudioStreamId(value) {
     return value === AUDIO_STREAM_IDS.MIC || value === AUDIO_STREAM_IDS.SYSTEM_AUDIO;
-}
-function isSupportedAudioStreams(value) {
-    if (!Array.isArray(value) || value.length === 0) {
-        return false;
-    }
-    const unique = new Set(value);
-    if (!unique.has(AUDIO_STREAM_IDS.MIC)) {
-        return false;
-    }
-    for (const streamId of unique) {
-        if (!isAudioStreamId(streamId)) {
-            return false;
-        }
-    }
-    return true;
 }
 function isOptionalUuidOrNull(value) {
     return typeof value === "undefined" || value === null || isUuidString(value);

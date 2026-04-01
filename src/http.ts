@@ -14,6 +14,8 @@ export const ME_PATH = "/me";
 export const CALENDAR_PATH = "/calendar";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
+export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
+export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
 
 export interface HealthResponse {
   status: "ok";
@@ -144,6 +146,21 @@ export interface TriggerSessionTemplateBackfillResponse {
 
 export interface SessionTemplateBackfillJobResponse {
   job: SessionTemplateBackfillJobDetail;
+}
+
+export interface CreateRecallSdkUploadRequest {
+  meetingWindow: {
+    id: string;
+    platform?: string | null;
+    title?: string | null;
+    url?: string | null;
+  } | null;
+  sessionId: string;
+}
+
+export interface CreateRecallSdkUploadResponse {
+  sdkUploadId: string;
+  uploadToken: string;
 }
 
 export const SEARCH_PATH = "/search";

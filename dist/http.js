@@ -4,5 +4,7 @@ export const ME_PATH = "/me";
 export const CALENDAR_PATH = "/calendar";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
+export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
+export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";

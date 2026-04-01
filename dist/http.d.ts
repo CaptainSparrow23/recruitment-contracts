@@ -7,6 +7,8 @@ export declare const ME_PATH = "/me";
 export declare const CALENDAR_PATH = "/calendar";
 export declare const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export declare const SESSIONS_PATH = "/sessions";
+export declare const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
+export declare const RECALL_WEBHOOK_PATH = "/webhooks/recall";
 export interface HealthResponse {
     status: "ok";
     service: "recruitment-backend";
@@ -115,6 +117,19 @@ export interface TriggerSessionTemplateBackfillResponse {
 }
 export interface SessionTemplateBackfillJobResponse {
     job: SessionTemplateBackfillJobDetail;
+}
+export interface CreateRecallSdkUploadRequest {
+    meetingWindow: {
+        id: string;
+        platform?: string | null;
+        title?: string | null;
+        url?: string | null;
+    } | null;
+    sessionId: string;
+}
+export interface CreateRecallSdkUploadResponse {
+    sdkUploadId: string;
+    uploadToken: string;
 }
 export declare const SEARCH_PATH = "/search";
 export declare const CHAT_PATH = "/chat";
