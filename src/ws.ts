@@ -5,6 +5,7 @@ export const WEBSOCKET_PATH = "/ws";
 
 export const CLIENT_MESSAGE_TYPES = {
   SESSION_START: "session:start",
+  TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest",
   TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial",
   TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final",
   COPILOT_PROMPT: "copilot:prompt",
@@ -76,24 +77,45 @@ export interface SessionPingMessage {
   sentAt: string;
 }
 
-export interface RecallParticipantMetadata {
+export interface TranscriptSpeakerMetadata {
   email?: string | null;
   id: string;
   isHost?: boolean;
   name?: string | null;
   platform?: string | null;
+  extraData?: Record<string, unknown> | null;
 }
 
-interface TranscriptIngestMessageBase {
+export type RecallParticipantMetadata = TranscriptSpeakerMetadata;
+
+export interface TranscriptWord {
+  endRelativeSeconds?: number | null;
+  startRelativeSeconds?: number | null;
+  text: string;
+}
+
+export interface TranscriptProviderMetadata {
+  eventType: string;
+  name: "recall";
+  rawPayload?: Record<string, unknown> | null;
+}
+
+interface TranscriptMessageBase {
+  audioSource?: TranscriptAudioSource;
   eventId: string;
-  participant?: RecallParticipantMetadata | null;
+  languageCode?: string | null;
+  provider?: TranscriptProviderMetadata | null;
   receivedAt: string;
   segmentEndNs?: string;
   segmentStartNs?: string;
-  sessionId: string;
+  speaker?: TranscriptSpeakerMetadata | null;
   source: TranscriptSource;
-  audioSource: TranscriptAudioSource;
   text: string;
+  words?: TranscriptWord[];
+}
+
+interface TranscriptIngestMessageBase extends TranscriptMessageBase {
+  sessionId: string;
 }
 
 export interface TranscriptIngestPartialMessage
@@ -104,6 +126,16 @@ export interface TranscriptIngestPartialMessage
 export interface TranscriptIngestFinalMessage
   extends TranscriptIngestMessageBase {
   type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL;
+}
+
+export interface TranscriptParticipantIngestMessage {
+  type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_PARTICIPANT_INGEST;
+  eventId: string;
+  participant: TranscriptSpeakerMetadata;
+  present: boolean;
+  provider?: TranscriptProviderMetadata | null;
+  receivedAt: string;
+  sessionId: string;
 }
 
 export type CopilotIntent =
@@ -123,6 +155,7 @@ export interface CopilotPromptMessage {
 
 export type ClientMessage =
   | SessionStartMessage
+  | TranscriptParticipantIngestMessage
   | TranscriptIngestPartialMessage
   | TranscriptIngestFinalMessage
   | CopilotPromptMessage
@@ -136,29 +169,15 @@ export interface SessionStartedMessage {
   protocolVersion: typeof PROTOCOL_VERSION;
 }
 
-export interface TranscriptFinalMessage {
+export interface TranscriptFinalMessage extends TranscriptMessageBase {
   type: typeof SERVER_MESSAGE_TYPES.TRANSCRIPT_FINAL;
   sessionId: string;
-  eventId: string;
   segmentIndex: number;
-  source: TranscriptSource;
-  audioSource: TranscriptAudioSource;
-  segmentStartNs?: string;
-  segmentEndNs?: string;
-  text: string;
-  receivedAt: string;
 }
 
-export interface TranscriptPartialMessage {
+export interface TranscriptPartialMessage extends TranscriptMessageBase {
   type: typeof SERVER_MESSAGE_TYPES.TRANSCRIPT_PARTIAL;
   sessionId: string;
-  eventId: string;
-  source: TranscriptSource;
-  audioSource: TranscriptAudioSource;
-  segmentStartNs?: string;
-  segmentEndNs?: string;
-  text: string;
-  receivedAt: string;
 }
 
 export type TranscriptSource = "input_audio" | "model_response";
@@ -300,7 +319,7 @@ export interface CopilotDeltaMessage {
 export interface QualificationFieldEvidence {
   snapshotId: string;
   segmentIndex: number;
-  role: "user" | "counterpart";
+  speakerLabel: string | null;
   quote: string;
   receivedAt: string;
 }
@@ -411,6 +430,8 @@ export function isClientMessage(value: unknown): value is ClientMessage {
   switch (value.type) {
     case CLIENT_MESSAGE_TYPES.SESSION_START:
       return isTimestampedSessionMessage(value, "startedAt");
+    case CLIENT_MESSAGE_TYPES.TRANSCRIPT_PARTICIPANT_INGEST:
+      return isTranscriptParticipantIngestMessage(value);
     case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL:
     case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL:
       return isTranscriptIngestMessage(value);
@@ -553,28 +574,49 @@ function isTranscriptIngestMessage(
     typeof value.receivedAt === "string" &&
     value.receivedAt.trim().length > 0 &&
     isTranscriptSource(value.source) &&
-    isTranscriptAudioSource(value.audioSource) &&
     typeof value.text === "string" &&
     value.text.trim().length > 0 &&
     isOptionalTimelineNs(value.segmentStartNs) &&
     isOptionalTimelineNs(value.segmentEndNs) &&
-    isOptionalRecallParticipantMetadata(value.participant)
+    isOptionalTranscriptSpeakerMetadata(value.speaker) &&
+    isOptionalTranscriptWords(value.words) &&
+    isOptionalTranscriptLanguageCode(value.languageCode) &&
+    isOptionalTranscriptProviderMetadata(value.provider)
   );
 }
 
-function isOptionalRecallParticipantMetadata(
+function isTranscriptParticipantIngestMessage(
   value: unknown
-): value is RecallParticipantMetadata | null | undefined {
+): value is TranscriptParticipantIngestMessage {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    isUuidString(value.sessionId) &&
+    typeof value.eventId === "string" &&
+    value.eventId.trim().length > 0 &&
+    typeof value.receivedAt === "string" &&
+    value.receivedAt.trim().length > 0 &&
+    isTranscriptSpeakerMetadata(value.participant) &&
+    typeof value.present === "boolean" &&
+    isOptionalTranscriptProviderMetadata(value.provider)
+  );
+}
+
+function isOptionalTranscriptSpeakerMetadata(
+  value: unknown
+): value is TranscriptSpeakerMetadata | null | undefined {
   return (
     typeof value === "undefined" ||
     value === null ||
-    isRecallParticipantMetadata(value)
+    isTranscriptSpeakerMetadata(value)
   );
 }
 
-function isRecallParticipantMetadata(
+function isTranscriptSpeakerMetadata(
   value: unknown
-): value is RecallParticipantMetadata {
+): value is TranscriptSpeakerMetadata {
   return (
     isRecord(value) &&
     typeof value.id === "string" &&
@@ -589,7 +631,10 @@ function isRecallParticipantMetadata(
       value.platform === null ||
       (typeof value.platform === "string" &&
         value.platform.trim().length > 0)) &&
-    (typeof value.isHost === "undefined" || typeof value.isHost === "boolean")
+    (typeof value.isHost === "undefined" || typeof value.isHost === "boolean") &&
+    (typeof value.extraData === "undefined" ||
+      value.extraData === null ||
+      isRecord(value.extraData))
   );
 }
 
@@ -597,8 +642,60 @@ function isTranscriptSource(value: unknown): value is TranscriptSource {
   return value === "input_audio" || value === "model_response";
 }
 
-function isTranscriptAudioSource(value: unknown): value is TranscriptAudioSource {
-  return isAudioStreamId(value) || value === "unknown";
+function isOptionalTranscriptWords(value: unknown): value is TranscriptWord[] | undefined {
+  return typeof value === "undefined" || (Array.isArray(value) && value.every(isTranscriptWord));
+}
+
+function isTranscriptWord(value: unknown): value is TranscriptWord {
+  return (
+    isRecord(value) &&
+    typeof value.text === "string" &&
+    value.text.trim().length > 0 &&
+    isOptionalFiniteNumber(value.startRelativeSeconds) &&
+    isOptionalFiniteNumber(value.endRelativeSeconds)
+  );
+}
+
+function isOptionalTranscriptLanguageCode(
+  value: unknown
+): value is string | null | undefined {
+  return (
+    typeof value === "undefined" ||
+    value === null ||
+    (typeof value === "string" && value.trim().length > 0)
+  );
+}
+
+function isOptionalTranscriptProviderMetadata(
+  value: unknown
+): value is TranscriptProviderMetadata | null | undefined {
+  return (
+    typeof value === "undefined" ||
+    value === null ||
+    isTranscriptProviderMetadata(value)
+  );
+}
+
+function isTranscriptProviderMetadata(
+  value: unknown
+): value is TranscriptProviderMetadata {
+  return (
+    isRecord(value) &&
+    value.name === "recall" &&
+    typeof value.eventType === "string" &&
+    value.eventType.trim().length > 0 &&
+    (typeof value.rawPayload === "undefined" ||
+      value.rawPayload === null ||
+      isRecord(value.rawPayload))
+  );
+}
+
+function isOptionalFiniteNumber(value: unknown): boolean {
+  return (
+    typeof value === "undefined" ||
+    value === null ||
+    (typeof value === "number" && Number.isFinite(value))
+  );
 }
 
 function isOptionalTimelineNs(value: unknown): boolean {
@@ -615,10 +712,6 @@ function isCopilotIntent(value: unknown): value is CopilotIntent {
     value === "insights" ||
     value === "what_to_answer"
   );
-}
-
-function isAudioStreamId(value: unknown): value is AudioStreamId {
-  return value === AUDIO_STREAM_IDS.MIC || value === AUDIO_STREAM_IDS.SYSTEM_AUDIO;
 }
 
 function isOptionalUuidOrNull(value: unknown): boolean {

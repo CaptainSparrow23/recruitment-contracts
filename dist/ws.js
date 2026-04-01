@@ -2,6 +2,7 @@ export const PROTOCOL_VERSION = "2026-04-01";
 export const WEBSOCKET_PATH = "/ws";
 export const CLIENT_MESSAGE_TYPES = {
     SESSION_START: "session:start",
+    TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest",
     TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial",
     TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final",
     COPILOT_PROMPT: "copilot:prompt",
@@ -38,6 +39,8 @@ export function isClientMessage(value) {
     switch (value.type) {
         case CLIENT_MESSAGE_TYPES.SESSION_START:
             return isTimestampedSessionMessage(value, "startedAt");
+        case CLIENT_MESSAGE_TYPES.TRANSCRIPT_PARTICIPANT_INGEST:
+            return isTranscriptParticipantIngestMessage(value);
         case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL:
         case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL:
             return isTranscriptIngestMessage(value);
@@ -139,19 +142,34 @@ function isTranscriptIngestMessage(value) {
         typeof value.receivedAt === "string" &&
         value.receivedAt.trim().length > 0 &&
         isTranscriptSource(value.source) &&
-        isTranscriptAudioSource(value.audioSource) &&
         typeof value.text === "string" &&
         value.text.trim().length > 0 &&
         isOptionalTimelineNs(value.segmentStartNs) &&
         isOptionalTimelineNs(value.segmentEndNs) &&
-        isOptionalRecallParticipantMetadata(value.participant));
+        isOptionalTranscriptSpeakerMetadata(value.speaker) &&
+        isOptionalTranscriptWords(value.words) &&
+        isOptionalTranscriptLanguageCode(value.languageCode) &&
+        isOptionalTranscriptProviderMetadata(value.provider));
 }
-function isOptionalRecallParticipantMetadata(value) {
+function isTranscriptParticipantIngestMessage(value) {
+    if (!isRecord(value)) {
+        return false;
+    }
+    return (isUuidString(value.sessionId) &&
+        typeof value.eventId === "string" &&
+        value.eventId.trim().length > 0 &&
+        typeof value.receivedAt === "string" &&
+        value.receivedAt.trim().length > 0 &&
+        isTranscriptSpeakerMetadata(value.participant) &&
+        typeof value.present === "boolean" &&
+        isOptionalTranscriptProviderMetadata(value.provider));
+}
+function isOptionalTranscriptSpeakerMetadata(value) {
     return (typeof value === "undefined" ||
         value === null ||
-        isRecallParticipantMetadata(value));
+        isTranscriptSpeakerMetadata(value));
 }
-function isRecallParticipantMetadata(value) {
+function isTranscriptSpeakerMetadata(value) {
     return (isRecord(value) &&
         typeof value.id === "string" &&
         value.id.trim().length > 0 &&
@@ -165,13 +183,47 @@ function isRecallParticipantMetadata(value) {
             value.platform === null ||
             (typeof value.platform === "string" &&
                 value.platform.trim().length > 0)) &&
-        (typeof value.isHost === "undefined" || typeof value.isHost === "boolean"));
+        (typeof value.isHost === "undefined" || typeof value.isHost === "boolean") &&
+        (typeof value.extraData === "undefined" ||
+            value.extraData === null ||
+            isRecord(value.extraData)));
 }
 function isTranscriptSource(value) {
     return value === "input_audio" || value === "model_response";
 }
-function isTranscriptAudioSource(value) {
-    return isAudioStreamId(value) || value === "unknown";
+function isOptionalTranscriptWords(value) {
+    return typeof value === "undefined" || (Array.isArray(value) && value.every(isTranscriptWord));
+}
+function isTranscriptWord(value) {
+    return (isRecord(value) &&
+        typeof value.text === "string" &&
+        value.text.trim().length > 0 &&
+        isOptionalFiniteNumber(value.startRelativeSeconds) &&
+        isOptionalFiniteNumber(value.endRelativeSeconds));
+}
+function isOptionalTranscriptLanguageCode(value) {
+    return (typeof value === "undefined" ||
+        value === null ||
+        (typeof value === "string" && value.trim().length > 0));
+}
+function isOptionalTranscriptProviderMetadata(value) {
+    return (typeof value === "undefined" ||
+        value === null ||
+        isTranscriptProviderMetadata(value));
+}
+function isTranscriptProviderMetadata(value) {
+    return (isRecord(value) &&
+        value.name === "recall" &&
+        typeof value.eventType === "string" &&
+        value.eventType.trim().length > 0 &&
+        (typeof value.rawPayload === "undefined" ||
+            value.rawPayload === null ||
+            isRecord(value.rawPayload)));
+}
+function isOptionalFiniteNumber(value) {
+    return (typeof value === "undefined" ||
+        value === null ||
+        (typeof value === "number" && Number.isFinite(value)));
 }
 function isOptionalTimelineNs(value) {
     return (typeof value === "undefined" ||
@@ -182,9 +234,6 @@ function isCopilotIntent(value) {
         value === "ask" ||
         value === "insights" ||
         value === "what_to_answer");
-}
-function isAudioStreamId(value) {
-    return value === AUDIO_STREAM_IDS.MIC || value === AUDIO_STREAM_IDS.SYSTEM_AUDIO;
 }
 function isOptionalUuidOrNull(value) {
     return typeof value === "undefined" || value === null || isUuidString(value);

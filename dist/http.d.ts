@@ -1,4 +1,4 @@
-import type { CopilotRedFlagItem, QualificationFieldState, SessionArtifactKind } from "./ws.js";
+import type { CopilotRedFlagItem, QualificationFieldState, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { SessionCalendarEventLink } from "./calendar.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
@@ -84,10 +84,17 @@ export interface SessionTemplateBackfillJobDetail {
     errorMessage: string | null;
 }
 export interface SessionTranscriptEntry {
-    role: "user" | "counterpart";
-    text: string;
+    eventId?: string;
+    languageCode?: string | null;
+    provider?: TranscriptProviderMetadata | null;
     receivedAt: string;
+    role?: "user" | "counterpart";
+    segmentEndNs?: string;
     segmentIndex: number;
+    segmentStartNs?: string;
+    speaker?: TranscriptSpeakerMetadata | null;
+    text: string;
+    words?: TranscriptWord[];
 }
 export interface UserProfile {
     actorId: string;

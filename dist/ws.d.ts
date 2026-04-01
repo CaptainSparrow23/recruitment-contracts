@@ -3,6 +3,7 @@ export declare const PROTOCOL_VERSION = "2026-04-01";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
     readonly SESSION_START: "session:start";
+    readonly TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest";
     readonly TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial";
     readonly TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final";
     readonly COPILOT_PROMPT: "copilot:prompt";
@@ -58,29 +59,55 @@ export interface SessionPingMessage {
     sessionId: string;
     sentAt: string;
 }
-export interface RecallParticipantMetadata {
+export interface TranscriptSpeakerMetadata {
     email?: string | null;
     id: string;
     isHost?: boolean;
     name?: string | null;
     platform?: string | null;
+    extraData?: Record<string, unknown> | null;
 }
-interface TranscriptIngestMessageBase {
+export type RecallParticipantMetadata = TranscriptSpeakerMetadata;
+export interface TranscriptWord {
+    endRelativeSeconds?: number | null;
+    startRelativeSeconds?: number | null;
+    text: string;
+}
+export interface TranscriptProviderMetadata {
+    eventType: string;
+    name: "recall";
+    rawPayload?: Record<string, unknown> | null;
+}
+interface TranscriptMessageBase {
+    audioSource?: TranscriptAudioSource;
     eventId: string;
-    participant?: RecallParticipantMetadata | null;
+    languageCode?: string | null;
+    provider?: TranscriptProviderMetadata | null;
     receivedAt: string;
     segmentEndNs?: string;
     segmentStartNs?: string;
-    sessionId: string;
+    speaker?: TranscriptSpeakerMetadata | null;
     source: TranscriptSource;
-    audioSource: TranscriptAudioSource;
     text: string;
+    words?: TranscriptWord[];
+}
+interface TranscriptIngestMessageBase extends TranscriptMessageBase {
+    sessionId: string;
 }
 export interface TranscriptIngestPartialMessage extends TranscriptIngestMessageBase {
     type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL;
 }
 export interface TranscriptIngestFinalMessage extends TranscriptIngestMessageBase {
     type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL;
+}
+export interface TranscriptParticipantIngestMessage {
+    type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_PARTICIPANT_INGEST;
+    eventId: string;
+    participant: TranscriptSpeakerMetadata;
+    present: boolean;
+    provider?: TranscriptProviderMetadata | null;
+    receivedAt: string;
+    sessionId: string;
 }
 export type CopilotIntent = "say_next" | "ask" | "insights" | "what_to_answer";
 export interface CopilotPromptMessage {
@@ -91,35 +118,21 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
 }
-export type ClientMessage = SessionStartMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
+export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
     startedAt: string;
     protocolVersion: typeof PROTOCOL_VERSION;
 }
-export interface TranscriptFinalMessage {
+export interface TranscriptFinalMessage extends TranscriptMessageBase {
     type: typeof SERVER_MESSAGE_TYPES.TRANSCRIPT_FINAL;
     sessionId: string;
-    eventId: string;
     segmentIndex: number;
-    source: TranscriptSource;
-    audioSource: TranscriptAudioSource;
-    segmentStartNs?: string;
-    segmentEndNs?: string;
-    text: string;
-    receivedAt: string;
 }
-export interface TranscriptPartialMessage {
+export interface TranscriptPartialMessage extends TranscriptMessageBase {
     type: typeof SERVER_MESSAGE_TYPES.TRANSCRIPT_PARTIAL;
     sessionId: string;
-    eventId: string;
-    source: TranscriptSource;
-    audioSource: TranscriptAudioSource;
-    segmentStartNs?: string;
-    segmentEndNs?: string;
-    text: string;
-    receivedAt: string;
 }
 export type TranscriptSource = "input_audio" | "model_response";
 export type TranscriptAudioSource = AudioStreamId | "unknown";
@@ -230,7 +243,7 @@ export interface CopilotDeltaMessage {
 export interface QualificationFieldEvidence {
     snapshotId: string;
     segmentIndex: number;
-    role: "user" | "counterpart";
+    speakerLabel: string | null;
     quote: string;
     receivedAt: string;
 }
