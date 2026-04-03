@@ -6,6 +6,7 @@ export declare const CLIENT_MESSAGE_TYPES: {
     readonly TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest";
     readonly TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial";
     readonly TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final";
+    readonly TRANSCRIPT_PROVIDER_DATA_INGEST: "transcript_provider_data_ingest";
     readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
@@ -15,6 +16,7 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly TRANSCRIPT_PARTIAL: "transcript:partial";
     readonly TRANSCRIPT_FINAL: "transcript:final";
     readonly COPILOT_STATUS: "copilot:status";
+    readonly COPILOT_DEBUG_CONTEXT: "copilot:debug_context";
     readonly COPILOT_RESULT: "copilot:result";
     readonly QUALIFICATION_STATE: "qualification:state";
     readonly SESSION_WARNING: "session:warning";
@@ -83,6 +85,7 @@ interface TranscriptMessageBase {
     eventId: string;
     languageCode?: string | null;
     provider?: TranscriptProviderMetadata | null;
+    providerTranscriptId?: string | null;
     receivedAt: string;
     segmentEndNs?: string;
     segmentStartNs?: string;
@@ -109,6 +112,17 @@ export interface TranscriptParticipantIngestMessage {
     receivedAt: string;
     sessionId: string;
 }
+export interface TranscriptProviderDataIngestMessage {
+    type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_PROVIDER_DATA_INGEST;
+    eventId: string;
+    provider?: TranscriptProviderMetadata | null;
+    providerTranscriptId?: string | null;
+    receivedAt: string;
+    segmentEndNs?: string;
+    segmentStartNs?: string;
+    sessionId: string;
+    speaker?: TranscriptSpeakerMetadata | null;
+}
 export type CopilotIntent = "say_next" | "ask" | "insights" | "what_to_answer";
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
@@ -118,7 +132,7 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
 }
-export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
+export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
@@ -153,6 +167,24 @@ export interface CopilotStatusMessage {
     occurredAt: string;
     errorCode?: "no_active_session" | "request_in_flight" | "invalid_prompt" | "provider_timeout" | "provider_error" | "invalid_response";
     message?: string;
+}
+export interface CopilotDebugContextEntry {
+    providerTranscriptId?: string | null;
+    receivedAt: string;
+    segmentIndex?: number;
+    speakerLabel: string | null;
+    text: string;
+}
+export interface CopilotDebugContextMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_DEBUG_CONTEXT;
+    sessionId: string;
+    requestId: string;
+    intent: CopilotIntent;
+    occurredAt: string;
+    basedOnSegmentIndexes: number[];
+    cacheBypassedReason: "live_partial_context_present" | null;
+    finalEntries: CopilotDebugContextEntry[];
+    partialEntries: CopilotDebugContextEntry[];
 }
 export interface CopilotSayNextResultPayload {
     kind: "say_next";
@@ -314,6 +346,6 @@ export interface SessionPongMessage {
     sessionId: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export {};

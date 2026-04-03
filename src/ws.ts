@@ -8,6 +8,7 @@ export const CLIENT_MESSAGE_TYPES = {
   TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest",
   TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial",
   TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final",
+  TRANSCRIPT_PROVIDER_DATA_INGEST: "transcript_provider_data_ingest",
   COPILOT_PROMPT: "copilot:prompt",
   SESSION_STOP: "session:stop",
   SESSION_PING: "session:ping"
@@ -18,6 +19,7 @@ export const SERVER_MESSAGE_TYPES = {
   TRANSCRIPT_PARTIAL: "transcript:partial",
   TRANSCRIPT_FINAL: "transcript:final",
   COPILOT_STATUS: "copilot:status",
+  COPILOT_DEBUG_CONTEXT: "copilot:debug_context",
   COPILOT_RESULT: "copilot:result",
   QUALIFICATION_STATE: "qualification:state",
   SESSION_WARNING: "session:warning",
@@ -105,6 +107,7 @@ interface TranscriptMessageBase {
   eventId: string;
   languageCode?: string | null;
   provider?: TranscriptProviderMetadata | null;
+  providerTranscriptId?: string | null;
   receivedAt: string;
   segmentEndNs?: string;
   segmentStartNs?: string;
@@ -138,6 +141,18 @@ export interface TranscriptParticipantIngestMessage {
   sessionId: string;
 }
 
+export interface TranscriptProviderDataIngestMessage {
+  type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_PROVIDER_DATA_INGEST;
+  eventId: string;
+  provider?: TranscriptProviderMetadata | null;
+  providerTranscriptId?: string | null;
+  receivedAt: string;
+  segmentEndNs?: string;
+  segmentStartNs?: string;
+  sessionId: string;
+  speaker?: TranscriptSpeakerMetadata | null;
+}
+
 export type CopilotIntent =
   | "say_next"
   | "ask"
@@ -158,6 +173,7 @@ export type ClientMessage =
   | TranscriptParticipantIngestMessage
   | TranscriptIngestPartialMessage
   | TranscriptIngestFinalMessage
+  | TranscriptProviderDataIngestMessage
   | CopilotPromptMessage
   | SessionStopMessage
   | SessionPingMessage;
@@ -211,6 +227,26 @@ export interface CopilotStatusMessage {
     | "provider_error"
     | "invalid_response";
   message?: string;
+}
+
+export interface CopilotDebugContextEntry {
+  providerTranscriptId?: string | null;
+  receivedAt: string;
+  segmentIndex?: number;
+  speakerLabel: string | null;
+  text: string;
+}
+
+export interface CopilotDebugContextMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_DEBUG_CONTEXT;
+  sessionId: string;
+  requestId: string;
+  intent: CopilotIntent;
+  occurredAt: string;
+  basedOnSegmentIndexes: number[];
+  cacheBypassedReason: "live_partial_context_present" | null;
+  finalEntries: CopilotDebugContextEntry[];
+  partialEntries: CopilotDebugContextEntry[];
 }
 
 export interface CopilotSayNextResultPayload {
@@ -412,6 +448,7 @@ export type ServerMessage =
   | TranscriptPartialMessage
   | TranscriptFinalMessage
   | CopilotStatusMessage
+  | CopilotDebugContextMessage
   | CopilotResultMessage
   | CopilotDeltaMessage
   | QualificationStateMessage
@@ -432,6 +469,8 @@ export function isClientMessage(value: unknown): value is ClientMessage {
       return isTimestampedSessionMessage(value, "startedAt");
     case CLIENT_MESSAGE_TYPES.TRANSCRIPT_PARTICIPANT_INGEST:
       return isTranscriptParticipantIngestMessage(value);
+    case CLIENT_MESSAGE_TYPES.TRANSCRIPT_PROVIDER_DATA_INGEST:
+      return isTranscriptProviderDataIngestMessage(value);
     case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL:
     case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL:
       return isTranscriptIngestMessage(value);
@@ -604,6 +643,27 @@ function isTranscriptParticipantIngestMessage(
   );
 }
 
+function isTranscriptProviderDataIngestMessage(
+  value: unknown
+): value is TranscriptProviderDataIngestMessage {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    isUuidString(value.sessionId) &&
+    typeof value.eventId === "string" &&
+    value.eventId.trim().length > 0 &&
+    typeof value.receivedAt === "string" &&
+    value.receivedAt.trim().length > 0 &&
+    isOptionalTranscriptProviderMetadata(value.provider) &&
+    isOptionalProviderTranscriptId(value.providerTranscriptId) &&
+    isOptionalTimelineNs(value.segmentStartNs) &&
+    isOptionalTimelineNs(value.segmentEndNs) &&
+    isOptionalTranscriptSpeakerMetadata(value.speaker)
+  );
+}
+
 function isOptionalTranscriptSpeakerMetadata(
   value: unknown
 ): value is TranscriptSpeakerMetadata | null | undefined {
@@ -657,6 +717,16 @@ function isTranscriptWord(value: unknown): value is TranscriptWord {
 }
 
 function isOptionalTranscriptLanguageCode(
+  value: unknown
+): value is string | null | undefined {
+  return (
+    typeof value === "undefined" ||
+    value === null ||
+    (typeof value === "string" && value.trim().length > 0)
+  );
+}
+
+function isOptionalProviderTranscriptId(
   value: unknown
 ): value is string | null | undefined {
   return (

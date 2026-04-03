@@ -111,6 +111,7 @@ export interface SessionTranscriptEntry {
   eventId?: string;
   languageCode?: string | null;
   provider?: TranscriptProviderMetadata | null;
+  providerTranscriptId?: string | null;
   receivedAt: string;
   role?: "user" | "counterpart";
   segmentEndNs?: string;
