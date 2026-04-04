@@ -177,6 +177,50 @@ export interface CreateRecallSdkUploadResponse {
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
 
+export const BILLING_PATH = "/billing";
+export const BILLING_CHECKOUT_PATH = "/billing/checkout";
+export const BILLING_PORTAL_PATH = "/billing/portal";
+export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
+
+export type SubscriptionTier = "starter" | "personal" | "business" | "enterprise";
+
+export type SubscriptionStatus =
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "incomplete"
+  | "incomplete_expired"
+  | "trialing"
+  | "unpaid"
+  | "paused";
+
+export interface BillingState {
+  tier: SubscriptionTier;
+  status: SubscriptionStatus | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  stripeCustomerId: string | null;
+  quantity: number;
+}
+
+export interface CreateCheckoutSessionRequest {
+  tier: "personal" | "business";
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export interface CreateCheckoutSessionResponse {
+  checkoutUrl: string;
+}
+
+export interface CreatePortalSessionRequest {
+  returnUrl: string;
+}
+
+export interface CreatePortalSessionResponse {
+  portalUrl: string;
+}
+
 export interface SearchResultItem {
   sessionId: string;
   startedAt: string;
