@@ -9,6 +9,7 @@ export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
 export const BILLING_PATH = "/billing";
+export const BILLING_PRICING_PATH = "/billing/pricing";
 export const BILLING_CHECKOUT_PATH = "/billing/checkout";
 export const BILLING_PORTAL_PATH = "/billing/portal";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";

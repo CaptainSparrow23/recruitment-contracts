@@ -178,6 +178,7 @@ export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
 
 export const BILLING_PATH = "/billing";
+export const BILLING_PRICING_PATH = "/billing/pricing";
 export const BILLING_CHECKOUT_PATH = "/billing/checkout";
 export const BILLING_PORTAL_PATH = "/billing/portal";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
@@ -193,6 +194,11 @@ export type SubscriptionStatus =
   | "trialing"
   | "unpaid"
   | "paused";
+
+export interface BillingPricing {
+  personal: { amount: number; currency: string; interval: string } | null;
+  business: { amount: number; currency: string; interval: string } | null;
+}
 
 export interface BillingState {
   tier: SubscriptionTier;
