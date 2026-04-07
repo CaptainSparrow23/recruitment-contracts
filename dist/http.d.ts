@@ -4,6 +4,7 @@ import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
 export declare const READY_PATH = "/ready";
 export declare const ME_PATH = "/me";
+export declare const ME_WELCOME_PATH = "/me/welcome";
 export declare const CALENDAR_PATH = "/calendar";
 export declare const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export declare const SESSIONS_PATH = "/sessions";
@@ -146,6 +147,7 @@ export declare const BILLING_PRICING_PATH = "/billing/pricing";
 export declare const BILLING_CHECKOUT_PATH = "/billing/checkout";
 export declare const BILLING_PORTAL_PATH = "/billing/portal";
 export declare const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
+export declare const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
 export type SubscriptionTier = "starter" | "personal" | "business" | "enterprise";
 export type SubscriptionStatus = "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "trialing" | "unpaid" | "paused";
 export interface BillingPricing {

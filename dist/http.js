@@ -1,6 +1,7 @@
 export const HEALTH_PATH = "/health";
 export const READY_PATH = "/ready";
 export const ME_PATH = "/me";
+export const ME_WELCOME_PATH = "/me/welcome";
 export const CALENDAR_PATH = "/calendar";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
@@ -13,3 +14,4 @@ export const BILLING_PRICING_PATH = "/billing/pricing";
 export const BILLING_CHECKOUT_PATH = "/billing/checkout";
 export const BILLING_PORTAL_PATH = "/billing/portal";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
+export const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
