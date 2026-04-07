@@ -150,17 +150,19 @@ export declare const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export declare const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
 export type SubscriptionTier = "starter" | "personal" | "business" | "enterprise";
 export type SubscriptionStatus = "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "trialing" | "unpaid" | "paused";
+export type BillingInterval = "monthly" | "annual";
+export interface BillingPriceInfo {
+    amount: number;
+    currency: string;
+    interval: string;
+}
+export interface BillingTierPricing {
+    monthly: BillingPriceInfo | null;
+    annual: BillingPriceInfo | null;
+}
 export interface BillingPricing {
-    personal: {
-        amount: number;
-        currency: string;
-        interval: string;
-    } | null;
-    business: {
-        amount: number;
-        currency: string;
-        interval: string;
-    } | null;
+    personal: BillingTierPricing;
+    business: BillingTierPricing;
 }
 export interface BillingState {
     tier: SubscriptionTier;
@@ -172,6 +174,7 @@ export interface BillingState {
 }
 export interface CreateCheckoutSessionRequest {
     tier: "personal" | "business";
+    interval: BillingInterval;
     successUrl: string;
     cancelUrl: string;
 }
