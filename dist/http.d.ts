@@ -171,6 +171,8 @@ export interface BillingState {
     cancelAtPeriodEnd: boolean;
     stripeCustomerId: string | null;
     quantity: number;
+    organizationId: string | null;
+    organizationName: string | null;
 }
 export interface CreateCheckoutSessionRequest {
     tier: "personal" | "business";

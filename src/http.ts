@@ -222,6 +222,12 @@ export interface BillingState {
   cancelAtPeriodEnd: boolean;
   stripeCustomerId: string | null;
   quantity: number;
+  // Set when the resolved billing customer belongs to an organization. Lets
+  // clients display "Business · Acme Recruiting" without a separate /org call,
+  // and lets desktop clients (whose tokens carry no org claim) still see the
+  // plan their org is on, since the user's access tier is the org's tier.
+  organizationId: string | null;
+  organizationName: string | null;
 }
 
 export interface CreateCheckoutSessionRequest {
