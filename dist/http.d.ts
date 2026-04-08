@@ -103,11 +103,15 @@ export interface UserProfile {
     email: string | null;
     fullName: string | null;
     pictureUrl: string | null;
+    sendFollowUpEmails: boolean;
 }
 export interface SyncProfileRequest {
     email: string | null;
     fullName: string | null;
     pictureUrl: string | null;
+}
+export interface UpdateNotificationPreferencesRequest {
+    sendFollowUpEmails: boolean;
 }
 export interface SessionListResponse {
     sessions: SessionSummary[];
