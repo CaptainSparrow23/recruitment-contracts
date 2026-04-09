@@ -405,6 +405,7 @@ export interface SessionErrorMessage {
     | "invalid_message"
     | "malformed_media_chunk"
     | "media_chunk_too_large"
+    | "rate_limit_exceeded"
     | "session_conflict"
     | "no_active_session"
     | "unsupported_message";

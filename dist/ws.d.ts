@@ -316,7 +316,7 @@ export interface SessionWarningMessage {
 export interface SessionErrorMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ERROR;
     sessionId?: string;
-    code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "session_conflict" | "no_active_session" | "unsupported_message";
+    code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "rate_limit_exceeded" | "session_conflict" | "no_active_session" | "unsupported_message";
     message: string;
 }
 export type SessionArtifactKind = "filled_template";
