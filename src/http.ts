@@ -262,7 +262,11 @@ export interface SearchResultItem {
   templateId: string | null;
   fieldCount: number;
   capturedFieldCount: number;
-  snippetHtml: string;
+  snippetText: string;
+  snippetHighlights: Array<{
+    start: number;
+    end: number;
+  }>;
   relevance: number;
 }
 
