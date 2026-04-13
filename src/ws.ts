@@ -11,7 +11,8 @@ export const CLIENT_MESSAGE_TYPES = {
   TRANSCRIPT_PROVIDER_DATA_INGEST: "transcript_provider_data_ingest",
   COPILOT_PROMPT: "copilot:prompt",
   SESSION_STOP: "session:stop",
-  SESSION_PING: "session:ping"
+  SESSION_PING: "session:ping",
+  SESSION_RETRY_FINALIZATION: "session:retry_finalization"
 } as const;
 
 export const SERVER_MESSAGE_TYPES = {
@@ -77,6 +78,11 @@ export interface SessionPingMessage {
   type: typeof CLIENT_MESSAGE_TYPES.SESSION_PING;
   sessionId: string;
   sentAt: string;
+}
+
+export interface SessionRetryFinalizationMessage {
+  type: typeof CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION;
+  sessionId: string;
 }
 
 export interface TranscriptSpeakerMetadata {
@@ -176,7 +182,8 @@ export type ClientMessage =
   | TranscriptProviderDataIngestMessage
   | CopilotPromptMessage
   | SessionStopMessage
-  | SessionPingMessage;
+  | SessionPingMessage
+  | SessionRetryFinalizationMessage;
 
 export interface SessionStartedMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
@@ -407,6 +414,7 @@ export interface SessionErrorMessage {
     | "media_chunk_too_large"
     | "rate_limit_exceeded"
     | "session_conflict"
+    | "session_evicted"
     | "no_active_session"
     | "unsupported_message";
   message: string;
@@ -481,6 +489,8 @@ export function isClientMessage(value: unknown): value is ClientMessage {
       return isTimestampedSessionMessage(value, "endedAt");
     case CLIENT_MESSAGE_TYPES.SESSION_PING:
       return isTimestampedSessionMessage(value, "sentAt");
+    case CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION:
+      return typeof value.sessionId === "string";
     default:
       return false;
   }

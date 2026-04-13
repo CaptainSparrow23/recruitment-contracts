@@ -10,6 +10,7 @@ export declare const CLIENT_MESSAGE_TYPES: {
     readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
+    readonly SESSION_RETRY_FINALIZATION: "session:retry_finalization";
 };
 export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_STARTED: "session:started";
@@ -60,6 +61,10 @@ export interface SessionPingMessage {
     type: typeof CLIENT_MESSAGE_TYPES.SESSION_PING;
     sessionId: string;
     sentAt: string;
+}
+export interface SessionRetryFinalizationMessage {
+    type: typeof CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION;
+    sessionId: string;
 }
 export interface TranscriptSpeakerMetadata {
     email?: string | null;
@@ -132,7 +137,7 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
 }
-export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage;
+export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionRetryFinalizationMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
@@ -316,7 +321,7 @@ export interface SessionWarningMessage {
 export interface SessionErrorMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ERROR;
     sessionId?: string;
-    code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "rate_limit_exceeded" | "session_conflict" | "no_active_session" | "unsupported_message";
+    code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "rate_limit_exceeded" | "session_conflict" | "session_evicted" | "no_active_session" | "unsupported_message";
     message: string;
 }
 export type SessionArtifactKind = "filled_template";
