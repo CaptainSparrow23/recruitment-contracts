@@ -149,6 +149,7 @@ export declare const CHAT_PATH = "/chat";
 export declare const BILLING_PATH = "/billing";
 export declare const BILLING_PRICING_PATH = "/billing/pricing";
 export declare const BILLING_CHECKOUT_PATH = "/billing/checkout";
+export declare const BILLING_CHECKOUT_RESULT_PATH = "/billing/checkout-result";
 export declare const BILLING_PORTAL_PATH = "/billing/portal";
 export declare const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export declare const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
@@ -192,6 +193,16 @@ export interface CreatePortalSessionRequest {
 }
 export interface CreatePortalSessionResponse {
     portalUrl: string;
+}
+export type CheckoutResultStatus = "succeeded" | "failed" | "expired";
+export interface CheckoutResult {
+    status: CheckoutResultStatus;
+    tier: "personal" | "business" | null;
+    message: string | null;
+    createdAt: string;
+}
+export interface GetCheckoutResultResponse {
+    result: CheckoutResult | null;
 }
 export interface SearchResultItem {
     sessionId: string;
