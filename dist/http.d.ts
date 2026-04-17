@@ -146,6 +146,7 @@ export interface CreateRecallSdkUploadResponse {
 }
 export declare const SEARCH_PATH = "/search";
 export declare const CHAT_PATH = "/chat";
+export declare const ORG_PATH = "/org";
 export declare const BILLING_PATH = "/billing";
 export declare const BILLING_PRICING_PATH = "/billing/pricing";
 export declare const BILLING_CHECKOUT_PATH = "/billing/checkout";
@@ -203,6 +204,13 @@ export interface CheckoutResult {
 }
 export interface GetCheckoutResultResponse {
     result: CheckoutResult | null;
+}
+export interface CreateOrganizationRequest {
+    name: string;
+}
+export interface CreateOrganizationResponse {
+    organizationId: string;
+    organizationName: string;
 }
 export interface SearchResultItem {
     sessionId: string;
