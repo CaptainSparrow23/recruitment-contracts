@@ -179,6 +179,7 @@ export interface BillingState {
     quantity: number;
     organizationId: string | null;
     organizationName: string | null;
+    sessionsStarted: number;
 }
 export interface CreateCheckoutSessionRequest {
     tier: "personal" | "business";

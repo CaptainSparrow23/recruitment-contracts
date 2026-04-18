@@ -236,6 +236,11 @@ export interface BillingState {
   // plan their org is on, since the user's access tier is the org's tier.
   organizationId: string | null;
   organizationName: string | null;
+  // Lifetime count of sessions started by this user, incremented on
+  // session-start and never decremented. Drives the Starter-tier meeting
+  // gate (client-side: block when >= 10). Also useful as a general usage
+  // metric for paid users.
+  sessionsStarted: number;
 }
 
 export interface CreateCheckoutSessionRequest {
