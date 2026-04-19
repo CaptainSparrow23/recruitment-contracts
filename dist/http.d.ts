@@ -65,6 +65,17 @@ export interface SessionDetail {
     createdAt: string;
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
+    isManualAudio: boolean;
+    ownSpeakerLabel: string | null;
+    speakerMappingResolved: boolean;
+}
+export interface UpdateSpeakerMappingRequest {
+    ownSpeakerLabel: string | null;
+    speakerMappingResolved: boolean;
+}
+export interface UpdateSpeakerMappingResponse {
+    ownSpeakerLabel: string | null;
+    speakerMappingResolved: boolean;
 }
 export interface SessionArtifactDetail {
     artifactId: string;
