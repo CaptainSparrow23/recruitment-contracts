@@ -269,7 +269,7 @@ export interface CopilotWhatToAnswerResultMessage {
     result: CopilotWhatToAnswerResultPayload;
 }
 export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotInsightsResultMessage | CopilotWhatToAnswerResultMessage;
-export type CopilotStreamableIntent = "what_to_answer" | "ask";
+export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next";
 export interface CopilotDeltaMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
     sessionId: string;
