@@ -349,7 +349,7 @@ export type CopilotResultMessage =
   | CopilotInsightsResultMessage
   | CopilotWhatToAnswerResultMessage;
 
-export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next";
+export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next" | "insights";
 
 export interface CopilotDeltaMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
