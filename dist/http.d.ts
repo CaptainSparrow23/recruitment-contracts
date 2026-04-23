@@ -45,6 +45,7 @@ export interface SessionSummary {
     capturedFieldCount: number;
     counterpartName: string | null;
     meetingTitle: string | null;
+    userMeetingTitle: string | null;
     calendarEvent: SessionCalendarEventLink | null;
     createdAt: string;
     finalizationStatus?: SessionFinalizationStatus;
@@ -60,6 +61,7 @@ export interface SessionDetail {
     summarizedRedFlags: SummarizedRedFlag[];
     counterpartName: string | null;
     meetingTitle: string | null;
+    userMeetingTitle: string | null;
     calendarEvent: SessionCalendarEventLink | null;
     artifacts: SessionArtifactDetail[];
     createdAt: string;
@@ -76,6 +78,13 @@ export interface UpdateSpeakerMappingRequest {
 export interface UpdateSpeakerMappingResponse {
     ownSpeakerLabel: string | null;
     speakerMappingResolved: boolean;
+}
+export declare const USER_MEETING_TITLE_MAX_LENGTH = 200;
+export interface RenameSessionRequest {
+    userMeetingTitle: string | null;
+}
+export interface RenameSessionResponse {
+    userMeetingTitle: string | null;
 }
 export interface SessionArtifactDetail {
     artifactId: string;
