@@ -5,6 +5,7 @@ export declare const HEALTH_PATH = "/health";
 export declare const READY_PATH = "/ready";
 export declare const ME_PATH = "/me";
 export declare const ME_WELCOME_PATH = "/me/welcome";
+export declare const ME_ONBOARDING_COMPLETE_PATH = "/me/onboarding/complete";
 export declare const CALENDAR_PATH = "/calendar";
 export declare const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export declare const SESSIONS_PATH = "/sessions";
@@ -124,6 +125,7 @@ export interface UserProfile {
     fullName: string | null;
     pictureUrl: string | null;
     sendFollowUpEmails: boolean;
+    onboardingCompletedAt: string | null;
 }
 export interface SyncProfileRequest {
     email: string | null;
