@@ -10,6 +10,7 @@ export declare const CLIENT_MESSAGE_TYPES: {
     readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
+    readonly SESSION_RESUME: "session:resume";
     readonly SESSION_RETRY_FINALIZATION: "session:retry_finalization";
 };
 export declare const SERVER_MESSAGE_TYPES: {
@@ -61,6 +62,11 @@ export interface SessionPingMessage {
     type: typeof CLIENT_MESSAGE_TYPES.SESSION_PING;
     sessionId: string;
     sentAt: string;
+}
+export interface SessionResumeMessage {
+    type: typeof CLIENT_MESSAGE_TYPES.SESSION_RESUME;
+    sessionId: string;
+    resumedAt: string;
 }
 export interface SessionRetryFinalizationMessage {
     type: typeof CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION;
@@ -137,7 +143,7 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
 }
-export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionRetryFinalizationMessage;
+export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionResumeMessage | SessionRetryFinalizationMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;
@@ -193,12 +199,11 @@ export interface CopilotDebugContextMessage {
 }
 export interface CopilotSayNextResultPayload {
     kind: "say_next";
-    bullets: [string, string];
+    question: string;
 }
 export interface CopilotAskResultPayload {
     kind: "ask";
     answer: string;
-    sources: CopilotSource[];
 }
 export interface CopilotRedFlagItem {
     id: string;
@@ -221,12 +226,10 @@ export interface CopilotInsightsResultPayload {
         roleRelevance: string;
         factualContext: string[];
     }>;
-    sources: CopilotSource[];
 }
 export interface CopilotWhatToAnswerResultPayload {
     kind: "what_to_answer";
     answer: string;
-    sources: CopilotSource[];
 }
 export interface CopilotSayNextResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
@@ -321,7 +324,7 @@ export interface SessionWarningMessage {
 export interface SessionErrorMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ERROR;
     sessionId?: string;
-    code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "rate_limit_exceeded" | "session_conflict" | "session_evicted" | "no_active_session" | "unsupported_message";
+    code: "invalid_message" | "malformed_media_chunk" | "media_chunk_too_large" | "rate_limit_exceeded" | "session_conflict" | "session_evicted" | "no_active_session" | "resume_unavailable" | "unsupported_message";
     message: string;
 }
 export type SessionArtifactKind = "filled_template";

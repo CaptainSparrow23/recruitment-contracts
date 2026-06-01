@@ -9,6 +9,7 @@ export const SESSIONS_PATH = "/sessions";
 export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
 export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;
+export const USER_NOTES_MAX_BYTES = 256 * 1024;
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
 export const ORG_PATH = "/org";

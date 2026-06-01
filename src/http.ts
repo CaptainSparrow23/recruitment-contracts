@@ -52,6 +52,19 @@ export interface SummarizedRedFlag {
 
 export type SessionFinalizationStatus = "pending" | "ready" | "failed";
 
+export type TiptapNode = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: unknown[];
+  marks?: unknown[];
+  text?: string;
+};
+
+export type TiptapDoc = {
+  type: "doc";
+  content?: unknown[];
+};
+
 export interface SessionSummary {
   id: string;
   startedAt: string;
@@ -62,6 +75,7 @@ export interface SessionSummary {
   counterpartName: string | null;
   meetingTitle: string | null;
   userMeetingTitle: string | null;
+  userNotes: TiptapDoc | null;
   calendarEvent: SessionCalendarEventLink | null;
   createdAt: string;
   finalizationStatus?: SessionFinalizationStatus;
@@ -79,6 +93,8 @@ export interface SessionDetail {
   counterpartName: string | null;
   meetingTitle: string | null;
   userMeetingTitle: string | null;
+  userNotes: TiptapDoc | null;
+  userNotesTidied: TiptapDoc | null;
   calendarEvent: SessionCalendarEventLink | null;
   artifacts: SessionArtifactDetail[];
   createdAt: string;
@@ -107,6 +123,31 @@ export interface RenameSessionRequest {
 
 export interface RenameSessionResponse {
   userMeetingTitle: string | null;
+}
+
+export const USER_NOTES_MAX_BYTES = 256 * 1024;
+
+export interface UpdateSessionNotesRequest {
+  userNotes?: TiptapDoc | null;
+  userNotesTidied?: TiptapDoc | null;
+}
+
+export interface UpdateSessionNotesResponse {
+  userNotes: TiptapDoc | null;
+  userNotesTidied: TiptapDoc | null;
+}
+
+export interface TidySessionNotesBlock {
+  path: number[];
+  node: TiptapNode;
+}
+
+export interface TidySessionNotesRequest {
+  dirtyBlocks: TidySessionNotesBlock[];
+}
+
+export interface TidySessionNotesResponse {
+  tidiedBlocks: TidySessionNotesBlock[];
 }
 
 export interface SessionArtifactDetail {

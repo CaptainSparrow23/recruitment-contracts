@@ -9,6 +9,7 @@ export const CLIENT_MESSAGE_TYPES = {
     COPILOT_PROMPT: "copilot:prompt",
     SESSION_STOP: "session:stop",
     SESSION_PING: "session:ping",
+    SESSION_RESUME: "session:resume",
     SESSION_RETRY_FINALIZATION: "session:retry_finalization"
 };
 export const SERVER_MESSAGE_TYPES = {
@@ -55,6 +56,8 @@ export function isClientMessage(value) {
             return isTimestampedSessionMessage(value, "endedAt");
         case CLIENT_MESSAGE_TYPES.SESSION_PING:
             return isTimestampedSessionMessage(value, "sentAt");
+        case CLIENT_MESSAGE_TYPES.SESSION_RESUME:
+            return isTimestampedSessionMessage(value, "resumedAt");
         case CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION:
             return typeof value.sessionId === "string";
         default:

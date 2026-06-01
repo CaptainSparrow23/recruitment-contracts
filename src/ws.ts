@@ -12,6 +12,7 @@ export const CLIENT_MESSAGE_TYPES = {
   COPILOT_PROMPT: "copilot:prompt",
   SESSION_STOP: "session:stop",
   SESSION_PING: "session:ping",
+  SESSION_RESUME: "session:resume",
   SESSION_RETRY_FINALIZATION: "session:retry_finalization"
 } as const;
 
@@ -78,6 +79,16 @@ export interface SessionPingMessage {
   type: typeof CLIENT_MESSAGE_TYPES.SESSION_PING;
   sessionId: string;
   sentAt: string;
+}
+
+// Sent by a reconnecting client to rebind to a still-live session that was
+// orphaned (not yet finalized) after its socket dropped. The server replies
+// with SESSION_STARTED on success, or SESSION_ERROR{code:"resume_unavailable"}
+// if the grace window has already lapsed and the session was finalized.
+export interface SessionResumeMessage {
+  type: typeof CLIENT_MESSAGE_TYPES.SESSION_RESUME;
+  sessionId: string;
+  resumedAt: string;
 }
 
 export interface SessionRetryFinalizationMessage {
@@ -183,6 +194,7 @@ export type ClientMessage =
   | CopilotPromptMessage
   | SessionStopMessage
   | SessionPingMessage
+  | SessionResumeMessage
   | SessionRetryFinalizationMessage;
 
 export interface SessionStartedMessage {
@@ -258,13 +270,12 @@ export interface CopilotDebugContextMessage {
 
 export interface CopilotSayNextResultPayload {
   kind: "say_next";
-  bullets: [string, string];
+  question: string;
 }
 
 export interface CopilotAskResultPayload {
   kind: "ask";
   answer: string;
-  sources: CopilotSource[];
 }
 
 export interface CopilotRedFlagItem {
@@ -290,13 +301,11 @@ export interface CopilotInsightsResultPayload {
     roleRelevance: string;
     factualContext: string[];
   }>;
-  sources: CopilotSource[];
 }
 
 export interface CopilotWhatToAnswerResultPayload {
   kind: "what_to_answer";
   answer: string;
-  sources: CopilotSource[];
 }
 
 export interface CopilotSayNextResultMessage {
@@ -416,6 +425,7 @@ export interface SessionErrorMessage {
     | "session_conflict"
     | "session_evicted"
     | "no_active_session"
+    | "resume_unavailable"
     | "unsupported_message";
   message: string;
 }
@@ -489,6 +499,8 @@ export function isClientMessage(value: unknown): value is ClientMessage {
       return isTimestampedSessionMessage(value, "endedAt");
     case CLIENT_MESSAGE_TYPES.SESSION_PING:
       return isTimestampedSessionMessage(value, "sentAt");
+    case CLIENT_MESSAGE_TYPES.SESSION_RESUME:
+      return isTimestampedSessionMessage(value, "resumedAt");
     case CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION:
       return typeof value.sessionId === "string";
     default:
@@ -498,7 +510,7 @@ export function isClientMessage(value: unknown): value is ClientMessage {
 
 function isTimestampedSessionMessage(
   value: Record<string, unknown>,
-  timeKey: "startedAt" | "endedAt" | "sentAt"
+  timeKey: "startedAt" | "endedAt" | "sentAt" | "resumedAt"
 ): boolean {
   if (!isUuidString(value.sessionId) || typeof value[timeKey] !== "string") {
     return false;
