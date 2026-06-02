@@ -137,9 +137,18 @@ export interface UpdateSessionNotesResponse {
   userNotesTidied: TiptapDoc | null;
 }
 
+// Request: the frontend sends exactly one node per dirty block.
 export interface TidySessionNotesBlock {
   path: number[];
   node: TiptapNode;
+}
+
+// Response: a single dirty block can tidy to 0..N nodes. A paragraph authored
+// with Shift+Enter soft breaks that contains a blank line round-trips through
+// markdown to multiple paragraphs, so the tidied form is an array of nodes.
+export interface TidiedNotesBlock {
+  path: number[];
+  nodes: TiptapNode[];
 }
 
 export interface TidySessionNotesRequest {
@@ -147,7 +156,7 @@ export interface TidySessionNotesRequest {
 }
 
 export interface TidySessionNotesResponse {
-  tidiedBlocks: TidySessionNotesBlock[];
+  tidiedBlocks: TidiedNotesBlock[];
 }
 
 export interface SessionArtifactDetail {

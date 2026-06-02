@@ -114,11 +114,15 @@ export interface TidySessionNotesBlock {
     path: number[];
     node: TiptapNode;
 }
+export interface TidiedNotesBlock {
+    path: number[];
+    nodes: TiptapNode[];
+}
 export interface TidySessionNotesRequest {
     dirtyBlocks: TidySessionNotesBlock[];
 }
 export interface TidySessionNotesResponse {
-    tidiedBlocks: TidySessionNotesBlock[];
+    tidiedBlocks: TidiedNotesBlock[];
 }
 export interface SessionArtifactDetail {
     artifactId: string;
