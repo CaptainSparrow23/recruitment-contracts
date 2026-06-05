@@ -29,21 +29,15 @@ export interface CalendarAttendeePreview {
     displayName: string | null;
     email: string | null;
 }
-export interface SessionCalendarEventLink {
-    provider: CalendarProvider;
-    providerEventId: string;
-    iCalUid: string | null;
-    calendarId: string;
-    calendarName: string;
+export type CalendarEventSource = "google" | "microsoft" | "manual";
+export interface CalendarEvent {
+    id: string;
+    source: CalendarEventSource;
     title: string | null;
     startsAt: string;
     endsAt: string;
-    sourceTimeZone: string | null;
+    timeZone: string | null;
     attendees: CalendarAttendeePreview[];
-    meetingUrl: string | null;
-}
-export interface UpcomingCalendarEvent extends SessionCalendarEventLink {
-    providerEmail: string | null;
 }
 export interface CalendarConnectionsResponse {
     connections: CalendarConnectionSummary[];
@@ -73,5 +67,18 @@ export interface DeleteCalendarConnectionResponse {
     disconnected: boolean;
 }
 export interface CalendarEventsResponse {
-    events: UpcomingCalendarEvent[];
+    events: CalendarEvent[];
+}
+export declare const MANUAL_EVENT_TITLE_MAX_LENGTH = 200;
+export interface CreateManualEventRequest {
+    title: string;
+    startsAt: string;
+    endsAt: string;
+    timeZone?: string | null;
+}
+export interface CreateManualEventResponse {
+    event: CalendarEvent;
+}
+export interface DeleteManualEventResponse {
+    deleted: boolean;
 }

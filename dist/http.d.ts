@@ -1,5 +1,5 @@
 import type { CopilotRedFlagItem, QualificationFieldState, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
-import type { SessionCalendarEventLink } from "./calendar.js";
+import type { CalendarEvent } from "./calendar.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
 export declare const READY_PATH = "/ready";
@@ -7,6 +7,7 @@ export declare const ME_PATH = "/me";
 export declare const ME_WELCOME_PATH = "/me/welcome";
 export declare const ME_ONBOARDING_COMPLETE_PATH = "/me/onboarding/complete";
 export declare const CALENDAR_PATH = "/calendar";
+export declare const CALENDAR_MANUAL_EVENTS_PATH = "/calendar/manual-events";
 export declare const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export declare const SESSIONS_PATH = "/sessions";
 export declare const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
@@ -59,8 +60,9 @@ export interface SessionSummary {
     meetingTitle: string | null;
     userMeetingTitle: string | null;
     userNotes: TiptapDoc | null;
-    calendarEvent: SessionCalendarEventLink | null;
+    calendarEvent: CalendarEvent | null;
     createdAt: string;
+    folderId: string | null;
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
 }
@@ -77,9 +79,10 @@ export interface SessionDetail {
     userMeetingTitle: string | null;
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
-    calendarEvent: SessionCalendarEventLink | null;
+    calendarEvent: CalendarEvent | null;
     artifacts: SessionArtifactDetail[];
     createdAt: string;
+    folderId: string | null;
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     isManualAudio: boolean;
@@ -181,6 +184,45 @@ export interface SessionDetailResponse {
 export interface SessionTranscriptResponse {
     entries: SessionTranscriptEntry[];
 }
+export declare const FOLDERS_PATH = "/folders";
+export declare const FOLDER_NAME_MAX_LENGTH = 100;
+export declare const FOLDER_ICON_MAX_LENGTH = 24;
+export declare const SESSIONS_FOLDER_QUERY_PARAM = "folderId";
+export declare const UNFILED_FOLDER_SENTINEL = "unfiled";
+export interface Folder {
+    id: string;
+    name: string;
+    icon: string | null;
+    createdAt: string;
+    updatedAt: string;
+    sessionCount?: number;
+}
+export interface FolderListResponse {
+    folders: Folder[];
+}
+export interface CreateFolderRequest {
+    name: string;
+    icon?: string | null;
+}
+export interface CreateFolderResponse {
+    folder: Folder;
+}
+export interface RenameFolderRequest {
+    name: string;
+    icon?: string | null;
+}
+export interface RenameFolderResponse {
+    folder: Folder;
+}
+export interface DeleteFolderResponse {
+    deleted: boolean;
+}
+export interface UpdateSessionFolderRequest {
+    folderId: string | null;
+}
+export interface UpdateSessionFolderResponse {
+    folderId: string | null;
+}
 export interface TriggerSessionTemplateBackfillRequest {
     templateId: string;
 }
@@ -274,6 +316,7 @@ export interface CreateOrganizationResponse {
 }
 export interface SearchResultItem {
     sessionId: string;
+    title: string | null;
     startedAt: string;
     endedAt: string;
     durationSeconds: number;

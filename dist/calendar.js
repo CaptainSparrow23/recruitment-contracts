@@ -1,1 +1,1 @@
-export {};
+export const MANUAL_EVENT_TITLE_MAX_LENGTH = 200;

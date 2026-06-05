@@ -1,4 +1,4 @@
-import type { SessionCalendarEventLink } from "./calendar.js";
+import type { CalendarEvent } from "./calendar.js";
 export declare const PROTOCOL_VERSION = "2026-04-01";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
@@ -43,7 +43,7 @@ export interface SessionStartMessage {
     sessionId: string;
     startedAt: string;
     captureConfig: CaptureConfig;
-    calendarContext?: SessionCalendarEventLink | null;
+    calendarContext?: CalendarEvent | null;
     jobDescriptionId?: string | null;
     candidateResumeId?: string | null;
 }

@@ -1,4 +1,4 @@
-import type { SessionCalendarEventLink } from "./calendar.js";
+import type { CalendarEvent } from "./calendar.js";
 
 export const PROTOCOL_VERSION = "2026-04-01";
 export const WEBSOCKET_PATH = "/ws";
@@ -55,7 +55,7 @@ export interface SessionStartMessage {
   sessionId: string;
   startedAt: string;
   captureConfig: CaptureConfig;
-  calendarContext?: SessionCalendarEventLink | null;
+  calendarContext?: CalendarEvent | null;
   jobDescriptionId?: string | null;
   candidateResumeId?: string | null;
 }
@@ -538,42 +538,29 @@ function isCaptureConfig(value: unknown): value is CaptureConfig {
 
 function isOptionalCalendarContext(
   value: unknown
-): value is SessionCalendarEventLink | null | undefined {
+): value is CalendarEvent | null | undefined {
   return (
-    typeof value === "undefined" ||
-    value === null ||
-    isSessionCalendarEventLink(value)
+    typeof value === "undefined" || value === null || isCalendarEvent(value)
   );
 }
 
-function isSessionCalendarEventLink(
-  value: unknown
-): value is SessionCalendarEventLink {
+function isCalendarEvent(value: unknown): value is CalendarEvent {
   return (
     isRecord(value) &&
-    isCalendarProvider(value.provider) &&
-    typeof value.providerEventId === "string" &&
-    value.providerEventId.trim().length > 0 &&
-    (value.iCalUid === null ||
-      (typeof value.iCalUid === "string" && value.iCalUid.trim().length > 0)) &&
-    typeof value.calendarId === "string" &&
-    value.calendarId.trim().length > 0 &&
-    typeof value.calendarName === "string" &&
-    value.calendarName.trim().length > 0 &&
+    typeof value.id === "string" &&
+    value.id.trim().length > 0 &&
+    isCalendarEventSource(value.source) &&
     (value.title === null ||
       (typeof value.title === "string" && value.title.trim().length > 0)) &&
     typeof value.startsAt === "string" &&
     value.startsAt.trim().length > 0 &&
     typeof value.endsAt === "string" &&
     value.endsAt.trim().length > 0 &&
-    (value.sourceTimeZone === null ||
-      (typeof value.sourceTimeZone === "string" &&
-        value.sourceTimeZone.trim().length > 0)) &&
+    (value.timeZone === null ||
+      (typeof value.timeZone === "string" &&
+        value.timeZone.trim().length > 0)) &&
     Array.isArray(value.attendees) &&
-    value.attendees.every(isCalendarAttendeePreview) &&
-    (value.meetingUrl === null ||
-      (typeof value.meetingUrl === "string" &&
-        value.meetingUrl.trim().length > 0))
+    value.attendees.every(isCalendarAttendeePreview)
   );
 }
 
@@ -588,8 +575,8 @@ function isCalendarAttendeePreview(value: unknown): boolean {
   );
 }
 
-function isCalendarProvider(value: unknown): boolean {
-  return value === "google" || value === "microsoft";
+function isCalendarEventSource(value: unknown): boolean {
+  return value === "google" || value === "microsoft" || value === "manual";
 }
 
 function isCopilotPromptMessage(

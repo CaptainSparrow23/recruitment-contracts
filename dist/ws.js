@@ -82,35 +82,24 @@ function isCaptureConfig(value) {
         Object.keys(value).length === 1);
 }
 function isOptionalCalendarContext(value) {
-    return (typeof value === "undefined" ||
-        value === null ||
-        isSessionCalendarEventLink(value));
+    return (typeof value === "undefined" || value === null || isCalendarEvent(value));
 }
-function isSessionCalendarEventLink(value) {
+function isCalendarEvent(value) {
     return (isRecord(value) &&
-        isCalendarProvider(value.provider) &&
-        typeof value.providerEventId === "string" &&
-        value.providerEventId.trim().length > 0 &&
-        (value.iCalUid === null ||
-            (typeof value.iCalUid === "string" && value.iCalUid.trim().length > 0)) &&
-        typeof value.calendarId === "string" &&
-        value.calendarId.trim().length > 0 &&
-        typeof value.calendarName === "string" &&
-        value.calendarName.trim().length > 0 &&
+        typeof value.id === "string" &&
+        value.id.trim().length > 0 &&
+        isCalendarEventSource(value.source) &&
         (value.title === null ||
             (typeof value.title === "string" && value.title.trim().length > 0)) &&
         typeof value.startsAt === "string" &&
         value.startsAt.trim().length > 0 &&
         typeof value.endsAt === "string" &&
         value.endsAt.trim().length > 0 &&
-        (value.sourceTimeZone === null ||
-            (typeof value.sourceTimeZone === "string" &&
-                value.sourceTimeZone.trim().length > 0)) &&
+        (value.timeZone === null ||
+            (typeof value.timeZone === "string" &&
+                value.timeZone.trim().length > 0)) &&
         Array.isArray(value.attendees) &&
-        value.attendees.every(isCalendarAttendeePreview) &&
-        (value.meetingUrl === null ||
-            (typeof value.meetingUrl === "string" &&
-                value.meetingUrl.trim().length > 0)));
+        value.attendees.every(isCalendarAttendeePreview));
 }
 function isCalendarAttendeePreview(value) {
     return (isRecord(value) &&
@@ -120,8 +109,8 @@ function isCalendarAttendeePreview(value) {
         (value.email === null ||
             (typeof value.email === "string" && value.email.trim().length > 0)));
 }
-function isCalendarProvider(value) {
-    return value === "google" || value === "microsoft";
+function isCalendarEventSource(value) {
+    return value === "google" || value === "microsoft" || value === "manual";
 }
 function isCopilotPromptMessage(value) {
     if (!isRecord(value)) {

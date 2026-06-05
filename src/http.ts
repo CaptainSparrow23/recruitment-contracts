@@ -7,7 +7,7 @@ import type {
   TranscriptWord
 } from "./ws.js";
 import type {
-  SessionCalendarEventLink
+  CalendarEvent
 } from "./calendar.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 
@@ -17,6 +17,7 @@ export const ME_PATH = "/me";
 export const ME_WELCOME_PATH = "/me/welcome";
 export const ME_ONBOARDING_COMPLETE_PATH = "/me/onboarding/complete";
 export const CALENDAR_PATH = "/calendar";
+export const CALENDAR_MANUAL_EVENTS_PATH = "/calendar/manual-events";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
 export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
@@ -76,8 +77,9 @@ export interface SessionSummary {
   meetingTitle: string | null;
   userMeetingTitle: string | null;
   userNotes: TiptapDoc | null;
-  calendarEvent: SessionCalendarEventLink | null;
+  calendarEvent: CalendarEvent | null;
   createdAt: string;
+  folderId: string | null;
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
 }
@@ -95,9 +97,10 @@ export interface SessionDetail {
   userMeetingTitle: string | null;
   userNotes: TiptapDoc | null;
   userNotesTidied: TiptapDoc | null;
-  calendarEvent: SessionCalendarEventLink | null;
+  calendarEvent: CalendarEvent | null;
   artifacts: SessionArtifactDetail[];
   createdAt: string;
+  folderId: string | null;
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
   isManualAudio: boolean;
@@ -228,6 +231,68 @@ export interface SessionDetailResponse {
 
 export interface SessionTranscriptResponse {
   entries: SessionTranscriptEntry[];
+}
+
+// ─── Folders ───
+// Lightweight, per-account groupings for organizing sessions. A folder owns no
+// data: deleting one unfiles its sessions (folder_id -> NULL) rather than
+// deleting them.
+export const FOLDERS_PATH = "/folders";
+export const FOLDER_NAME_MAX_LENGTH = 100;
+// A single emoji/glyph; generous to allow ZWJ emoji sequences.
+export const FOLDER_ICON_MAX_LENGTH = 24;
+
+// GET /sessions folder filter. Omit the param to get every session; pass a
+// folder uuid to scope to it; pass UNFILED_FOLDER_SENTINEL for sessions with
+// no folder.
+export const SESSIONS_FOLDER_QUERY_PARAM = "folderId";
+export const UNFILED_FOLDER_SENTINEL = "unfiled";
+
+export interface Folder {
+  id: string;
+  name: string;
+  // Optional emoji/glyph shown next to the folder (Granola-style "Spaces").
+  icon: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Number of sessions filed under this folder. Populated by GET /folders; may
+  // be omitted on create/rename responses (clients re-list to refresh counts).
+  sessionCount?: number;
+}
+
+export interface FolderListResponse {
+  folders: Folder[];
+}
+
+export interface CreateFolderRequest {
+  name: string;
+  icon?: string | null;
+}
+
+export interface CreateFolderResponse {
+  folder: Folder;
+}
+
+export interface RenameFolderRequest {
+  name: string;
+  icon?: string | null;
+}
+
+export interface RenameFolderResponse {
+  folder: Folder;
+}
+
+export interface DeleteFolderResponse {
+  deleted: boolean;
+}
+
+// Move a session into a folder, or unfile it (folderId: null).
+export interface UpdateSessionFolderRequest {
+  folderId: string | null;
+}
+
+export interface UpdateSessionFolderResponse {
+  folderId: string | null;
 }
 
 export interface TriggerSessionTemplateBackfillRequest {
@@ -363,6 +428,7 @@ export interface CreateOrganizationResponse {
 
 export interface SearchResultItem {
   sessionId: string;
+  title: string | null;
   startedAt: string;
   endedAt: string;
   durationSeconds: number;
