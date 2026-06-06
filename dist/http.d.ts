@@ -247,6 +247,8 @@ export interface CreateRecallSdkUploadResponse {
 }
 export declare const SEARCH_PATH = "/search";
 export declare const CHAT_PATH = "/chat";
+export declare const CHAT_SESSIONS_PATH = "/chat/sessions";
+export declare const CHAT_TITLE_MAX_LENGTH = 100;
 export declare const ORG_PATH = "/org";
 export declare const BILLING_PATH = "/billing";
 export declare const BILLING_PRICING_PATH = "/billing/pricing";
@@ -338,6 +340,13 @@ export interface ChatRequest {
         role: "user" | "assistant";
         content: string;
     }>;
+    chatSessionId?: string;
+}
+export interface ChatSource {
+    sessionId: string;
+    startedAt: string;
+    endedAt: string;
+    snippet: string;
 }
 export type ChatStreamEvent = {
     type: "delta";
@@ -345,18 +354,30 @@ export type ChatStreamEvent = {
 } | {
     type: "status";
     message: string;
-} | {
+} | ({
     type: "source";
-    sessionId: string;
-    startedAt: string;
-    endedAt: string;
-    snippet: string;
-} | {
+} & ChatSource) | {
     type: "done";
-    sources: Array<{
-        sessionId: string;
-        startedAt: string;
-        endedAt: string;
-        snippet: string;
-    }>;
+    sources: ChatSource[];
+    chatSessionId: string;
 };
+export interface ChatSessionSummary {
+    id: string;
+    title: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+export interface PersistedChatMessage {
+    id: string;
+    role: "user" | "assistant";
+    content: string;
+    sources?: ChatSource[];
+    createdAt: string;
+}
+export interface ChatSessionListResponse {
+    chats: ChatSessionSummary[];
+}
+export interface ChatSessionDetailResponse {
+    chat: ChatSessionSummary;
+    messages: PersistedChatMessage[];
+}

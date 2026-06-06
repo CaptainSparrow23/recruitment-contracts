@@ -26,6 +26,12 @@ export const SESSIONS_FOLDER_QUERY_PARAM = "folderId";
 export const UNFILED_FOLDER_SENTINEL = "unfiled";
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
+// Persisted chat conversations ("Recent" history). A child path of CHAT_PATH so
+// it inherits auth; the AI rate limiter is POST-only so these GETs are exempt.
+export const CHAT_SESSIONS_PATH = "/chat/sessions";
+// Max length of a conversation title (model-generated on the first turn, or
+// derived from the first user message).
+export const CHAT_TITLE_MAX_LENGTH = 100;
 export const ORG_PATH = "/org";
 export const BILLING_PATH = "/billing";
 export const BILLING_PRICING_PATH = "/billing/pricing";

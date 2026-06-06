@@ -324,6 +324,12 @@ export interface CreateRecallSdkUploadResponse {
 
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
+// Persisted chat conversations ("Recent" history). A child path of CHAT_PATH so
+// it inherits auth; the AI rate limiter is POST-only so these GETs are exempt.
+export const CHAT_SESSIONS_PATH = "/chat/sessions";
+// Max length of a conversation title (model-generated on the first turn, or
+// derived from the first user message).
+export const CHAT_TITLE_MAX_LENGTH = 100;
 
 export const ORG_PATH = "/org";
 
@@ -449,24 +455,58 @@ export interface SearchResponse {
 
 export interface ChatRequest {
   messages: Array<{ role: "user" | "assistant"; content: string }>;
+  // Append to an existing conversation. Omit to start a new one — the server
+  // creates it lazily and returns its id on the "done" event.
+  chatSessionId?: string;
+}
+
+// A cited source attached to a persisted assistant turn. Mirrors the live
+// "source" stream event shape so persisted and streamed sources are identical.
+export interface ChatSource {
+  sessionId: string;
+  startedAt: string;
+  endedAt: string;
+  snippet: string;
 }
 
 export type ChatStreamEvent =
   | { type: "delta"; content: string }
   | { type: "status"; message: string }
-  | {
-      type: "source";
-      sessionId: string;
-      startedAt: string;
-      endedAt: string;
-      snippet: string;
-    }
+  | ({ type: "source" } & ChatSource)
   | {
       type: "done";
-      sources: Array<{
-        sessionId: string;
-        startedAt: string;
-        endedAt: string;
-        snippet: string;
-      }>;
+      sources: ChatSource[];
+      // Id of the conversation these turns were persisted to. Lets the client
+      // adopt the id of a newly (lazily) created conversation.
+      chatSessionId: string;
     };
+
+// ─── Chat session history ───
+// One persisted conversation. Drives the "Recent" list.
+export interface ChatSessionSummary {
+  id: string;
+  // Null until the first turn's title is generated; clients fall back to a
+  // placeholder ("New chat").
+  title: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// One persisted turn within a conversation.
+export interface PersistedChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  // Present only on assistant turns that cited sessions.
+  sources?: ChatSource[];
+  createdAt: string;
+}
+
+export interface ChatSessionListResponse {
+  chats: ChatSessionSummary[];
+}
+
+export interface ChatSessionDetailResponse {
+  chat: ChatSessionSummary;
+  messages: PersistedChatMessage[];
+}
