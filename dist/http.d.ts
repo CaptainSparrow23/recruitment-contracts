@@ -381,3 +381,6 @@ export interface ChatSessionDetailResponse {
     chat: ChatSessionSummary;
     messages: PersistedChatMessage[];
 }
+export interface DeleteChatSessionResponse {
+    deleted: boolean;
+}
