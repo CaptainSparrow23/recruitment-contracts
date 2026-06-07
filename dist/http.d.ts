@@ -360,6 +360,9 @@ export type ChatStreamEvent = {
     type: "done";
     sources: ChatSource[];
     chatSessionId: string;
+} | {
+    type: "error";
+    message: string;
 };
 export interface ChatSessionSummary {
     id: string;
@@ -374,6 +377,7 @@ export interface PersistedChatMessage {
     sources?: ChatSource[];
     createdAt: string;
 }
+export declare const CHAT_SESSIONS_PAGE_SIZE = 5;
 export interface ChatSessionListResponse {
     chats: ChatSessionSummary[];
 }

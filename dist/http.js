@@ -40,3 +40,6 @@ export const BILLING_CHECKOUT_RESULT_PATH = "/billing/checkout-result";
 export const BILLING_PORTAL_PATH = "/billing/portal";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
+// Recent panel page size — kept small so the chat landing stays compact (paged
+// with prev/next arrows, not a growing scrollable list).
+export const CHAT_SESSIONS_PAGE_SIZE = 5;

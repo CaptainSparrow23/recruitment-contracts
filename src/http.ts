@@ -479,7 +479,10 @@ export type ChatStreamEvent =
       // Id of the conversation these turns were persisted to. Lets the client
       // adopt the id of a newly (lazily) created conversation.
       chatSessionId: string;
-    };
+    }
+  // Terminal failure mid-stream — the server closes the stream after this
+  // without a "done", so the client must finalize the message itself.
+  | { type: "error"; message: string };
 
 // ─── Chat session history ───
 // One persisted conversation. Drives the "Recent" list.
@@ -501,6 +504,10 @@ export interface PersistedChatMessage {
   sources?: ChatSource[];
   createdAt: string;
 }
+
+// Recent panel page size — kept small so the chat landing stays compact (paged
+// with prev/next arrows, not a growing scrollable list).
+export const CHAT_SESSIONS_PAGE_SIZE = 5;
 
 export interface ChatSessionListResponse {
   chats: ChatSessionSummary[];
