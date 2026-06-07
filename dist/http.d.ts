@@ -388,3 +388,9 @@ export interface ChatSessionDetailResponse {
 export interface DeleteChatSessionResponse {
     deleted: boolean;
 }
+export interface RenameChatSessionRequest {
+    title: string;
+}
+export interface RenameChatSessionResponse {
+    title: string;
+}

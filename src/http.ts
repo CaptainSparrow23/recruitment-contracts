@@ -521,3 +521,14 @@ export interface ChatSessionDetailResponse {
 export interface DeleteChatSessionResponse {
   deleted: boolean;
 }
+
+// User-initiated rename of a conversation. Unlike sessions (which keep a
+// separate AI/user title pair) a chat has a single `title`, so rename always
+// sets a non-empty value — never clears it back to the "New chat" placeholder.
+export interface RenameChatSessionRequest {
+  title: string;
+}
+
+export interface RenameChatSessionResponse {
+  title: string;
+}
