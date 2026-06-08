@@ -41,5 +41,9 @@ export const BILLING_PORTAL_PATH = "/billing/portal";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
 // Recent panel page size — kept small so the chat landing stays compact (paged
-// with prev/next arrows, not a growing scrollable list).
+// with prev/next arrows, not a growing scrollable list). The client fetches the
+// whole list once and slices it into pages of this size locally.
 export const CHAT_SESSIONS_PAGE_SIZE = 5;
+// Upper bound on how many sessions the list endpoint returns in one response
+// (and its default when no `limit` is given). Caps the "fetch all" payload.
+export const CHAT_SESSIONS_MAX_LIMIT = 500;

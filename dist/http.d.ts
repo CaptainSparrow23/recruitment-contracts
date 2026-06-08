@@ -378,6 +378,7 @@ export interface PersistedChatMessage {
     createdAt: string;
 }
 export declare const CHAT_SESSIONS_PAGE_SIZE = 5;
+export declare const CHAT_SESSIONS_MAX_LIMIT = 500;
 export interface ChatSessionListResponse {
     chats: ChatSessionSummary[];
 }
