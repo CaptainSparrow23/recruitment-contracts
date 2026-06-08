@@ -241,6 +241,10 @@ export const FOLDERS_PATH = "/folders";
 export const FOLDER_NAME_MAX_LENGTH = 100;
 // A single emoji/glyph; generous to allow ZWJ emoji sequences.
 export const FOLDER_ICON_MAX_LENGTH = 24;
+// A space icon can instead be an uploaded picture, stored inline as a small
+// `data:image/...` URL (the client resizes to ~128px before upload). The cap
+// bounds a resized icon and rejects unresized full-size uploads.
+export const FOLDER_ICON_IMAGE_MAX_LENGTH = 200_000;
 
 // GET /sessions folder filter. Omit the param to get every session; pass a
 // folder uuid to scope to it; pass UNFILED_FOLDER_SENTINEL for sessions with
@@ -253,6 +257,13 @@ export interface Folder {
   name: string;
   // Optional emoji/glyph shown next to the folder (Granola-style "Spaces").
   icon: string | null;
+  // Optional uploaded picture, as a `data:image/...` URL. Mutually exclusive
+  // with `icon` — setting one clears the other. Renders in place of the emoji.
+  iconImage: string | null;
+  // The seeded "My notes" space every account owns. It's a normal folder
+  // except it can't be deleted (new notes fall back to it). At most one per
+  // account.
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
   // Number of sessions filed under this folder. Populated by GET /folders; may
@@ -267,6 +278,8 @@ export interface FolderListResponse {
 export interface CreateFolderRequest {
   name: string;
   icon?: string | null;
+  // A `data:image/...` URL to use as the icon instead of an emoji.
+  iconImage?: string | null;
 }
 
 export interface CreateFolderResponse {
@@ -276,6 +289,9 @@ export interface CreateFolderResponse {
 export interface RenameFolderRequest {
   name: string;
   icon?: string | null;
+  // A `data:image/...` URL to use as the icon instead of an emoji. Omit the key
+  // to leave the existing icon untouched; pass null to clear it.
+  iconImage?: string | null;
 }
 
 export interface RenameFolderResponse {

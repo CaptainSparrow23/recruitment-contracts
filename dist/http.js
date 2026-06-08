@@ -19,6 +19,10 @@ export const FOLDERS_PATH = "/folders";
 export const FOLDER_NAME_MAX_LENGTH = 100;
 // A single emoji/glyph; generous to allow ZWJ emoji sequences.
 export const FOLDER_ICON_MAX_LENGTH = 24;
+// A space icon can instead be an uploaded picture, stored inline as a small
+// `data:image/...` URL (the client resizes to ~128px before upload). The cap
+// bounds a resized icon and rejects unresized full-size uploads.
+export const FOLDER_ICON_IMAGE_MAX_LENGTH = 200_000;
 // GET /sessions folder filter. Omit the param to get every session; pass a
 // folder uuid to scope to it; pass UNFILED_FOLDER_SENTINEL for sessions with
 // no folder.

@@ -187,12 +187,15 @@ export interface SessionTranscriptResponse {
 export declare const FOLDERS_PATH = "/folders";
 export declare const FOLDER_NAME_MAX_LENGTH = 100;
 export declare const FOLDER_ICON_MAX_LENGTH = 24;
+export declare const FOLDER_ICON_IMAGE_MAX_LENGTH = 200000;
 export declare const SESSIONS_FOLDER_QUERY_PARAM = "folderId";
 export declare const UNFILED_FOLDER_SENTINEL = "unfiled";
 export interface Folder {
     id: string;
     name: string;
     icon: string | null;
+    iconImage: string | null;
+    isDefault: boolean;
     createdAt: string;
     updatedAt: string;
     sessionCount?: number;
@@ -203,6 +206,7 @@ export interface FolderListResponse {
 export interface CreateFolderRequest {
     name: string;
     icon?: string | null;
+    iconImage?: string | null;
 }
 export interface CreateFolderResponse {
     folder: Folder;
@@ -210,6 +214,7 @@ export interface CreateFolderResponse {
 export interface RenameFolderRequest {
     name: string;
     icon?: string | null;
+    iconImage?: string | null;
 }
 export interface RenameFolderResponse {
     folder: Folder;
