@@ -382,8 +382,6 @@ export interface QualificationFieldState {
   value: string;
   status: QualificationFieldStatus;
   hasConflict: boolean;
-  confidenceScore: number;
-  confidence: CopilotConfidence;
   evidence: QualificationFieldEvidence[];
   lastUpdatedAt: string | null;
 }
