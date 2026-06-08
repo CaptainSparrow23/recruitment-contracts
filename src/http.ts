@@ -264,6 +264,9 @@ export interface Folder {
   // except it can't be deleted (new notes fall back to it). At most one per
   // account.
   isDefault: boolean;
+  // User-controlled sort order in the sidebar (ascending). Set by dragging
+  // spaces to reorder them; every folder has one (lower = higher in the list).
+  position: number;
   createdAt: string;
   updatedAt: string;
   // Number of sessions filed under this folder. Populated by GET /folders; may
@@ -300,6 +303,13 @@ export interface RenameFolderResponse {
 
 export interface DeleteFolderResponse {
   deleted: boolean;
+}
+
+// Reorder this account's spaces. `orderedIds` is the full list of folder ids in
+// their new top-to-bottom order; the server writes each folder's `position` to
+// its index. Returns the re-sorted folders (a FolderListResponse).
+export interface ReorderFoldersRequest {
+  orderedIds: string[];
 }
 
 // Move a session into a folder, or unfile it (folderId: null).

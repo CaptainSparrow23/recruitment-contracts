@@ -196,6 +196,7 @@ export interface Folder {
     icon: string | null;
     iconImage: string | null;
     isDefault: boolean;
+    position: number;
     createdAt: string;
     updatedAt: string;
     sessionCount?: number;
@@ -221,6 +222,9 @@ export interface RenameFolderResponse {
 }
 export interface DeleteFolderResponse {
     deleted: boolean;
+}
+export interface ReorderFoldersRequest {
+    orderedIds: string[];
 }
 export interface UpdateSessionFolderRequest {
     folderId: string | null;
