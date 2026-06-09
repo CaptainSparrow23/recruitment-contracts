@@ -381,7 +381,6 @@ export interface QualificationFieldState {
   question: string;
   value: string;
   status: QualificationFieldStatus;
-  hasConflict: boolean;
   evidence: QualificationFieldEvidence[];
   lastUpdatedAt: string | null;
 }
