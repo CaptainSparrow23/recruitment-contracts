@@ -30,7 +30,7 @@ export interface CalendarAttendeePreview {
     email: string | null;
 }
 export type CalendarEventSource = "google" | "microsoft" | "manual";
-export declare const MANUAL_EVENT_COLORS: readonly ["#8b7fd6", "#e0b24a", "#4a9d8e", "#d67b9c", "#6fae6f", "#c97b54"];
+export declare const MANUAL_EVENT_COLORS: readonly ["#e9a8b3", "#ec9f86", "#ebc485", "#c9d488", "#a9cf94", "#8ccabf", "#9db9e3", "#aaa9e0", "#c5a9e2", "#dba6d4"];
 export type ManualEventColor = (typeof MANUAL_EVENT_COLORS)[number];
 export interface CalendarEvent {
     id: string;
