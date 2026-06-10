@@ -81,6 +81,7 @@ export interface SessionDetail {
     userNotesTidied: TiptapDoc | null;
     calendarEvent: CalendarEvent | null;
     artifacts: SessionArtifactDetail[];
+    qualificationStates: QualificationStateSummary[];
     createdAt: string;
     folderId: string | null;
     finalizationStatus?: SessionFinalizationStatus;
@@ -121,6 +122,23 @@ export interface UpdateQualificationFieldRequest {
 export interface UpdateQualificationFieldResponse {
     field: QualificationFieldState;
 }
+export interface QualificationStateSummary {
+    templateId: string | null;
+    capturedFieldCount: number;
+    totalFieldCount: number;
+    updatedAt: string;
+}
+export interface SwitchSessionTemplateRequest {
+    templateId: string | null;
+    regenerate?: boolean;
+}
+export type SwitchSessionTemplateResponse = {
+    status: "activated";
+    templateId: string | null;
+} | {
+    status: "pending";
+    job: SessionTemplateBackfillJobDetail;
+};
 export interface TidySessionNotesBlock {
     path: number[];
     node: TiptapNode;
@@ -141,6 +159,7 @@ export interface SessionArtifactDetail {
     fileName: string;
     contentType: string;
     createdAt: string;
+    templateId: string | null;
 }
 export type SessionTemplateBackfillJobStatus = "pending" | "processing" | "completed" | "failed";
 export interface SessionTemplateBackfillJobDetail {

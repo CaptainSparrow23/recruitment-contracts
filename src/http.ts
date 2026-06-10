@@ -100,6 +100,9 @@ export interface SessionDetail {
   userNotesTidied: TiptapDoc | null;
   calendarEvent: CalendarEvent | null;
   artifacts: SessionArtifactDetail[];
+  // Saved qualification states for OTHER templates (the "shelf"). The active
+  // state is `qualificationState` above; `templateId` is the active template.
+  qualificationStates: QualificationStateSummary[];
   createdAt: string;
   folderId: string | null;
   finalizationStatus?: SessionFinalizationStatus;
@@ -155,6 +158,27 @@ export interface UpdateQualificationFieldResponse {
   field: QualificationFieldState;
 }
 
+// A saved qualification state for one template (the "shelf"). `templateId` is
+// null for the built-in "Default" (no-document) state.
+export interface QualificationStateSummary {
+  templateId: string | null;
+  capturedFieldCount: number;
+  totalFieldCount: number;
+  updatedAt: string;
+}
+
+// Switch the session's active template. `regenerate: true` (only sent by the
+// explicit Regenerate action) forces a fresh backfill even when a saved state
+// exists; default false reactivates a saved state or backfills a new one.
+export interface SwitchSessionTemplateRequest {
+  templateId: string | null;
+  regenerate?: boolean;
+}
+
+export type SwitchSessionTemplateResponse =
+  | { status: "activated"; templateId: string | null }
+  | { status: "pending"; job: SessionTemplateBackfillJobDetail };
+
 // Request: the frontend sends exactly one node per dirty block.
 export interface TidySessionNotesBlock {
   path: number[];
@@ -183,6 +207,9 @@ export interface SessionArtifactDetail {
   fileName: string;
   contentType: string;
   createdAt: string;
+  // The template this document was generated for. Null on legacy rows written
+  // before artifacts were attributed to a template.
+  templateId: string | null;
 }
 
 export type SessionTemplateBackfillJobStatus =
