@@ -1,4 +1,4 @@
-import type { CopilotRedFlagItem, QualificationFieldState, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
+import type { CopilotRedFlagItem, QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { CalendarEvent } from "./calendar.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
@@ -112,6 +112,14 @@ export interface UpdateSessionNotesRequest {
 export interface UpdateSessionNotesResponse {
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
+}
+export declare const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
+export interface UpdateQualificationFieldRequest {
+    value: string;
+    status?: QualificationFieldStatus;
+}
+export interface UpdateQualificationFieldResponse {
+    field: QualificationFieldState;
 }
 export interface TidySessionNotesBlock {
     path: number[];

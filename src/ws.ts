@@ -383,6 +383,10 @@ export interface QualificationFieldState {
   status: QualificationFieldStatus;
   evidence: QualificationFieldEvidence[];
   lastUpdatedAt: string | null;
+  // "ai" (the default) while the value is owned by the qualification engine;
+  // "user" once a recruiter has manually overridden it. Absent on records
+  // written before this field existed — read paths must treat missing as "ai".
+  origin?: "ai" | "user";
 }
 
 export interface QualificationStateMessage {

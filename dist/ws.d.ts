@@ -294,6 +294,7 @@ export interface QualificationFieldState {
     status: QualificationFieldStatus;
     evidence: QualificationFieldEvidence[];
     lastUpdatedAt: string | null;
+    origin?: "ai" | "user";
 }
 export interface QualificationStateMessage {
     type: typeof SERVER_MESSAGE_TYPES.QUALIFICATION_STATE;

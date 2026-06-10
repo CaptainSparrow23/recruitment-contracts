@@ -11,6 +11,7 @@ export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
 export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export const USER_NOTES_MAX_BYTES = 256 * 1024;
+export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
 // ─── Folders ───
 // Lightweight, per-account groupings for organizing sessions. A folder owns no
 // data: deleting one unfiles its sessions (folder_id -> NULL) rather than

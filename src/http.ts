@@ -1,6 +1,7 @@
 import type {
   CopilotRedFlagItem,
   QualificationFieldState,
+  QualificationFieldStatus,
   SessionArtifactKind,
   TranscriptProviderMetadata,
   TranscriptSpeakerMetadata,
@@ -138,6 +139,20 @@ export interface UpdateSessionNotesRequest {
 export interface UpdateSessionNotesResponse {
   userNotes: TiptapDoc | null;
   userNotesTidied: TiptapDoc | null;
+}
+
+export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
+
+// A recruiter override of a single qualification field. Asserting a value
+// implicitly confirms the field, so `status` is optional and defaults to
+// "confirmed" server-side when omitted.
+export interface UpdateQualificationFieldRequest {
+  value: string;
+  status?: QualificationFieldStatus;
+}
+
+export interface UpdateQualificationFieldResponse {
+  field: QualificationFieldState;
 }
 
 // Request: the frontend sends exactly one node per dirty block.
