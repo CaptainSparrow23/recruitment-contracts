@@ -139,6 +139,9 @@ export type SwitchSessionTemplateResponse = {
     status: "pending";
     job: SessionTemplateBackfillJobDetail;
 };
+export interface RefillTemplateDocumentResponse {
+    job: SessionTemplateBackfillJobDetail;
+}
 export interface TidySessionNotesBlock {
     path: number[];
     node: TiptapNode;

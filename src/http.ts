@@ -179,6 +179,12 @@ export type SwitchSessionTemplateResponse =
   | { status: "activated"; templateId: string | null }
   | { status: "pending"; job: SessionTemplateBackfillJobDetail };
 
+// Re-fill the active template's document from the CURRENT field values
+// (preserving manual edits) — no transcript re-extraction. Always async.
+export interface RefillTemplateDocumentResponse {
+  job: SessionTemplateBackfillJobDetail;
+}
+
 // Request: the frontend sends exactly one node per dirty block.
 export interface TidySessionNotesBlock {
   path: number[];
