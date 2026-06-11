@@ -129,6 +129,18 @@ export interface CreateManualEventResponse {
   event: CalendarEvent;
 }
 
+export interface UpdateManualEventRequest {
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  timeZone?: string | null;
+  color?: string | null;
+}
+
+export interface UpdateManualEventResponse {
+  event: CalendarEvent;
+}
+
 export interface DeleteManualEventResponse {
   deleted: boolean;
 }
