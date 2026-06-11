@@ -284,6 +284,7 @@ export interface QualificationFieldEvidence {
     snapshotId: string;
     segmentIndex: number;
     speakerLabel: string | null;
+    speakerId?: string | null;
     quote: string;
     receivedAt: string;
 }
