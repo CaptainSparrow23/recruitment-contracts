@@ -412,6 +412,7 @@ export const BILLING_PRICING_PATH = "/billing/pricing";
 export const BILLING_CHECKOUT_PATH = "/billing/checkout";
 export const BILLING_CHECKOUT_RESULT_PATH = "/billing/checkout-result";
 export const BILLING_PORTAL_PATH = "/billing/portal";
+export const BILLING_DETAILS_PATH = "/billing/details";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
 
@@ -465,6 +466,45 @@ export interface BillingState {
   sessionsStarted: number;
 }
 
+// ── Billing details (payment method + invoices) ──
+// Fetched on-demand from Stripe and rendered; never persisted on our side.
+
+/** Stripe billing-portal deep-link flows we expose. */
+export type BillingPortalFlow = "payment_method_update" | "subscription_cancel";
+
+export interface BillingPaymentMethod {
+  /** Card network, e.g. "visa", "mastercard". */
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+}
+
+export type BillingInvoiceStatus =
+  | "draft"
+  | "open"
+  | "paid"
+  | "uncollectible"
+  | "void";
+
+export interface BillingInvoice {
+  id: string;
+  /** ISO timestamp of the invoice date (Stripe `created`). */
+  date: string;
+  /** Total in the smallest currency unit (e.g. pence). */
+  total: number;
+  /** ISO 4217 code, lower-case as Stripe returns it (e.g. "gbp"). */
+  currency: string;
+  status: BillingInvoiceStatus | null;
+  /** Stripe-hosted invoice page; null when Stripe didn't provide one. */
+  hostedInvoiceUrl: string | null;
+}
+
+export interface BillingDetails {
+  paymentMethod: BillingPaymentMethod | null;
+  invoices: BillingInvoice[];
+}
+
 export interface CreateCheckoutSessionRequest {
   tier: "personal" | "business";
   interval: BillingInterval;
@@ -477,7 +517,9 @@ export interface CreateCheckoutSessionResponse {
 }
 
 export interface CreatePortalSessionRequest {
-  returnUrl: string;
+  returnUrl?: string;
+  /** Optional deep-link so the portal opens straight on a specific flow. */
+  flow?: BillingPortalFlow;
 }
 
 export interface CreatePortalSessionResponse {

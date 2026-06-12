@@ -43,6 +43,7 @@ export const BILLING_PRICING_PATH = "/billing/pricing";
 export const BILLING_CHECKOUT_PATH = "/billing/checkout";
 export const BILLING_CHECKOUT_RESULT_PATH = "/billing/checkout-result";
 export const BILLING_PORTAL_PATH = "/billing/portal";
+export const BILLING_DETAILS_PATH = "/billing/details";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
 // Recent panel page size — kept small so the chat landing stays compact (paged
