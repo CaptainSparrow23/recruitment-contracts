@@ -384,22 +384,33 @@ export interface CreateOrganizationResponse {
     organizationId: string;
     organizationName: string;
 }
-export interface SearchResultItem {
-    sessionId: string;
-    title: string | null;
-    startedAt: string;
-    endedAt: string;
-    durationSeconds: number;
-    templateId: string | null;
-    fieldCount: number;
-    capturedFieldCount: number;
+export interface SearchSnippetHighlight {
+    start: number;
+    end: number;
+}
+export type SearchResultType = "session" | "jobDescription" | "resume" | "template";
+interface SearchResultBase {
+    id: string;
+    title: string;
+    subtitle: string | null;
+    timestamp: string | null;
     snippetText: string;
-    snippetHighlights: Array<{
-        start: number;
-        end: number;
-    }>;
+    snippetHighlights: SearchSnippetHighlight[];
     relevance: number;
 }
+export interface SessionSearchResult extends SearchResultBase {
+    type: "session";
+}
+export interface JobDescriptionSearchResult extends SearchResultBase {
+    type: "jobDescription";
+}
+export interface ResumeSearchResult extends SearchResultBase {
+    type: "resume";
+}
+export interface TemplateSearchResult extends SearchResultBase {
+    type: "template";
+}
+export type SearchResultItem = SessionSearchResult | JobDescriptionSearchResult | ResumeSearchResult | TemplateSearchResult;
 export interface SearchResponse {
     results: SearchResultItem[];
 }
@@ -463,3 +474,4 @@ export interface RenameChatSessionRequest {
 export interface RenameChatSessionResponse {
     title: string;
 }
+export {};
