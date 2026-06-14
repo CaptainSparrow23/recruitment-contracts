@@ -1,4 +1,4 @@
-export const UNTITLED_MEETING_FALLBACK = "Untitled Meeting";
+export const UNTITLED_MEETING_FALLBACK = "New note";
 export function resolveSessionTitle(session) {
     return (session.userMeetingTitle ??
         session.calendarEvent?.title ??

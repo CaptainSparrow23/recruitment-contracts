@@ -1,6 +1,6 @@
 import type { SessionDetail, SessionSummary } from "./http.js";
 
-export const UNTITLED_MEETING_FALLBACK = "Untitled Meeting";
+export const UNTITLED_MEETING_FALLBACK = "New note";
 
 type TitleSource = Pick<
   SessionSummary | SessionDetail,
