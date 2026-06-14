@@ -49,6 +49,11 @@ export type TiptapDoc = {
     type: "doc";
     content?: unknown[];
 };
+export type NoteBlockEvidence = {
+    segmentIndex: number;
+    quote: string;
+};
+export declare const NOTE_EVIDENCE_ATTR = "evidence";
 export interface SessionParticipant {
     id: string;
     name: string | null;

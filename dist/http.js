@@ -9,6 +9,9 @@ export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
 export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
 export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
+// The attribute key under which NoteBlockEvidence[] rides on a Tiptap block
+// node's attrs. Shared so the backend writer and the frontend extension agree.
+export const NOTE_EVIDENCE_ATTR = "evidence";
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export const USER_NOTES_MAX_BYTES = 256 * 1024;
 export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;

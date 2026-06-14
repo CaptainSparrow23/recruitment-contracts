@@ -67,6 +67,20 @@ export type TiptapDoc = {
   content?: unknown[];
 };
 
+// A transcript citation attached to an enhanced-notes block, carried on the
+// node's `attrs.evidence`. The notes-tidying model cites the segment(s) that
+// justify a detail it pulled from the call; the UI renders a magnifier that
+// jumps to the cited segment. Lean by design — speaker is resolved at render
+// time from the loaded transcript by segmentIndex (see TranscriptDrawer).
+export type NoteBlockEvidence = {
+  segmentIndex: number;
+  quote: string;
+};
+
+// The attribute key under which NoteBlockEvidence[] rides on a Tiptap block
+// node's attrs. Shared so the backend writer and the frontend extension agree.
+export const NOTE_EVIDENCE_ATTR = "evidence";
+
 // A real attendee on the call (recruiter included). From the Recall roster captured
 // at finalization; absent for phone/manual_audio and pre-feature sessions. Recall
 // exposes no profile photos, so this is just identity for the "and N more" subtitle.
