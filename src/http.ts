@@ -70,8 +70,9 @@ export type TiptapDoc = {
 // A transcript citation attached to an enhanced-notes block, carried on the
 // node's `attrs.evidence`. The notes-tidying model cites the segment(s) that
 // justify a detail it pulled from the call; the UI renders a magnifier that
-// jumps to the cited segment. Lean by design — speaker is resolved at render
-// time from the loaded transcript by segmentIndex (see TranscriptDrawer).
+// jumps to the cited segment. Lean by design — the magnifier shows no speaker;
+// the transcript drawer it opens labels each row (the cited one included) from
+// the loaded transcript by segmentIndex.
 export type NoteBlockEvidence = {
   segmentIndex: number;
   quote: string;
