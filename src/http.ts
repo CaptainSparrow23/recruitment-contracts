@@ -67,6 +67,16 @@ export type TiptapDoc = {
   content?: unknown[];
 };
 
+// A real attendee on the call (recruiter included). From the Recall roster captured
+// at finalization; absent for phone/manual_audio and pre-feature sessions. Recall
+// exposes no profile photos, so this is just identity for the "and N more" subtitle.
+export interface SessionParticipant {
+  id: string;
+  name: string | null;
+  email: string | null;
+  isHost: boolean;
+}
+
 export interface SessionSummary {
   id: string;
   startedAt: string;
@@ -83,6 +93,8 @@ export interface SessionSummary {
   folderId: string | null;
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
+  // Real attendee roster (recruiter included). Optional: old/phone sessions omit it.
+  participants?: SessionParticipant[];
 }
 
 export interface SessionDetail {
@@ -110,6 +122,8 @@ export interface SessionDetail {
   isManualAudio: boolean;
   ownSpeakerLabel: string | null;
   speakerMappingResolved: boolean;
+  // Contract symmetry with SessionSummary; not rendered on the detail view yet.
+  participants?: SessionParticipant[];
 }
 
 export interface UpdateSpeakerMappingRequest {

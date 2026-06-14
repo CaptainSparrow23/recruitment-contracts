@@ -49,6 +49,12 @@ export type TiptapDoc = {
     type: "doc";
     content?: unknown[];
 };
+export interface SessionParticipant {
+    id: string;
+    name: string | null;
+    email: string | null;
+    isHost: boolean;
+}
 export interface SessionSummary {
     id: string;
     startedAt: string;
@@ -65,6 +71,7 @@ export interface SessionSummary {
     folderId: string | null;
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
+    participants?: SessionParticipant[];
 }
 export interface SessionDetail {
     id: string;
@@ -89,6 +96,7 @@ export interface SessionDetail {
     isManualAudio: boolean;
     ownSpeakerLabel: string | null;
     speakerMappingResolved: boolean;
+    participants?: SessionParticipant[];
 }
 export interface UpdateSpeakerMappingRequest {
     ownSpeakerLabel: string | null;
