@@ -71,6 +71,7 @@ export interface SessionSummary {
     meetingTitle: string | null;
     userMeetingTitle: string | null;
     userNotes: TiptapDoc | null;
+    userNotesTidied: TiptapDoc | null;
     calendarEvent: CalendarEvent | null;
     createdAt: string;
     folderId: string | null;
