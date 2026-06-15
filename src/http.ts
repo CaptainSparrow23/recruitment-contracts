@@ -103,6 +103,9 @@ export interface SessionSummary {
   meetingTitle: string | null;
   userMeetingTitle: string | null;
   userNotes: TiptapDoc | null;
+  // Enhanced (AI-tidied) notes once finalization has produced them; the grid
+  // prefers these for the card preview and falls back to userNotes.
+  userNotesTidied: TiptapDoc | null;
   calendarEvent: CalendarEvent | null;
   createdAt: string;
   folderId: string | null;
