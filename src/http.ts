@@ -10,6 +10,10 @@ import type {
 import type {
   CalendarEvent
 } from "./calendar.js";
+import type {
+  SharedNotesBackground,
+  SharedNotesPattern
+} from "./sharedNotesStyle.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 
 export const HEALTH_PATH = "/health";
@@ -179,7 +183,14 @@ export interface UpdateSessionNotesResponse {
 }
 
 // POST /sessions/:sessionId/share-link — mints (or returns the existing)
-// reusable public link for a meeting's notes. Body is empty.
+// reusable public link for a meeting's notes. The optional style picks how the
+// public page is dressed; re-posting an existing link with a new style updates
+// it (same URL). Omitted fields fall back to the defaults.
+export interface CreateSessionShareLinkRequest {
+  pattern?: SharedNotesPattern;
+  background?: SharedNotesBackground;
+}
+
 export interface CreateSessionShareLinkResponse {
   // Full public URL, e.g. "https://<site>/n/<token>" — the backend composes it.
   shareUrl: string;
@@ -189,6 +200,9 @@ export interface CreateSessionShareLinkResponse {
   // When the link stops working (ISO). null only for legacy links minted before
   // expiry existed; all new links get a 30-day window.
   expiresAt: string | null;
+  // The saved look, echoed back so the modal can reflect what's stored.
+  pattern: SharedNotesPattern;
+  background: SharedNotesBackground;
 }
 
 // DELETE /sessions/:sessionId/share-link — revokes the meeting's active link
@@ -203,6 +217,9 @@ export interface SharedNotesResponse {
   title: string;
   markdown: string;
   createdAt: string;
+  // The sharer-chosen look the public page renders.
+  pattern: SharedNotesPattern;
+  background: SharedNotesBackground;
 }
 
 export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;

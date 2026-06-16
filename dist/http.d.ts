@@ -1,5 +1,6 @@
 import type { CopilotRedFlagItem, QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { CalendarEvent } from "./calendar.js";
+import type { SharedNotesBackground, SharedNotesPattern } from "./sharedNotesStyle.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
 export declare const READY_PATH = "/ready";
@@ -129,11 +130,17 @@ export interface UpdateSessionNotesResponse {
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
 }
+export interface CreateSessionShareLinkRequest {
+    pattern?: SharedNotesPattern;
+    background?: SharedNotesBackground;
+}
 export interface CreateSessionShareLinkResponse {
     shareUrl: string;
     shareToken: string;
     createdAt: string;
     expiresAt: string | null;
+    pattern: SharedNotesPattern;
+    background: SharedNotesBackground;
 }
 export interface RevokeSessionShareLinkResponse {
     revoked: boolean;
@@ -142,6 +149,8 @@ export interface SharedNotesResponse {
     title: string;
     markdown: string;
     createdAt: string;
+    pattern: SharedNotesPattern;
+    background: SharedNotesBackground;
 }
 export declare const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
 export interface UpdateQualificationFieldRequest {
