@@ -9,6 +9,8 @@ export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
 export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
 export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
+// Public, unauthenticated read of a meeting's shared notes by share token.
+export const SHARED_NOTES_PATH = "/shared-notes";
 // The attribute key under which NoteBlockEvidence[] rides on a Tiptap block
 // node's attrs. Shared so the backend writer and the frontend extension agree.
 export const NOTE_EVIDENCE_ATTR = "evidence";

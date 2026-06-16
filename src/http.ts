@@ -23,6 +23,8 @@ export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
 export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
 export const RECALL_WEBHOOK_PATH = "/webhooks/recall";
+// Public, unauthenticated read of a meeting's shared notes by share token.
+export const SHARED_NOTES_PATH = "/shared-notes";
 
 export interface HealthResponse {
   status: "ok";
@@ -174,6 +176,24 @@ export interface UpdateSessionNotesRequest {
 export interface UpdateSessionNotesResponse {
   userNotes: TiptapDoc | null;
   userNotesTidied: TiptapDoc | null;
+}
+
+// POST /sessions/:sessionId/share-link — mints (or returns the existing)
+// reusable public link for a meeting's notes. Body is empty.
+export interface CreateSessionShareLinkResponse {
+  // Full public URL, e.g. "https://<site>/n/<token>" — the backend composes it.
+  shareUrl: string;
+  // The opaque token alone (the URL's secret), for client-side use if needed.
+  shareToken: string;
+  createdAt: string;
+}
+
+// GET /shared-notes/:token — the public (no-auth) payload rendered by the
+// website. Notes are pre-serialized to markdown server-side (evidence stripped).
+export interface SharedNotesResponse {
+  title: string;
+  markdown: string;
+  createdAt: string;
 }
 
 export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;

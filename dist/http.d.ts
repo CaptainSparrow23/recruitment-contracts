@@ -12,6 +12,7 @@ export declare const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export declare const SESSIONS_PATH = "/sessions";
 export declare const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
 export declare const RECALL_WEBHOOK_PATH = "/webhooks/recall";
+export declare const SHARED_NOTES_PATH = "/shared-notes";
 export interface HealthResponse {
     status: "ok";
     service: "recruitment-backend";
@@ -127,6 +128,16 @@ export interface UpdateSessionNotesRequest {
 export interface UpdateSessionNotesResponse {
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
+}
+export interface CreateSessionShareLinkResponse {
+    shareUrl: string;
+    shareToken: string;
+    createdAt: string;
+}
+export interface SharedNotesResponse {
+    title: string;
+    markdown: string;
+    createdAt: string;
 }
 export declare const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
 export interface UpdateQualificationFieldRequest {
