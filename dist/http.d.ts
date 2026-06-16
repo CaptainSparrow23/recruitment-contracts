@@ -133,6 +133,10 @@ export interface CreateSessionShareLinkResponse {
     shareUrl: string;
     shareToken: string;
     createdAt: string;
+    expiresAt: string | null;
+}
+export interface RevokeSessionShareLinkResponse {
+    revoked: boolean;
 }
 export interface SharedNotesResponse {
     title: string;

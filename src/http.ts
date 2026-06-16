@@ -186,6 +186,15 @@ export interface CreateSessionShareLinkResponse {
   // The opaque token alone (the URL's secret), for client-side use if needed.
   shareToken: string;
   createdAt: string;
+  // When the link stops working (ISO). null only for legacy links minted before
+  // expiry existed; all new links get a 30-day window.
+  expiresAt: string | null;
+}
+
+// DELETE /sessions/:sessionId/share-link — revokes the meeting's active link
+// (sets revoked_at). `revoked` is false when there was no active link to kill.
+export interface RevokeSessionShareLinkResponse {
+  revoked: boolean;
 }
 
 // GET /shared-notes/:token — the public (no-auth) payload rendered by the
