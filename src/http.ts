@@ -144,20 +144,8 @@ export interface SessionDetail {
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
   isManualAudio: boolean;
-  ownSpeakerLabel: string | null;
-  speakerMappingResolved: boolean;
   // Contract symmetry with SessionSummary; not rendered on the detail view yet.
   participants?: SessionParticipant[];
-}
-
-export interface UpdateSpeakerMappingRequest {
-  ownSpeakerLabel: string | null;
-  speakerMappingResolved: boolean;
-}
-
-export interface UpdateSpeakerMappingResponse {
-  ownSpeakerLabel: string | null;
-  speakerMappingResolved: boolean;
 }
 
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;

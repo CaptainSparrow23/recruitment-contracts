@@ -372,9 +372,9 @@ export interface QualificationFieldEvidence {
   snapshotId: string;
   segmentIndex: number;
   speakerLabel: string | null;
-  // Raw diarization speaker id for the cited segment (e.g. "0"). Carried so the
-  // UI can match against the session's ownSpeakerLabel and relabel "Speaker 0"
-  // as "You"/the candidate. Optional: rows persisted before this field lack it.
+  // Raw speaker id for the cited segment. On the manual path this is the audio
+  // channel ("host"/"guest"), which the UI relabels to "You"/the candidate's
+  // name. Optional: rows persisted before this field lack it.
   speakerId?: string | null;
   quote: string;
   receivedAt: string;

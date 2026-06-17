@@ -102,17 +102,7 @@ export interface SessionDetail {
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     isManualAudio: boolean;
-    ownSpeakerLabel: string | null;
-    speakerMappingResolved: boolean;
     participants?: SessionParticipant[];
-}
-export interface UpdateSpeakerMappingRequest {
-    ownSpeakerLabel: string | null;
-    speakerMappingResolved: boolean;
-}
-export interface UpdateSpeakerMappingResponse {
-    ownSpeakerLabel: string | null;
-    speakerMappingResolved: boolean;
 }
 export declare const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export interface RenameSessionRequest {
