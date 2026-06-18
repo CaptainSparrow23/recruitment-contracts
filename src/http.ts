@@ -353,8 +353,16 @@ export interface SessionTranscriptResponse {
 // deleting them.
 export const FOLDERS_PATH = "/folders";
 export const FOLDER_NAME_MAX_LENGTH = 100;
-// A single emoji/glyph; generous to allow ZWJ emoji sequences.
+// `icon` holds EITHER a Lucide icon key (kebab-case ASCII, e.g. "briefcase") for
+// folders created/edited since the icon revamp, OR a legacy emoji glyph for older
+// folders not yet re-saved. The two are told apart at render time: an all-ASCII
+// `[a-z0-9-]` value is an icon key, anything else (i.e. containing an emoji) is a
+// glyph. The cap is generous to allow legacy ZWJ emoji sequences; icon keys are
+// far shorter.
 export const FOLDER_ICON_MAX_LENGTH = 24;
+// `color` is a hex string ("#rrggbb") from the client's curated tint palette,
+// used to tint the icon chip. Capped just past a 7-char hex for a little slack.
+export const FOLDER_COLOR_MAX_LENGTH = 9;
 // A space icon can instead be an uploaded picture, stored inline as a small
 // `data:image/...` URL (the client resizes to ~128px before upload). The cap
 // bounds a resized icon and rejects unresized full-size uploads.
@@ -369,11 +377,15 @@ export const UNFILED_FOLDER_SENTINEL = "unfiled";
 export interface Folder {
   id: string;
   name: string;
-  // Optional emoji/glyph shown next to the folder (Granola-style "Spaces").
+  // The folder's icon: a Lucide icon key (kebab-case) or a legacy emoji glyph.
+  // See FOLDER_ICON_MAX_LENGTH for how the two are distinguished.
   icon: string | null;
   // Optional uploaded picture, as a `data:image/...` URL. Mutually exclusive
-  // with `icon` — setting one clears the other. Renders in place of the emoji.
+  // with `icon` — setting one clears the other. Renders in place of the icon.
   iconImage: string | null;
+  // Hex tint ("#rrggbb") applied to the icon chip. Only meaningful for icon-key
+  // icons; null for legacy emoji, uploaded pictures, and un-iconed folders.
+  color: string | null;
   // The seeded "My notes" space every account owns. It's a normal folder
   // except it can't be deleted (new notes fall back to it). At most one per
   // account.
@@ -394,9 +406,12 @@ export interface FolderListResponse {
 
 export interface CreateFolderRequest {
   name: string;
+  // A Lucide icon key or a legacy emoji glyph.
   icon?: string | null;
-  // A `data:image/...` URL to use as the icon instead of an emoji.
+  // A `data:image/...` URL to use as the icon instead of an icon/emoji.
   iconImage?: string | null;
+  // Hex tint for the icon chip ("#rrggbb"), or null.
+  color?: string | null;
 }
 
 export interface CreateFolderResponse {
@@ -405,10 +420,14 @@ export interface CreateFolderResponse {
 
 export interface RenameFolderRequest {
   name: string;
+  // A Lucide icon key or a legacy emoji glyph. Omit the key to leave the
+  // existing icon untouched; pass null to clear it.
   icon?: string | null;
-  // A `data:image/...` URL to use as the icon instead of an emoji. Omit the key
-  // to leave the existing icon untouched; pass null to clear it.
+  // A `data:image/...` URL to use as the icon instead of an icon/emoji. Omit the
+  // key to leave the existing icon untouched; pass null to clear it.
   iconImage?: string | null;
+  // Hex tint for the icon chip ("#rrggbb"). Omit to leave unchanged; null clears.
+  color?: string | null;
 }
 
 export interface RenameFolderResponse {

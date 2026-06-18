@@ -23,8 +23,16 @@ export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
 // deleting them.
 export const FOLDERS_PATH = "/folders";
 export const FOLDER_NAME_MAX_LENGTH = 100;
-// A single emoji/glyph; generous to allow ZWJ emoji sequences.
+// `icon` holds EITHER a Lucide icon key (kebab-case ASCII, e.g. "briefcase") for
+// folders created/edited since the icon revamp, OR a legacy emoji glyph for older
+// folders not yet re-saved. The two are told apart at render time: an all-ASCII
+// `[a-z0-9-]` value is an icon key, anything else (i.e. containing an emoji) is a
+// glyph. The cap is generous to allow legacy ZWJ emoji sequences; icon keys are
+// far shorter.
 export const FOLDER_ICON_MAX_LENGTH = 24;
+// `color` is a hex string ("#rrggbb") from the client's curated tint palette,
+// used to tint the icon chip. Capped just past a 7-char hex for a little slack.
+export const FOLDER_COLOR_MAX_LENGTH = 9;
 // A space icon can instead be an uploaded picture, stored inline as a small
 // `data:image/...` URL (the client resizes to ~128px before upload). The cap
 // bounds a resized icon and rejects unresized full-size uploads.
