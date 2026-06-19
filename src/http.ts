@@ -144,7 +144,9 @@ export interface SessionDetail {
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
   isManualAudio: boolean;
-  // Contract symmetry with SessionSummary; not rendered on the detail view yet.
+  // Real attendee roster, rendered as the people label on the detail header
+  // (and, via SessionSummary, the recent-meetings rows). Optional: old/phone
+  // sessions omit it.
   participants?: SessionParticipant[];
 }
 
