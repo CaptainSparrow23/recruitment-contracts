@@ -77,7 +77,9 @@ export interface SessionStopMessage {
 
 export interface SessionPingMessage {
   type: typeof CLIENT_MESSAGE_TYPES.SESSION_PING;
-  sessionId: string;
+  // Optional: a connection-level keepalive carries no session; an in-call ping
+  // echoes the active session id so the server can correlate it.
+  sessionId?: string;
   sentAt: string;
 }
 
@@ -463,7 +465,8 @@ export interface SessionArtifactStatusMessage {
 
 export interface SessionPongMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_PONG;
-  sessionId: string;
+  // Present only when the ping carried a matching active session.
+  sessionId?: string;
   receivedAt: string;
 }
 
@@ -503,7 +506,7 @@ export function isClientMessage(value: unknown): value is ClientMessage {
     case CLIENT_MESSAGE_TYPES.SESSION_STOP:
       return isTimestampedSessionMessage(value, "endedAt");
     case CLIENT_MESSAGE_TYPES.SESSION_PING:
-      return isTimestampedSessionMessage(value, "sentAt");
+      return isSessionPingMessage(value);
     case CLIENT_MESSAGE_TYPES.SESSION_RESUME:
       return isTimestampedSessionMessage(value, "resumedAt");
     case CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION:
@@ -511,6 +514,15 @@ export function isClientMessage(value: unknown): value is ClientMessage {
     default:
       return false;
   }
+}
+
+// SESSION_PING is a connection-level keepalive: `sessionId` is optional (omitted
+// when idle, a matching active session's id when in a call), `sentAt` required.
+function isSessionPingMessage(value: Record<string, unknown>): boolean {
+  if (typeof value.sentAt !== "string") {
+    return false;
+  }
+  return value.sessionId === undefined || isUuidString(value.sessionId);
 }
 
 function isTimestampedSessionMessage(

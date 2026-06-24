@@ -55,7 +55,7 @@ export function isClientMessage(value) {
         case CLIENT_MESSAGE_TYPES.SESSION_STOP:
             return isTimestampedSessionMessage(value, "endedAt");
         case CLIENT_MESSAGE_TYPES.SESSION_PING:
-            return isTimestampedSessionMessage(value, "sentAt");
+            return isSessionPingMessage(value);
         case CLIENT_MESSAGE_TYPES.SESSION_RESUME:
             return isTimestampedSessionMessage(value, "resumedAt");
         case CLIENT_MESSAGE_TYPES.SESSION_RETRY_FINALIZATION:
@@ -63,6 +63,14 @@ export function isClientMessage(value) {
         default:
             return false;
     }
+}
+// SESSION_PING is a connection-level keepalive: `sessionId` is optional (omitted
+// when idle, a matching active session's id when in a call), `sentAt` required.
+function isSessionPingMessage(value) {
+    if (typeof value.sentAt !== "string") {
+        return false;
+    }
+    return value.sessionId === undefined || isUuidString(value.sessionId);
 }
 function isTimestampedSessionMessage(value, timeKey) {
     if (!isUuidString(value.sessionId) || typeof value[timeKey] !== "string") {

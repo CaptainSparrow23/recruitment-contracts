@@ -60,7 +60,7 @@ export interface SessionStopMessage {
 }
 export interface SessionPingMessage {
     type: typeof CLIENT_MESSAGE_TYPES.SESSION_PING;
-    sessionId: string;
+    sessionId?: string;
     sentAt: string;
 }
 export interface SessionResumeMessage {
@@ -350,7 +350,7 @@ export interface SessionArtifactStatusMessage {
 }
 export interface SessionPongMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_PONG;
-    sessionId: string;
+    sessionId?: string;
     receivedAt: string;
 }
 export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
