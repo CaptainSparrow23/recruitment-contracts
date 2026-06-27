@@ -690,6 +690,13 @@ export interface ChatRequest {
   // Append to an existing conversation. Omit to start a new one — the server
   // creates it lazily and returns its id on the "done" event.
   chatSessionId?: string;
+  // Anchor the conversation to a specific INTERVIEW/meeting session (the id of a
+  // SessionDetail / session_records row). When set, the assistant treats that
+  // interview as the subject and answers from it by default, while keeping full
+  // access to the rest of the corpus for comparison questions. This is the
+  // interview id — NOT the conversation id (`chatSessionId`) nor a cited source
+  // (`ChatSource.sessionId`).
+  anchorSessionId?: string;
 }
 
 // A cited source attached to a persisted assistant turn. Mirrors the live

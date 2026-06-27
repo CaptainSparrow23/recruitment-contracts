@@ -452,6 +452,7 @@ export interface ChatRequest {
         content: string;
     }>;
     chatSessionId?: string;
+    anchorSessionId?: string;
 }
 export interface ChatSource {
     sessionId: string;
