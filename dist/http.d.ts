@@ -94,6 +94,8 @@ export interface SessionDetail {
     userMeetingTitle: string | null;
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
+    userNotesUpdatedAt: string | null;
+    userNotesTidiedAt: string | null;
     calendarEvent: CalendarEvent | null;
     artifacts: SessionArtifactDetail[];
     qualificationStates: QualificationStateSummary[];
@@ -183,6 +185,9 @@ export interface TidySessionNotesRequest {
 }
 export interface TidySessionNotesResponse {
     tidiedBlocks: TidiedNotesBlock[];
+}
+export interface EnhanceSessionNotesResponse {
+    userNotesTidied: TiptapDoc | null;
 }
 export interface SessionArtifactDetail {
     artifactId: string;

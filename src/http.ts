@@ -134,6 +134,10 @@ export interface SessionDetail {
   userMeetingTitle: string | null;
   userNotes: TiptapDoc | null;
   userNotesTidied: TiptapDoc | null;
+  // Last-write timestamps for the notes staleness signal: the Enhanced doc is
+  // stale when userNotesUpdatedAt > userNotesTidiedAt. Null until first written.
+  userNotesUpdatedAt: string | null;
+  userNotesTidiedAt: string | null;
   calendarEvent: CalendarEvent | null;
   artifacts: SessionArtifactDetail[];
   // Saved qualification states for OTHER templates (the "shelf"). The active
@@ -273,6 +277,12 @@ export interface TidySessionNotesRequest {
 
 export interface TidySessionNotesResponse {
   tidiedBlocks: TidiedNotesBlock[];
+}
+
+// POST /sessions/:sessionId/notes/enhance — user-triggered whole-doc enhance.
+// Empty request body; the notes source is the server-side stored userNotes.
+export interface EnhanceSessionNotesResponse {
+  userNotesTidied: TiptapDoc | null;
 }
 
 export interface SessionArtifactDetail {
