@@ -611,6 +611,10 @@ export interface CreateCheckoutSessionRequest {
 
 export interface CreateCheckoutSessionResponse {
   checkoutUrl: string;
+  /** Server-stamped checkout-start instant. The client polls for a
+   *  checkout-result row created after this, so a server-sourced value keeps the
+   *  poll immune to client clock skew. */
+  startedAt: string;
 }
 
 export interface CreatePortalSessionRequest {
