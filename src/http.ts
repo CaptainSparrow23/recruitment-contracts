@@ -126,6 +126,10 @@ export interface SessionDetail {
   startedAt: string;
   endedAt: string;
   templateId: string | null;
+  // Whether the active template has a fillable document (so the sheet can offer
+  // a download/re-fill). False/absent for the Default sheet and any
+  // document-less (fields-only) template.
+  templateHasDocument?: boolean;
   qualificationState: QualificationFieldState[];
   redFlags: CopilotRedFlagItem[];
   summarizedRedFlags: SummarizedRedFlag[];
