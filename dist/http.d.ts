@@ -466,12 +466,17 @@ export interface ChatRequest {
     anchorSessionId?: string;
     modelId?: AiModelId;
 }
-export interface ChatSource {
+export type ChatSource = {
+    kind: "session";
     sessionId: string;
     startedAt: string;
     endedAt: string;
     snippet: string;
-}
+} | {
+    kind: "web";
+    url: string;
+    title: string;
+};
 export type ChatStreamEvent = {
     type: "delta";
     content: string;

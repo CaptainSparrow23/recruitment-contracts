@@ -724,12 +724,23 @@ export interface ChatRequest {
 
 // A cited source attached to a persisted assistant turn. Mirrors the live
 // "source" stream event shape so persisted and streamed sources are identical.
-export interface ChatSource {
-  sessionId: string;
-  startedAt: string;
-  endedAt: string;
-  snippet: string;
-}
+// Discriminated on `kind`: a "session" source references one of the recruiter's
+// own interview transcripts (the original shape); a "web" source is a page
+// consulted via web search. Persisted rows written before `kind` existed have no
+// discriminant — readers MUST treat a missing `kind` as "session".
+export type ChatSource =
+  | {
+      kind: "session";
+      sessionId: string;
+      startedAt: string;
+      endedAt: string;
+      snippet: string;
+    }
+  | {
+      kind: "web";
+      url: string;
+      title: string;
+    };
 
 export type ChatStreamEvent =
   | { type: "delta"; content: string }
