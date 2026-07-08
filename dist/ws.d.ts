@@ -1,4 +1,5 @@
 import type { CalendarEvent } from "./calendar.js";
+import { type AiModelId } from "./aiModels.js";
 export declare const PROTOCOL_VERSION = "2026-04-01";
 export declare const WEBSOCKET_PATH = "/ws";
 export declare const CLIENT_MESSAGE_TYPES: {
@@ -142,6 +143,7 @@ export interface CopilotPromptMessage {
     requestedAt: string;
     intent: CopilotIntent;
     question?: string;
+    modelId?: AiModelId;
 }
 export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionResumeMessage | SessionRetryFinalizationMessage;
 export interface SessionStartedMessage {

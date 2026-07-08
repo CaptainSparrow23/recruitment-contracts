@@ -1,3 +1,4 @@
+import { isAiModelId } from "./aiModels.js";
 export const PROTOCOL_VERSION = "2026-04-01";
 export const WEBSOCKET_PATH = "/ws";
 export const CLIENT_MESSAGE_TYPES = {
@@ -129,6 +130,9 @@ function isCopilotPromptMessage(value) {
         typeof value.requestedAt !== "string" ||
         value.requestedAt.trim().length === 0 ||
         !isCopilotIntent(value.intent)) {
+        return false;
+    }
+    if (typeof value.modelId !== "undefined" && !isAiModelId(value.modelId)) {
         return false;
     }
     if (value.intent === "ask") {

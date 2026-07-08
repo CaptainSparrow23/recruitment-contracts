@@ -1,4 +1,5 @@
 import type { CalendarEvent } from "./calendar.js";
+import { isAiModelId, type AiModelId } from "./aiModels.js";
 
 export const PROTOCOL_VERSION = "2026-04-01";
 export const WEBSOCKET_PATH = "/ws";
@@ -185,6 +186,10 @@ export interface CopilotPromptMessage {
   requestedAt: string;
   intent: CopilotIntent;
   question?: string;
+  // Caller-selected model for this copilot request (from the model picker).
+  // Optional for back-compat — the server validates + falls back to the copilot
+  // default when absent/unknown.
+  modelId?: AiModelId;
 }
 
 export type ClientMessage =
@@ -610,6 +615,10 @@ function isCopilotPromptMessage(
     value.requestedAt.trim().length === 0 ||
     !isCopilotIntent(value.intent)
   ) {
+    return false;
+  }
+
+  if (typeof value.modelId !== "undefined" && !isAiModelId(value.modelId)) {
     return false;
   }
 

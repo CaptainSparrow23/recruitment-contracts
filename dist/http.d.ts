@@ -1,5 +1,6 @@
 import type { CopilotRedFlagItem, QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { CalendarEvent } from "./calendar.js";
+import type { AiModelId } from "./aiModels.js";
 import type { SharedNotesBackground, SharedNotesPattern } from "./sharedNotesStyle.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
@@ -463,6 +464,7 @@ export interface ChatRequest {
     }>;
     chatSessionId?: string;
     anchorSessionId?: string;
+    modelId?: AiModelId;
 }
 export interface ChatSource {
     sessionId: string;

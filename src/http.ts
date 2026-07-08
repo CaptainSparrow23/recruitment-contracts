@@ -10,6 +10,7 @@ import type {
 import type {
   CalendarEvent
 } from "./calendar.js";
+import type { AiModelId } from "./aiModels.js";
 import type {
   SharedNotesBackground,
   SharedNotesPattern
@@ -715,6 +716,10 @@ export interface ChatRequest {
   // interview id — NOT the conversation id (`chatSessionId`) nor a cited source
   // (`ChatSource.sessionId`).
   anchorSessionId?: string;
+  // Caller-selected model for this turn (from the model picker). Optional for
+  // back-compat — the server validates it against its registry and falls back to
+  // the chat default when absent/unknown.
+  modelId?: AiModelId;
 }
 
 // A cited source attached to a persisted assistant turn. Mirrors the live
