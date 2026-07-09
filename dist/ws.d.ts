@@ -135,7 +135,7 @@ export interface TranscriptProviderDataIngestMessage {
     sessionId: string;
     speaker?: TranscriptSpeakerMetadata | null;
 }
-export type CopilotIntent = "say_next" | "ask" | "insights" | "what_to_answer";
+export type CopilotIntent = "say_next" | "ask" | "what_to_answer";
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
     sessionId: string;
@@ -220,15 +220,6 @@ export interface CopilotRedFlagsResultPayload {
     items: CopilotRedFlagItem[];
     sources: CopilotSource[];
 }
-export interface CopilotInsightsResultPayload {
-    kind: "insights";
-    items: Array<{
-        topic: string;
-        explanation: string;
-        roleRelevance: string;
-        factualContext: string[];
-    }>;
-}
 export interface CopilotWhatToAnswerResultPayload {
     kind: "what_to_answer";
     answer: string;
@@ -253,16 +244,6 @@ export interface CopilotAskResultMessage {
     confidence: CopilotConfidence;
     result: CopilotAskResultPayload;
 }
-export interface CopilotInsightsResultMessage {
-    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-    sessionId: string;
-    requestId: string;
-    intent: "insights";
-    generatedAt: string;
-    basedOnSegmentIndexes: number[];
-    confidence: CopilotConfidence;
-    result: CopilotInsightsResultPayload;
-}
 export interface CopilotWhatToAnswerResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
     sessionId: string;
@@ -273,8 +254,8 @@ export interface CopilotWhatToAnswerResultMessage {
     confidence: CopilotConfidence;
     result: CopilotWhatToAnswerResultPayload;
 }
-export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotInsightsResultMessage | CopilotWhatToAnswerResultMessage;
-export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next" | "insights";
+export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotWhatToAnswerResultMessage;
+export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next";
 export interface CopilotDeltaMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
     sessionId: string;

@@ -176,7 +176,6 @@ export interface TranscriptProviderDataIngestMessage {
 export type CopilotIntent =
   | "say_next"
   | "ask"
-  | "insights"
   | "what_to_answer";
 
 export interface CopilotPromptMessage {
@@ -300,16 +299,6 @@ export interface CopilotRedFlagsResultPayload {
   sources: CopilotSource[];
 }
 
-export interface CopilotInsightsResultPayload {
-  kind: "insights";
-  items: Array<{
-    topic: string;
-    explanation: string;
-    roleRelevance: string;
-    factualContext: string[];
-  }>;
-}
-
 export interface CopilotWhatToAnswerResultPayload {
   kind: "what_to_answer";
   answer: string;
@@ -337,17 +326,6 @@ export interface CopilotAskResultMessage {
   result: CopilotAskResultPayload;
 }
 
-export interface CopilotInsightsResultMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-  sessionId: string;
-  requestId: string;
-  intent: "insights";
-  generatedAt: string;
-  basedOnSegmentIndexes: number[];
-  confidence: CopilotConfidence;
-  result: CopilotInsightsResultPayload;
-}
-
 export interface CopilotWhatToAnswerResultMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
   sessionId: string;
@@ -362,10 +340,9 @@ export interface CopilotWhatToAnswerResultMessage {
 export type CopilotResultMessage =
   | CopilotSayNextResultMessage
   | CopilotAskResultMessage
-  | CopilotInsightsResultMessage
   | CopilotWhatToAnswerResultMessage;
 
-export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next" | "insights";
+export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next";
 
 export interface CopilotDeltaMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
@@ -815,7 +792,6 @@ function isCopilotIntent(value: unknown): value is CopilotIntent {
   return (
     value === "say_next" ||
     value === "ask" ||
-    value === "insights" ||
     value === "what_to_answer"
   );
 }

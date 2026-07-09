@@ -263,7 +263,6 @@ function isOptionalTimelineNs(value) {
 function isCopilotIntent(value) {
     return (value === "say_next" ||
         value === "ask" ||
-        value === "insights" ||
         value === "what_to_answer");
 }
 function isOptionalUuidOrNull(value) {
