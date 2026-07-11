@@ -1,7 +1,7 @@
 import type { CopilotRedFlagItem, QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { CalendarEvent } from "./calendar.js";
 import type { AiModelId } from "./aiModels.js";
-import type { SharedNotesBackground, SharedNotesPattern } from "./sharedNotesStyle.js";
+import type { SharedNotesBackground, SharedNotesPattern, ShareScope } from "./sharedNotesStyle.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 export declare const HEALTH_PATH = "/health";
 export declare const READY_PATH = "/ready";
@@ -127,6 +127,7 @@ export interface UpdateSessionNotesResponse {
 export interface CreateSessionShareLinkRequest {
     pattern?: SharedNotesPattern;
     background?: SharedNotesBackground;
+    scope?: ShareScope;
 }
 export interface CreateSessionShareLinkResponse {
     shareUrl: string;
@@ -135,9 +136,15 @@ export interface CreateSessionShareLinkResponse {
     expiresAt: string | null;
     pattern: SharedNotesPattern;
     background: SharedNotesBackground;
+    scope: ShareScope;
 }
 export interface RevokeSessionShareLinkResponse {
     revoked: boolean;
+}
+export interface SharedQualificationField {
+    question: string;
+    value: string;
+    status?: QualificationFieldStatus;
 }
 export interface SharedNotesResponse {
     title: string;
@@ -145,6 +152,7 @@ export interface SharedNotesResponse {
     createdAt: string;
     pattern: SharedNotesPattern;
     background: SharedNotesBackground;
+    qualification?: SharedQualificationField[];
 }
 export declare const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
 export interface UpdateQualificationFieldRequest {
@@ -492,6 +500,11 @@ export type ChatStreamEvent = {
 } | {
     type: "error";
     message: string;
+} | {
+    type: "notes_updated";
+    sessionId: string;
+    doc: TiptapDoc | null;
+    tidiedAt: string;
 };
 export interface ChatSessionSummary {
     id: string;

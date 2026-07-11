@@ -13,7 +13,8 @@ import type {
 import type { AiModelId } from "./aiModels.js";
 import type {
   SharedNotesBackground,
-  SharedNotesPattern
+  SharedNotesPattern,
+  ShareScope
 } from "./sharedNotesStyle.js";
 import { PROTOCOL_VERSION, WEBSOCKET_PATH } from "./ws.js";
 
@@ -188,6 +189,9 @@ export interface UpdateSessionNotesResponse {
 export interface CreateSessionShareLinkRequest {
   pattern?: SharedNotesPattern;
   background?: SharedNotesBackground;
+  // What the public page exposes: notes, the qualification sheet, or both.
+  // Omitted falls back to "notes" (today's behavior).
+  scope?: ShareScope;
 }
 
 export interface CreateSessionShareLinkResponse {
@@ -202,6 +206,8 @@ export interface CreateSessionShareLinkResponse {
   // The saved look, echoed back so the modal can reflect what's stored.
   pattern: SharedNotesPattern;
   background: SharedNotesBackground;
+  // The saved scope, echoed back so the modal reflects what's stored.
+  scope: ShareScope;
 }
 
 // DELETE /sessions/:sessionId/share-link — revokes the meeting's active link
@@ -210,8 +216,21 @@ export interface RevokeSessionShareLinkResponse {
   revoked: boolean;
 }
 
+// One qualification field as exposed on the PUBLIC page: the question and the
+// candidate's answer only. Deliberately omits `evidence` (verbatim transcript
+// quotes + speaker identity), `origin`, and internal ids — the server strips
+// them before this ever leaves the backend, mirroring the notes evidence rule.
+export interface SharedQualificationField {
+  question: string;
+  // Plain text; "N/A" for a not-applicable field with no captured value.
+  value: string;
+  status?: QualificationFieldStatus;
+}
+
 // GET /shared-notes/:token — the public (no-auth) payload rendered by the
 // website. Notes are pre-serialized to markdown server-side (evidence stripped).
+// `markdown` is empty when the share scope excludes notes; `qualification` is
+// present only when the scope includes the sheet.
 export interface SharedNotesResponse {
   title: string;
   markdown: string;
@@ -219,6 +238,7 @@ export interface SharedNotesResponse {
   // The sharer-chosen look the public page renders.
   pattern: SharedNotesPattern;
   background: SharedNotesBackground;
+  qualification?: SharedQualificationField[];
 }
 
 export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
@@ -755,7 +775,17 @@ export type ChatStreamEvent =
     }
   // Terminal failure mid-stream — the server closes the stream after this
   // without a "done", so the client must finalize the message itself.
-  | { type: "error"; message: string };
+  | { type: "error"; message: string }
+  // The agent used the edit_notes tool to change the anchored meeting's Enhanced
+  // notes. Carries the freshly persisted doc (null when the edit emptied it) so
+  // the notepad adopts it live via applyUserNotesTidiedOverride. Not terminal —
+  // the stream continues; tidiedAt is the persisted timestamp.
+  | {
+      type: "notes_updated";
+      sessionId: string;
+      doc: TiptapDoc | null;
+      tidiedAt: string;
+    };
 
 // ─── Chat session history ───
 // One persisted conversation. Drives the "Recent" list.

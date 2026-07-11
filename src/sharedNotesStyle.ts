@@ -17,9 +17,16 @@ export const SHARED_NOTES_BACKGROUNDS = [
 ] as const;
 export type SharedNotesBackground = (typeof SHARED_NOTES_BACKGROUNDS)[number];
 
+// What a share link exposes: the notes, the filled qualification sheet, or both.
+// Saved on the link so the sharer's choice drives the public page.
+export const SHARE_SCOPES = ["notes", "qualification", "both"] as const;
+export type ShareScope = (typeof SHARE_SCOPES)[number];
+
 // Default look for a new share: plain (no pattern) on a clean near-white desk.
 export const DEFAULT_SHARED_NOTES_PATTERN: SharedNotesPattern = "none";
 export const DEFAULT_SHARED_NOTES_BACKGROUND: SharedNotesBackground = "paper";
+// New shares default to notes-only — today's behavior for existing links.
+export const DEFAULT_SHARE_SCOPE: ShareScope = "notes";
 
 export function coerceSharedNotesPattern(value: unknown): SharedNotesPattern {
   return SHARED_NOTES_PATTERNS.includes(value as SharedNotesPattern)
@@ -33,4 +40,10 @@ export function coerceSharedNotesBackground(
   return SHARED_NOTES_BACKGROUNDS.includes(value as SharedNotesBackground)
     ? (value as SharedNotesBackground)
     : DEFAULT_SHARED_NOTES_BACKGROUND;
+}
+
+export function coerceShareScope(value: unknown): ShareScope {
+  return SHARE_SCOPES.includes(value as ShareScope)
+    ? (value as ShareScope)
+    : DEFAULT_SHARE_SCOPE;
 }
