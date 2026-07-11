@@ -785,7 +785,16 @@ export type ChatStreamEvent =
       sessionId: string;
       doc: TiptapDoc | null;
       tidiedAt: string;
-    };
+      // Paths of the blocks this edit produced (replaced/inserted), in the new
+      // doc's enumeration — [topIdx] or [topIdx, listItemIdx]. The notepad sweeps
+      // exactly these. Empty when the edit only removed blocks or emptied the doc.
+      changedBlocks: number[][];
+    }
+  // The answer streamed so far this iteration is being retracted: the model
+  // emitted submit_answer alongside other pending tools, so its answer is
+  // deferred and re-streams cleanly next iteration. The client resets the
+  // accumulated answer text so it isn't duplicated.
+  | { type: "answer_reset" };
 
 // ─── Chat session history ───
 // One persisted conversation. Drives the "Recent" list.

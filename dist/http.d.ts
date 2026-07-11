@@ -505,6 +505,9 @@ export type ChatStreamEvent = {
     sessionId: string;
     doc: TiptapDoc | null;
     tidiedAt: string;
+    changedBlocks: number[][];
+} | {
+    type: "answer_reset";
 };
 export interface ChatSessionSummary {
     id: string;
