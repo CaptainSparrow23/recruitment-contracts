@@ -138,6 +138,9 @@ export interface CreateSessionShareLinkResponse {
     background: SharedNotesBackground;
     scope: ShareScope;
 }
+export interface GetSessionShareLinkResponse {
+    shareLink: CreateSessionShareLinkResponse | null;
+}
 export interface RevokeSessionShareLinkResponse {
     revoked: boolean;
 }

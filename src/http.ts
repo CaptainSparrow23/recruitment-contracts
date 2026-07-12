@@ -210,6 +210,14 @@ export interface CreateSessionShareLinkResponse {
   scope: ShareScope;
 }
 
+// GET /sessions/:sessionId/share-link — authed read of the session's current
+// active link so the Share modal can rehydrate on open (and edits then persist to
+// the live link). `shareLink` is null when the meeting has no active link — a
+// valid 200 result, NOT a 404, since the client throws on any non-2xx.
+export interface GetSessionShareLinkResponse {
+  shareLink: CreateSessionShareLinkResponse | null;
+}
+
 // DELETE /sessions/:sessionId/share-link — revokes the meeting's active link
 // (sets revoked_at). `revoked` is false when there was no active link to kill.
 export interface RevokeSessionShareLinkResponse {
