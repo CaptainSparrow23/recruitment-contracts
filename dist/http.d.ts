@@ -178,6 +178,7 @@ export interface SwitchSessionTemplateRequest {
 export type SwitchSessionTemplateResponse = {
     status: "activated";
     templateId: string | null;
+    artifact: SessionArtifactDetail | null;
 } | {
     status: "pending";
     job: SessionTemplateBackfillJobDetail;

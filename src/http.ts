@@ -281,7 +281,14 @@ export interface SwitchSessionTemplateRequest {
 }
 
 export type SwitchSessionTemplateResponse =
-  | { status: "activated"; templateId: string | null }
+  // `artifact` is the reactivated template's current filled doc (null for a
+  // document-less/Default template) — lets a caller preview the reused doc
+  // without waiting for a separate refetch.
+  | {
+      status: "activated";
+      templateId: string | null;
+      artifact: SessionArtifactDetail | null;
+    }
   | { status: "pending"; job: SessionTemplateBackfillJobDetail };
 
 // Re-fill the active template's document from the CURRENT field values
