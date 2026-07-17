@@ -590,10 +590,17 @@ export interface BillingState {
   organizationId: string | null;
   organizationName: string | null;
   // Lifetime count of sessions started by this user, incremented on
-  // session-start and never decremented. Drives the Starter-tier meeting
-  // gate (client-side: block when >= 10). Also useful as a general usage
-  // metric for paid users.
+  // session-start and never decremented. A pure usage metric — NOT currently
+  // gated: an earlier Starter-tier "10 meetings" cap was never wired end to
+  // end, so nothing reads this to block a session. Kept as a monotonic usage
+  // signal (and the template the document-download quota counter follows).
   sessionsStarted: number;
+  // Filled-template downloads the current tier has left this calendar month;
+  // null means unlimited (paid tiers). Computed server-side in getBillingState
+  // from a per-month counter — the limit value and period logic stay on the
+  // backend (internal policy, not a wire contract); only this derived remaining
+  // count crosses the wire, so client display + pre-check can't drift.
+  documentDownloadsRemaining: number | null;
 }
 
 // ── Billing details (payment method + invoices) ──

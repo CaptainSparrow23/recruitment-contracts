@@ -373,6 +373,7 @@ export interface BillingState {
     organizationId: string | null;
     organizationName: string | null;
     sessionsStarted: number;
+    documentDownloadsRemaining: number | null;
 }
 /** Stripe billing-portal deep-link flows we expose. */
 export type BillingPortalFlow = "payment_method_update" | "subscription_cancel";

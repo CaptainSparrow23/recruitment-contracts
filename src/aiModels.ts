@@ -5,6 +5,9 @@
 // deliberately lives on each side (frontend UI metadata, backend modelRegistry),
 // not here — this module is just the id vocabulary + a runtime guard.
 export const AI_MODEL_IDS = [
+  "gpt-5.6-sol",
+  "gpt-5.6-terra",
+  "gpt-5.6-luna",
   "gpt-5.5",
   "gpt-5.4",
   "gpt-5.4-mini",
@@ -21,4 +24,18 @@ export function isAiModelId(value: unknown): value is AiModelId {
     typeof value === "string" &&
     (AI_MODEL_IDS as readonly string[]).includes(value)
   );
+}
+
+// Models that require a paid tier. The picker shows them for everyone but locks
+// them for free-tier users (UX only); the backend is the authoritative gate
+// (see resolveEntitledModel + resolveBillingGates). Kept here — dependency-free,
+// alongside the id vocabulary — so both the frontend picker and the backend read
+// one source of truth. The tier threshold itself lives on each side.
+export const PREMIUM_AI_MODEL_IDS = [
+  "claude-opus-4-8",
+  "gpt-5.6-sol"
+] as const satisfies readonly AiModelId[];
+
+export function isPremiumAiModelId(id: AiModelId): boolean {
+  return (PREMIUM_AI_MODEL_IDS as readonly AiModelId[]).includes(id);
 }
