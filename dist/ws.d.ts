@@ -327,7 +327,7 @@ export interface SessionArtifactStatusMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ARTIFACT_STATUS;
     sessionId: string;
     occurredAt: string;
-    status: "pending" | "ready" | "failed";
+    status: "pending" | "values_ready" | "ready" | "failed";
     artifact?: SessionArtifactRef;
     message?: string;
 }

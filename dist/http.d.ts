@@ -105,6 +105,7 @@ export interface SessionDetail {
     folderId: string | null;
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
+    documentRenderFailed?: boolean;
     isManualAudio: boolean;
     participants?: SessionParticipant[];
 }
@@ -181,10 +182,10 @@ export type SwitchSessionTemplateResponse = {
     artifact: SessionArtifactDetail | null;
 } | {
     status: "pending";
-    job: SessionTemplateBackfillJobDetail;
+    job: SessionTemplateFillJobDetail;
 };
 export interface RefillTemplateDocumentResponse {
-    job: SessionTemplateBackfillJobDetail;
+    job: SessionTemplateFillJobDetail;
 }
 export interface TidySessionNotesBlock {
     path: number[];
@@ -211,12 +212,12 @@ export interface SessionArtifactDetail {
     createdAt: string;
     templateId: string | null;
 }
-export type SessionTemplateBackfillJobStatus = "pending" | "processing" | "completed" | "failed";
-export interface SessionTemplateBackfillJobDetail {
+export type SessionTemplateFillJobStatus = "pending" | "processing" | "completed" | "failed";
+export interface SessionTemplateFillJobDetail {
     jobId: string;
     sessionId: string;
     templateId: string;
-    status: SessionTemplateBackfillJobStatus;
+    status: SessionTemplateFillJobStatus;
     createdAt: string;
     updatedAt: string;
     artifact: SessionArtifactDetail | null;
@@ -242,6 +243,7 @@ export interface UserProfile {
     fullName: string | null;
     pictureUrl: string | null;
     sendFollowUpEmails: boolean;
+    hideInCallFromScreenShare: boolean;
     onboardingCompletedAt: string | null;
 }
 export interface SyncProfileRequest {
@@ -249,8 +251,9 @@ export interface SyncProfileRequest {
     fullName: string | null;
     pictureUrl: string | null;
 }
-export interface UpdateNotificationPreferencesRequest {
-    sendFollowUpEmails: boolean;
+export interface UpdateProfilePreferencesRequest {
+    sendFollowUpEmails?: boolean;
+    hideInCallFromScreenShare?: boolean;
 }
 export interface SessionListResponse {
     sessions: SessionSummary[];
@@ -313,14 +316,8 @@ export interface UpdateSessionFolderRequest {
 export interface UpdateSessionFolderResponse {
     folderId: string | null;
 }
-export interface TriggerSessionTemplateBackfillRequest {
-    templateId: string;
-}
-export interface TriggerSessionTemplateBackfillResponse {
-    job: SessionTemplateBackfillJobDetail;
-}
-export interface SessionTemplateBackfillJobResponse {
-    job: SessionTemplateBackfillJobDetail;
+export interface SessionTemplateFillJobResponse {
+    job: SessionTemplateFillJobDetail;
 }
 export interface CreateRecallSdkUploadRequest {
     meetingWindow: {

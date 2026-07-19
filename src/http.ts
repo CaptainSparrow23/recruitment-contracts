@@ -153,6 +153,12 @@ export interface SessionDetail {
   folderId: string | null;
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
+  // The async document render for the active template terminally FAILED (the fill
+  // worker gave up after all attempts) and hasn't since been regenerated. Durable
+  // (derived from the persisted fill job) so the download button can offer a
+  // regenerate across reloads/navigation instead of a stuck "Generating…". Absent =
+  // no terminal failure (still rendering, succeeded, or no document template).
+  documentRenderFailed?: boolean;
   isManualAudio: boolean;
   // Real attendee roster, rendered as the people label on the detail header
   // (and, via SessionSummary, the recent-meetings rows). Optional: old/phone
@@ -273,8 +279,8 @@ export interface QualificationStateSummary {
 }
 
 // Switch the session's active template. `regenerate: true` (only sent by the
-// explicit Regenerate action) forces a fresh backfill even when a saved state
-// exists; default false reactivates a saved state or backfills a new one.
+// explicit Regenerate action) forces a fresh fill even when a saved state
+// exists; default false reactivates a saved state or fills a new one.
 export interface SwitchSessionTemplateRequest {
   templateId: string | null;
   regenerate?: boolean;
@@ -289,12 +295,12 @@ export type SwitchSessionTemplateResponse =
       templateId: string | null;
       artifact: SessionArtifactDetail | null;
     }
-  | { status: "pending"; job: SessionTemplateBackfillJobDetail };
+  | { status: "pending"; job: SessionTemplateFillJobDetail };
 
 // Re-fill the active template's document from the CURRENT field values
 // (preserving manual edits) — no transcript re-extraction. Always async.
 export interface RefillTemplateDocumentResponse {
-  job: SessionTemplateBackfillJobDetail;
+  job: SessionTemplateFillJobDetail;
 }
 
 // Request: the frontend sends exactly one node per dirty block.
@@ -336,17 +342,17 @@ export interface SessionArtifactDetail {
   templateId: string | null;
 }
 
-export type SessionTemplateBackfillJobStatus =
+export type SessionTemplateFillJobStatus =
   | "pending"
   | "processing"
   | "completed"
   | "failed";
 
-export interface SessionTemplateBackfillJobDetail {
+export interface SessionTemplateFillJobDetail {
   jobId: string;
   sessionId: string;
   templateId: string;
-  status: SessionTemplateBackfillJobStatus;
+  status: SessionTemplateFillJobStatus;
   createdAt: string;
   updatedAt: string;
   artifact: SessionArtifactDetail | null;
@@ -374,6 +380,7 @@ export interface UserProfile {
   fullName: string | null;
   pictureUrl: string | null;
   sendFollowUpEmails: boolean;
+  hideInCallFromScreenShare: boolean;
   onboardingCompletedAt: string | null;
 }
 
@@ -383,8 +390,9 @@ export interface SyncProfileRequest {
   pictureUrl: string | null;
 }
 
-export interface UpdateNotificationPreferencesRequest {
-  sendFollowUpEmails: boolean;
+export interface UpdateProfilePreferencesRequest {
+  sendFollowUpEmails?: boolean;
+  hideInCallFromScreenShare?: boolean;
 }
 
 export interface SessionListResponse {
@@ -506,16 +514,8 @@ export interface UpdateSessionFolderResponse {
   folderId: string | null;
 }
 
-export interface TriggerSessionTemplateBackfillRequest {
-  templateId: string;
-}
-
-export interface TriggerSessionTemplateBackfillResponse {
-  job: SessionTemplateBackfillJobDetail;
-}
-
-export interface SessionTemplateBackfillJobResponse {
-  job: SessionTemplateBackfillJobDetail;
+export interface SessionTemplateFillJobResponse {
+  job: SessionTemplateFillJobDetail;
 }
 
 export interface CreateRecallSdkUploadRequest {

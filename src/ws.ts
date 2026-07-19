@@ -440,7 +440,10 @@ export interface SessionArtifactStatusMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_ARTIFACT_STATUS;
   sessionId: string;
   occurredAt: string;
-  status: "pending" | "ready" | "failed";
+  // "values_ready" = the qualification VALUES are resolved + persisted (the sheet
+  // can unlock) while the filled document is still rendering async in the worker.
+  // The worker later emits "ready" (with `artifact`) or "failed" for the document.
+  status: "pending" | "values_ready" | "ready" | "failed";
   artifact?: SessionArtifactRef;
   message?: string;
 }
