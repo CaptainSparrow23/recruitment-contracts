@@ -88,6 +88,7 @@ export interface SessionDetail {
     endedAt: string;
     templateId: string | null;
     templateHasDocument?: boolean;
+    templateDocumentFormat?: "pdf" | "docx" | null;
     qualificationState: QualificationFieldState[];
     redFlags: CopilotRedFlagItem[];
     summarizedRedFlags: SummarizedRedFlag[];

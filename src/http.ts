@@ -132,6 +132,12 @@ export interface SessionDetail {
   // a download/re-fill). False/absent for the Default sheet and any
   // document-less (fields-only) template.
   templateHasDocument?: boolean;
+  // The active template's document format ("pdf" | "docx"), or null for the
+  // Default sheet / any document-less template. Present even before the filled
+  // artifact exists (during the async render window, when there's no artifact
+  // `contentType` to read) so the download button can label "Filling out your
+  // PDF/Word doc".
+  templateDocumentFormat?: "pdf" | "docx" | null;
   qualificationState: QualificationFieldState[];
   redFlags: CopilotRedFlagItem[];
   summarizedRedFlags: SummarizedRedFlag[];
