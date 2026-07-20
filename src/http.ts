@@ -275,6 +275,18 @@ export interface UpdateQualificationFieldResponse {
   field: QualificationFieldState;
 }
 
+// Overwrite a set of qualification fields wholesale (matched by fieldId),
+// preserving each field's evidence + origin. Used by the chat review's Undo to
+// restore the pre-edit state that the agent's edit_qualification replaced — the
+// per-field PUT can't do this (it forces origin:"user" and drops evidence).
+export interface RestoreQualificationFieldsRequest {
+  fields: QualificationFieldState[];
+}
+
+export interface RestoreQualificationFieldsResponse {
+  fields: QualificationFieldState[];
+}
+
 // A saved qualification state for one template (the "shelf"). `templateId` is
 // null for the built-in "Default" (no-document) state.
 export interface QualificationStateSummary {
@@ -817,6 +829,21 @@ export type ChatStreamEvent =
       // doc's enumeration — [topIdx] or [topIdx, listItemIdx]. The notepad sweeps
       // exactly these. Empty when the edit only removed blocks or emptied the doc.
       changedBlocks: number[][];
+    }
+  // The agent used edit_qualification to change the anchored meeting's
+  // qualification sheet answers. Carries the full new state of each changed field
+  // (value/status/evidence/origin) so the sheet adopts them live via
+  // applyQualificationFieldOverride and can snapshot the prior values for Undo.
+  // Not terminal — the stream continues; updatedAt is the persisted timestamp.
+  | {
+      type: "qualification_updated";
+      sessionId: string;
+      // The fields the merge engine actually changed, in full. Empty when the
+      // model's operations produced no net change (e.g. every quote was dropped).
+      updatedFields: QualificationFieldState[];
+      // Ids of those fields, so the sheet knows exactly which rows to sweep.
+      changedFieldIds: string[];
+      updatedAt: string;
     }
   // The answer streamed so far this iteration is being retracted: the model
   // emitted submit_answer alongside other pending tools, so its answer is

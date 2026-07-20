@@ -167,6 +167,12 @@ export interface UpdateQualificationFieldRequest {
 export interface UpdateQualificationFieldResponse {
     field: QualificationFieldState;
 }
+export interface RestoreQualificationFieldsRequest {
+    fields: QualificationFieldState[];
+}
+export interface RestoreQualificationFieldsResponse {
+    fields: QualificationFieldState[];
+}
 export interface QualificationStateSummary {
     templateId: string | null;
     capturedFieldCount: number;
@@ -509,6 +515,12 @@ export type ChatStreamEvent = {
     doc: TiptapDoc | null;
     tidiedAt: string;
     changedBlocks: number[][];
+} | {
+    type: "qualification_updated";
+    sessionId: string;
+    updatedFields: QualificationFieldState[];
+    changedFieldIds: string[];
+    updatedAt: string;
 } | {
     type: "answer_reset";
 };
