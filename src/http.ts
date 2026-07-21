@@ -121,6 +121,11 @@ export interface SessionSummary {
   finalizationErrorMessage?: string | null;
   // Real attendee roster (recruiter included). Optional: old/phone sessions omit it.
   participants?: SessionParticipant[];
+  // For the two seeded intro meetings only: which Sorinai mark the row/drag-ghost
+  // avatar shows instead of a title initial ("welcome" → dark tile, "founder" →
+  // light tile). Derived from the seed title server-side; absent for real meetings
+  // (and for a renamed intro meeting, which falls back to the initial).
+  introAvatar?: "founder" | "welcome";
 }
 
 export interface SessionDetail {

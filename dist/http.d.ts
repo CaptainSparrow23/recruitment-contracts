@@ -81,6 +81,7 @@ export interface SessionSummary {
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     participants?: SessionParticipant[];
+    introAvatar?: "founder" | "welcome";
 }
 export interface SessionDetail {
     id: string;
