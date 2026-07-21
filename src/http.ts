@@ -170,6 +170,10 @@ export interface SessionDetail {
   // (and, via SessionSummary, the recent-meetings rows). Optional: old/phone
   // sessions omit it.
   participants?: SessionParticipant[];
+  // The seeded one-time intro/"Welcome to sorinai" meeting. The detail view hides
+  // the My-notes/Enhanced sub-tab pill and locks to Enhanced for it (only the
+  // Enhanced doc has content). Absent/false for real sessions.
+  isIntro?: boolean;
 }
 
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;

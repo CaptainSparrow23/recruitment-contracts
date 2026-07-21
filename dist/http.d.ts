@@ -109,6 +109,7 @@ export interface SessionDetail {
     documentRenderFailed?: boolean;
     isManualAudio: boolean;
     participants?: SessionParticipant[];
+    isIntro?: boolean;
 }
 export declare const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export interface RenameSessionRequest {
