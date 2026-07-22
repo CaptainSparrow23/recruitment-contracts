@@ -111,6 +111,7 @@ export interface SessionDetail {
     isManualAudio: boolean;
     participants?: SessionParticipant[];
     isIntro?: boolean;
+    introAvatar?: "founder" | "welcome";
 }
 export declare const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export interface RenameSessionRequest {

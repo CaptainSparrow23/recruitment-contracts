@@ -179,6 +179,10 @@ export interface SessionDetail {
   // the My-notes/Enhanced sub-tab pill and locks to Enhanced for it (only the
   // Enhanced doc has content). Absent/false for real sessions.
   isIntro?: boolean;
+  // For the two seeded intro meetings only: which note it is ("welcome" |
+  // "founder"), so opening one can be attributed in analytics. Derived from the
+  // seed title server-side; absent for real meetings and renamed intro notes.
+  introAvatar?: "founder" | "welcome";
 }
 
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;
