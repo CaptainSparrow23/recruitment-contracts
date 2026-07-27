@@ -97,6 +97,17 @@ export interface SessionParticipant {
   id: string;
   name: string | null;
   email: string | null;
+  // "Known to be the local Sorinai user." True ONLY on system-audio captures,
+  // where Recall labels by audio source and the mic channel is the user.
+  //
+  // Supported-app captures always report false — not because the user isn't
+  // present, but because Recall's is_host there means the MEETING PLATFORM's host
+  // (whoever owns the Zoom/Meet/Teams meeting), which is a different question and
+  // frequently a different person. That value is deliberately not propagated, so
+  // this flag never changes meaning between rows.
+  //
+  // Therefore: `true` ⇒ this is the user. `false` ⇒ not the user, OR unknown.
+  // On supported-app sessions, identifying the user is name matching, client-side.
   isHost: boolean;
 }
 

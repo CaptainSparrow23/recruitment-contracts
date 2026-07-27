@@ -7,7 +7,6 @@ export declare const CLIENT_MESSAGE_TYPES: {
     readonly TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest";
     readonly TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial";
     readonly TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final";
-    readonly TRANSCRIPT_PROVIDER_DATA_INGEST: "transcript_provider_data_ingest";
     readonly COPILOT_PROMPT: "copilot:prompt";
     readonly SESSION_STOP: "session:stop";
     readonly SESSION_PING: "session:ping";
@@ -124,17 +123,6 @@ export interface TranscriptParticipantIngestMessage {
     receivedAt: string;
     sessionId: string;
 }
-export interface TranscriptProviderDataIngestMessage {
-    type: typeof CLIENT_MESSAGE_TYPES.TRANSCRIPT_PROVIDER_DATA_INGEST;
-    eventId: string;
-    provider?: TranscriptProviderMetadata | null;
-    providerTranscriptId?: string | null;
-    receivedAt: string;
-    segmentEndNs?: string;
-    segmentStartNs?: string;
-    sessionId: string;
-    speaker?: TranscriptSpeakerMetadata | null;
-}
 export type CopilotIntent = "say_next" | "ask" | "what_to_answer";
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
@@ -145,7 +133,7 @@ export interface CopilotPromptMessage {
     question?: string;
     modelId?: AiModelId;
 }
-export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | TranscriptProviderDataIngestMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionResumeMessage | SessionRetryFinalizationMessage;
+export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionResumeMessage | SessionRetryFinalizationMessage;
 export interface SessionStartedMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_STARTED;
     sessionId: string;

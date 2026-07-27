@@ -6,7 +6,6 @@ export const CLIENT_MESSAGE_TYPES = {
     TRANSCRIPT_PARTICIPANT_INGEST: "transcript_participant_ingest",
     TRANSCRIPT_INGEST_PARTIAL: "transcript_ingest:partial",
     TRANSCRIPT_INGEST_FINAL: "transcript_ingest:final",
-    TRANSCRIPT_PROVIDER_DATA_INGEST: "transcript_provider_data_ingest",
     COPILOT_PROMPT: "copilot:prompt",
     SESSION_STOP: "session:stop",
     SESSION_PING: "session:ping",
@@ -46,8 +45,6 @@ export function isClientMessage(value) {
             return isTimestampedSessionMessage(value, "startedAt");
         case CLIENT_MESSAGE_TYPES.TRANSCRIPT_PARTICIPANT_INGEST:
             return isTranscriptParticipantIngestMessage(value);
-        case CLIENT_MESSAGE_TYPES.TRANSCRIPT_PROVIDER_DATA_INGEST:
-            return isTranscriptProviderDataIngestMessage(value);
         case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_PARTIAL:
         case CLIENT_MESSAGE_TYPES.TRANSCRIPT_INGEST_FINAL:
             return isTranscriptIngestMessage(value);
@@ -174,21 +171,6 @@ function isTranscriptParticipantIngestMessage(value) {
         isTranscriptSpeakerMetadata(value.participant) &&
         typeof value.present === "boolean" &&
         isOptionalTranscriptProviderMetadata(value.provider));
-}
-function isTranscriptProviderDataIngestMessage(value) {
-    if (!isRecord(value)) {
-        return false;
-    }
-    return (isUuidString(value.sessionId) &&
-        typeof value.eventId === "string" &&
-        value.eventId.trim().length > 0 &&
-        typeof value.receivedAt === "string" &&
-        value.receivedAt.trim().length > 0 &&
-        isOptionalTranscriptProviderMetadata(value.provider) &&
-        isOptionalProviderTranscriptId(value.providerTranscriptId) &&
-        isOptionalTimelineNs(value.segmentStartNs) &&
-        isOptionalTimelineNs(value.segmentEndNs) &&
-        isOptionalTranscriptSpeakerMetadata(value.speaker));
 }
 function isOptionalTranscriptSpeakerMetadata(value) {
     return (typeof value === "undefined" ||
