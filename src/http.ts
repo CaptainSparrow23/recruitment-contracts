@@ -549,7 +549,26 @@ export interface SessionTemplateFillJobResponse {
   job: SessionTemplateFillJobDetail;
 }
 
+// How the desktop app captured this session's audio. Selects which Recall
+// diarization strategy the backend asks for:
+//   supported_app → the detected meeting window itself is recorded, so Recall's
+//                   speaker-timeline diarization (the meeting platform's own
+//                   active-speaker events) labels every segment with a REAL
+//                   participant.
+//   system_audio  → the synthetic whole-desktop "adhoc" window: one mic channel
+//                   plus one loopback channel and no participants at all, so the
+//                   transcription provider's machine diarization is the only
+//                   thing that can separate voices.
+// Deliberately NOT inferred from `meetingWindow.platform`: a meeting can be
+// detected while the user starts the note some other way (which captures system
+// audio), and `platform` is optional, so a detected-but-unclassified meeting
+// would silently get the wrong strategy.
+export type SessionCaptureMode = "supported_app" | "system_audio";
+
 export interface CreateRecallSdkUploadRequest {
+  // Optional on the wire: a client that doesn't send it is treated as
+  // system_audio, i.e. exactly the behaviour that shipped before this existed.
+  captureMode?: SessionCaptureMode | null;
   meetingWindow: {
     id: string;
     platform?: string | null;

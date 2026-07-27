@@ -329,7 +329,9 @@ export interface UpdateSessionFolderResponse {
 export interface SessionTemplateFillJobResponse {
     job: SessionTemplateFillJobDetail;
 }
+export type SessionCaptureMode = "supported_app" | "system_audio";
 export interface CreateRecallSdkUploadRequest {
+    captureMode?: SessionCaptureMode | null;
     meetingWindow: {
         id: string;
         platform?: string | null;
