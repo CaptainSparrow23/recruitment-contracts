@@ -399,8 +399,6 @@ export interface SessionErrorMessage {
   sessionId?: string;
   code:
     | "invalid_message"
-    | "malformed_media_chunk"
-    | "media_chunk_too_large"
     | "rate_limit_exceeded"
     | "session_conflict"
     | "session_evicted"
