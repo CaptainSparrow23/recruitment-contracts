@@ -669,6 +669,17 @@ export interface BillingState {
   // backend (internal policy, not a wire contract); only this derived remaining
   // count crosses the wire, so client display + pre-check can't drift.
   documentDownloadsRemaining: number | null;
+  // AI actions (chat turns + Copilot prompts, one shared allowance) the current
+  // tier has left TODAY; null means unlimited (paid tiers). Daily rather than
+  // monthly so a user who exhausts it is unblocked tomorrow instead of for the
+  // rest of the month. Same convention as documentDownloadsRemaining: the limit
+  // and the period key stay backend-only, only this derived count crosses.
+  aiActionsRemaining: number | null;
+  // ISO instant when aiActionsRemaining refills; null when unlimited. Sent
+  // rather than derived client-side because deriving it would require the
+  // client to know the period is daily-and-UTC — exactly the internal policy
+  // this convention keeps on the backend.
+  aiActionsResetAt: string | null;
 }
 
 // ── Billing details (payment method + invoices) ──

@@ -236,7 +236,12 @@ export interface CopilotStatusMessage {
     | "invalid_prompt"
     | "provider_timeout"
     | "provider_error"
-    | "invalid_response";
+    | "invalid_response"
+    // Starter tier exhausted its daily AI action allowance. Sent as a "failed"
+    // status rather than a SESSION_ERROR frame so the client clears the pending
+    // assistant bubble — SESSION_ERROR is filtered on sessionId and would leave
+    // the bubble in flight, blocking every subsequent ask.
+    | "ai_quota_exceeded";
   message?: string;
 }
 

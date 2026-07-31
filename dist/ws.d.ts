@@ -166,7 +166,7 @@ export interface CopilotStatusMessage {
     intent: CopilotIntent;
     status: CopilotStatus;
     occurredAt: string;
-    errorCode?: "no_active_session" | "request_in_flight" | "invalid_prompt" | "provider_timeout" | "provider_error" | "invalid_response";
+    errorCode?: "no_active_session" | "request_in_flight" | "invalid_prompt" | "provider_timeout" | "provider_error" | "invalid_response" | "ai_quota_exceeded";
     message?: string;
 }
 export interface CopilotDebugContextEntry {
