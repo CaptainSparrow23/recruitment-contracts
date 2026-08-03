@@ -181,6 +181,22 @@ export interface SessionDetail {
   // regenerate across reloads/navigation instead of a stuck "Generating…". Absent =
   // no terminal failure (still rendering, succeeded, or no document template).
   documentRenderFailed?: boolean;
+  // A template operation is running for this session right now — a switch resolving
+  // a new template's values, or a document being (re)rendered. Present for as long as
+  // the job is live; null once it completes or terminally fails.
+  //
+  // This is a RESUME TOKEN, not a progress predicate. In-flight progress is client
+  // state (it starts before any response comes back), but that state dies with the
+  // view that owns it and with the app itself — so on load a client re-attaches to
+  // whatever this points at instead of showing an idle button over running work.
+  // `startedAt` is the job's creation time, for the elapsed caption.
+  //
+  // Only work the USER STARTED appears here. The automatic post-meeting render is
+  // excluded: it runs after every call, and re-attaching to it made the client lock
+  // the qualification sheet the user had just opened to read — for the length of the
+  // render, while finalizationStatus already said "ready". That render reports itself
+  // through the document's own pending state, not through this field.
+  activeFillJob?: { jobId: string; startedAt: string } | null;
   isManualAudio: boolean;
   // Real attendee roster, rendered as the people label on the detail header
   // (and, via SessionSummary, the recent-meetings rows). Optional: old/phone
@@ -395,6 +411,11 @@ export interface SessionTemplateFillJobDetail {
   sessionId: string;
   templateId: string;
   status: SessionTemplateFillJobStatus;
+  // Renders attempted so far. Needed to read `status` correctly: "failed" is the
+  // RETRY state, not an outcome — the worker gives up only once this reaches its
+  // cap. A client that settles on "failed" alone reports a permanent failure over a
+  // job that is about to be retried and usually succeeds.
+  attemptCount: number;
   createdAt: string;
   updatedAt: string;
   artifact: SessionArtifactDetail | null;

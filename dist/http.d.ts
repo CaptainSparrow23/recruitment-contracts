@@ -108,6 +108,10 @@ export interface SessionDetail {
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     documentRenderFailed?: boolean;
+    activeFillJob?: {
+        jobId: string;
+        startedAt: string;
+    } | null;
     isManualAudio: boolean;
     participants?: SessionParticipant[];
     isIntro?: boolean;
@@ -228,6 +232,7 @@ export interface SessionTemplateFillJobDetail {
     sessionId: string;
     templateId: string;
     status: SessionTemplateFillJobStatus;
+    attemptCount: number;
     createdAt: string;
     updatedAt: string;
     artifact: SessionArtifactDetail | null;
