@@ -130,6 +130,22 @@ export interface SessionSummary {
   folderId: string | null;
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
+  // A template fill job is running for this meeting: the automatic post-meeting
+  // document render, or a switch/refill the user started. Lets a row show that work
+  // is still happening after `finalizationStatus` has already flipped to "ready" —
+  // the two cover DISJOINT windows (values first, then the render).
+  //
+  // NOTE the deliberate asymmetry with `SessionDetail.activeFillJob` below, which
+  // EXCLUDES finalization-mode jobs. That field makes a page present a template
+  // operation in progress and lock the qualification sheet, so it may only reflect
+  // work the user started. This one drives an ambient spinner on a list row, where
+  // the automatic render is exactly what you want to see. Do not "fix" one to match
+  // the other — the difference is the point.
+  //
+  // Sent explicitly false rather than omitted: the sessions list is persisted to
+  // localStorage, so a positive false is what overwrites a stale true after a cold
+  // relaunch.
+  hasLiveFillJob?: boolean;
   // Real attendee roster (recruiter included). Optional: old/phone sessions omit it.
   participants?: SessionParticipant[];
   // For the two seeded intro meetings only: which Sorinai mark the row/drag-ghost

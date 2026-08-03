@@ -80,6 +80,7 @@ export interface SessionSummary {
     folderId: string | null;
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
+    hasLiveFillJob?: boolean;
     participants?: SessionParticipant[];
     introAvatar?: "founder" | "welcome";
 }
