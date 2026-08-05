@@ -1,4 +1,4 @@
-import type { CopilotRedFlagItem, QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
+import type { QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { CalendarEvent } from "./calendar.js";
 import type { AiModelId } from "./aiModels.js";
 import type { SharedNotesBackground, SharedNotesPattern, ShareScope } from "./sharedNotesStyle.js";
@@ -31,14 +31,6 @@ export interface ReadinessResponse {
         database: "ready" | "not_ready";
         objectStore: "ready" | "not_ready";
     };
-}
-export interface SummarizedRedFlag {
-    id: string;
-    summary: string;
-    detail: string;
-    severity: "low" | "medium" | "high";
-    evidenceSegmentIndexes: number[];
-    mergedFromIds: string[];
 }
 export type SessionFinalizationStatus = "pending" | "ready" | "failed";
 export type TiptapNode = {
@@ -92,8 +84,6 @@ export interface SessionDetail {
     templateHasDocument?: boolean;
     templateDocumentFormat?: "pdf" | "docx" | null;
     qualificationState: QualificationFieldState[];
-    redFlags: CopilotRedFlagItem[];
-    summarizedRedFlags: SummarizedRedFlag[];
     counterpartName: string | null;
     meetingTitle: string | null;
     userMeetingTitle: string | null;

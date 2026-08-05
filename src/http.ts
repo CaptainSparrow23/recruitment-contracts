@@ -1,5 +1,4 @@
 import type {
-  CopilotRedFlagItem,
   QualificationFieldState,
   QualificationFieldStatus,
   SessionArtifactKind,
@@ -49,15 +48,6 @@ export interface ReadinessResponse {
     database: "ready" | "not_ready";
     objectStore: "ready" | "not_ready";
   };
-}
-
-export interface SummarizedRedFlag {
-  id: string;
-  summary: string;
-  detail: string;
-  severity: "low" | "medium" | "high";
-  evidenceSegmentIndexes: number[];
-  mergedFromIds: string[];
 }
 
 export type SessionFinalizationStatus = "pending" | "ready" | "failed";
@@ -171,8 +161,6 @@ export interface SessionDetail {
   // PDF/Word doc".
   templateDocumentFormat?: "pdf" | "docx" | null;
   qualificationState: QualificationFieldState[];
-  redFlags: CopilotRedFlagItem[];
-  summarizedRedFlags: SummarizedRedFlag[];
   counterpartName: string | null;
   meetingTitle: string | null;
   userMeetingTitle: string | null;

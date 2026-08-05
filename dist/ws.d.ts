@@ -27,7 +27,6 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_ARTIFACT_STATUS: "session:artifact_status";
     readonly SESSION_PONG: "session:pong";
     readonly COPILOT_DELTA: "copilot:delta";
-    readonly RED_FLAGS_STATE: "red_flags:state";
 };
 export declare const AUDIO_STREAM_IDS: {
     readonly MIC: "mic";
@@ -195,19 +194,6 @@ export interface CopilotAskResultPayload {
     kind: "ask";
     answer: string;
 }
-export interface CopilotRedFlagItem {
-    id: string;
-    claim?: string;
-    label: string;
-    severity: "low" | "medium" | "high";
-    evidenceSegmentIndexes?: number[];
-    sources?: CopilotSource[];
-}
-export interface CopilotRedFlagsResultPayload {
-    kind: "red_flags";
-    items: CopilotRedFlagItem[];
-    sources: CopilotSource[];
-}
 export interface CopilotWhatToAnswerResultPayload {
     kind: "what_to_answer";
     answer: string;
@@ -276,13 +262,6 @@ export interface QualificationStateMessage {
     source: "primary" | "initialize";
     fields: QualificationFieldState[];
 }
-export interface RedFlagsStateMessage {
-    type: typeof SERVER_MESSAGE_TYPES.RED_FLAGS_STATE;
-    sessionId: string;
-    updatedAt: string;
-    items: CopilotRedFlagItem[];
-    basedOnSegmentIndexes: number[];
-}
 export interface SessionWarningMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
     sessionId: string;
@@ -324,6 +303,6 @@ export interface SessionPongMessage {
     sessionId?: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | RedFlagsStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export {};

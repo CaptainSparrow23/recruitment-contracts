@@ -25,8 +25,7 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_ENDED: "session:ended",
     SESSION_ARTIFACT_STATUS: "session:artifact_status",
     SESSION_PONG: "session:pong",
-    COPILOT_DELTA: "copilot:delta",
-    RED_FLAGS_STATE: "red_flags:state"
+    COPILOT_DELTA: "copilot:delta"
 };
 export const AUDIO_STREAM_IDS = {
     MIC: "mic",

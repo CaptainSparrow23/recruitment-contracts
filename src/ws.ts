@@ -29,8 +29,7 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_ENDED: "session:ended",
   SESSION_ARTIFACT_STATUS: "session:artifact_status",
   SESSION_PONG: "session:pong",
-  COPILOT_DELTA: "copilot:delta",
-  RED_FLAGS_STATE: "red_flags:state"
+  COPILOT_DELTA: "copilot:delta"
 } as const;
 
 export const AUDIO_STREAM_IDS = {
@@ -275,21 +274,6 @@ export interface CopilotAskResultPayload {
   answer: string;
 }
 
-export interface CopilotRedFlagItem {
-  id: string;
-  claim?: string;
-  label: string;
-  severity: "low" | "medium" | "high";
-  evidenceSegmentIndexes?: number[];
-  sources?: CopilotSource[];
-}
-
-export interface CopilotRedFlagsResultPayload {
-  kind: "red_flags";
-  items: CopilotRedFlagItem[];
-  sources: CopilotSource[];
-}
-
 export interface CopilotWhatToAnswerResultPayload {
   kind: "what_to_answer";
   answer: string;
@@ -377,14 +361,6 @@ export interface QualificationStateMessage {
   fields: QualificationFieldState[];
 }
 
-export interface RedFlagsStateMessage {
-  type: typeof SERVER_MESSAGE_TYPES.RED_FLAGS_STATE;
-  sessionId: string;
-  updatedAt: string;
-  items: CopilotRedFlagItem[];
-  basedOnSegmentIndexes: number[];
-}
-
 export interface SessionWarningMessage {
   type: typeof SERVER_MESSAGE_TYPES.SESSION_WARNING;
   sessionId: string;
@@ -453,7 +429,6 @@ export type ServerMessage =
   | CopilotResultMessage
   | CopilotDeltaMessage
   | QualificationStateMessage
-  | RedFlagsStateMessage
   | SessionWarningMessage
   | SessionErrorMessage
   | SessionEndedMessage
