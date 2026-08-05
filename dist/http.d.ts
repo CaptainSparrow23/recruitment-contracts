@@ -451,7 +451,7 @@ export interface SearchSnippetHighlight {
     start: number;
     end: number;
 }
-export type SearchResultType = "session" | "jobDescription" | "resume" | "template";
+export type SearchResultType = "session" | "jobDescription" | "template";
 interface SearchResultBase {
     id: string;
     title: string;
@@ -467,13 +467,10 @@ export interface SessionSearchResult extends SearchResultBase {
 export interface JobDescriptionSearchResult extends SearchResultBase {
     type: "jobDescription";
 }
-export interface ResumeSearchResult extends SearchResultBase {
-    type: "resume";
-}
 export interface TemplateSearchResult extends SearchResultBase {
     type: "template";
 }
-export type SearchResultItem = SessionSearchResult | JobDescriptionSearchResult | ResumeSearchResult | TemplateSearchResult;
+export type SearchResultItem = SessionSearchResult | JobDescriptionSearchResult | TemplateSearchResult;
 export interface SearchResponse {
     results: SearchResultItem[];
 }

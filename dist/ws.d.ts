@@ -44,7 +44,6 @@ export interface SessionStartMessage {
     captureConfig: CaptureConfig;
     calendarContext?: CalendarEvent | null;
     jobDescriptionId?: string | null;
-    candidateResumeId?: string | null;
 }
 export interface RecallDesktopSdkCaptureConfig {
     transport: typeof CAPTURE_TRANSPORTS.RECALL_DESKTOP_SDK;

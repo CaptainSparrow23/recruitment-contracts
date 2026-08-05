@@ -56,7 +56,6 @@ export interface SessionStartMessage {
   captureConfig: CaptureConfig;
   calendarContext?: CalendarEvent | null;
   jobDescriptionId?: string | null;
-  candidateResumeId?: string | null;
 }
 
 export interface RecallDesktopSdkCaptureConfig {
@@ -484,8 +483,7 @@ function isTimestampedSessionMessage(
     return (
       isCaptureConfig(value.captureConfig) &&
       isOptionalCalendarContext(value.calendarContext) &&
-      isOptionalUuidOrNull(value.jobDescriptionId) &&
-      isOptionalUuidOrNull(value.candidateResumeId)
+      isOptionalUuidOrNull(value.jobDescriptionId)
     );
   }
 

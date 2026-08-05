@@ -76,8 +76,7 @@ function isTimestampedSessionMessage(value, timeKey) {
     if (timeKey === "startedAt") {
         return (isCaptureConfig(value.captureConfig) &&
             isOptionalCalendarContext(value.calendarContext) &&
-            isOptionalUuidOrNull(value.jobDescriptionId) &&
-            isOptionalUuidOrNull(value.candidateResumeId));
+            isOptionalUuidOrNull(value.jobDescriptionId));
     }
     return true;
 }
