@@ -251,6 +251,8 @@ export interface UserProfile {
     sendFollowUpEmails: boolean;
     hideInCallFromScreenShare: boolean;
     onboardingCompletedAt: string | null;
+    userContext: string | null;
+    userRole: string | null;
 }
 export interface SyncProfileRequest {
     email: string | null;
@@ -260,6 +262,8 @@ export interface SyncProfileRequest {
 export interface UpdateProfilePreferencesRequest {
     sendFollowUpEmails?: boolean;
     hideInCallFromScreenShare?: boolean;
+    userContext?: string | null;
+    userRole?: string | null;
 }
 export interface SessionListResponse {
     sessions: SessionSummary[];

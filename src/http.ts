@@ -449,6 +449,14 @@ export interface UserProfile {
   sendFollowUpEmails: boolean;
   hideInCallFromScreenShare: boolean;
   onboardingCompletedAt: string | null;
+  // What the user told us about themselves in Settings. Both feed the identity
+  // block every prompt renders, so the assistant knows who it is helping instead
+  // of inferring it from the transcript. Null = not set (the default).
+  userContext: string | null;
+  // A USER_ROLE_IDS slug. Typed as a plain string on the wire so a client running
+  // an older build never fails to parse a role added since it shipped; the server
+  // validates against the allow-list on write.
+  userRole: string | null;
 }
 
 export interface SyncProfileRequest {
@@ -460,6 +468,10 @@ export interface SyncProfileRequest {
 export interface UpdateProfilePreferencesRequest {
   sendFollowUpEmails?: boolean;
   hideInCallFromScreenShare?: boolean;
+  // Per-field-optional, like the toggles above: clients PATCH only what changed.
+  // Send null to clear either one.
+  userContext?: string | null;
+  userRole?: string | null;
 }
 
 export interface SessionListResponse {
