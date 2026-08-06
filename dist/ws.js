@@ -25,7 +25,9 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_ENDED: "session:ended",
     SESSION_ARTIFACT_STATUS: "session:artifact_status",
     SESSION_PONG: "session:pong",
-    COPILOT_DELTA: "copilot:delta"
+    COPILOT_DELTA: "copilot:delta",
+    COPILOT_NOTES_EDIT: "copilot:notes_edit",
+    COPILOT_TIDY_NOTES: "copilot:tidy_notes"
 };
 export const AUDIO_STREAM_IDS = {
     MIC: "mic",
@@ -35,6 +37,12 @@ export const CAPTURE_TRANSPORTS = {
     RECALL_DESKTOP_SDK: "recall_desktop_sdk"
 };
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// Hard cap on the inline screenshot payload (base64 characters). The WS server
+// closes the WHOLE connection (1009) on frames over its 512KiB maxPayload —
+// there is no per-message error for oversize frames — so the client must stay
+// well under it and this cap is the server-side defense. 400K base64 chars
+// (~300KB JPEG) leaves ~112KiB of headroom for the rest of the message.
+export const COPILOT_PROMPT_IMAGE_MAX_BASE64_CHARS = 400_000;
 export function isClientMessage(value) {
     if (!isRecord(value) || typeof value.type !== "string") {
         return false;
@@ -75,8 +83,7 @@ function isTimestampedSessionMessage(value, timeKey) {
     }
     if (timeKey === "startedAt") {
         return (isCaptureConfig(value.captureConfig) &&
-            isOptionalCalendarContext(value.calendarContext) &&
-            isOptionalUuidOrNull(value.jobDescriptionId));
+            isOptionalCalendarContext(value.calendarContext));
     }
     return true;
 }
@@ -130,6 +137,11 @@ function isCopilotPromptMessage(value) {
     if (typeof value.modelId !== "undefined" && !isAiModelId(value.modelId)) {
         return false;
     }
+    if (typeof value.image !== "undefined") {
+        if (value.intent !== "ask" || !isCopilotPromptImage(value.image)) {
+            return false;
+        }
+    }
     if (value.intent === "ask") {
         return (typeof value.question === "string" && value.question.trim().length > 0);
     }
@@ -137,6 +149,16 @@ function isCopilotPromptMessage(value) {
         return true;
     }
     return typeof value.question === "string";
+}
+function isCopilotPromptImage(value) {
+    return (isRecord(value) &&
+        value.mediaType === "image/jpeg" &&
+        typeof value.base64 === "string" &&
+        value.base64.length > 0 &&
+        value.base64.length <= COPILOT_PROMPT_IMAGE_MAX_BASE64_CHARS &&
+        // Single linear pass (~1ms at the cap); rejects data: prefixes, newlines,
+        // and anything a provider would bounce, before a model call is spent on it.
+        /^[A-Za-z0-9+/]+={0,2}$/.test(value.base64));
 }
 function isTranscriptIngestMessage(value) {
     if (!isRecord(value)) {
@@ -244,9 +266,6 @@ function isCopilotIntent(value) {
     return (value === "say_next" ||
         value === "ask" ||
         value === "what_to_answer");
-}
-function isOptionalUuidOrNull(value) {
-    return typeof value === "undefined" || value === null || isUuidString(value);
 }
 function isRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);

@@ -1,4 +1,5 @@
 import type { CalendarEvent } from "./calendar.js";
+import type { TiptapNode } from "./http.js";
 import { type AiModelId } from "./aiModels.js";
 export declare const PROTOCOL_VERSION = "2026-04-01";
 export declare const WEBSOCKET_PATH = "/ws";
@@ -27,6 +28,8 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_ARTIFACT_STATUS: "session:artifact_status";
     readonly SESSION_PONG: "session:pong";
     readonly COPILOT_DELTA: "copilot:delta";
+    readonly COPILOT_NOTES_EDIT: "copilot:notes_edit";
+    readonly COPILOT_TIDY_NOTES: "copilot:tidy_notes";
 };
 export declare const AUDIO_STREAM_IDS: {
     readonly MIC: "mic";
@@ -43,7 +46,6 @@ export interface SessionStartMessage {
     startedAt: string;
     captureConfig: CaptureConfig;
     calendarContext?: CalendarEvent | null;
-    jobDescriptionId?: string | null;
 }
 export interface RecallDesktopSdkCaptureConfig {
     transport: typeof CAPTURE_TRANSPORTS.RECALL_DESKTOP_SDK;
@@ -122,6 +124,11 @@ export interface TranscriptParticipantIngestMessage {
     sessionId: string;
 }
 export type CopilotIntent = "say_next" | "ask" | "what_to_answer";
+export declare const COPILOT_PROMPT_IMAGE_MAX_BASE64_CHARS = 400000;
+export interface CopilotPromptImage {
+    mediaType: "image/jpeg";
+    base64: string;
+}
 export interface CopilotPromptMessage {
     type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
     sessionId: string;
@@ -130,6 +137,7 @@ export interface CopilotPromptMessage {
     intent: CopilotIntent;
     question?: string;
     modelId?: AiModelId;
+    image?: CopilotPromptImage;
 }
 export type ClientMessage = SessionStartMessage | TranscriptParticipantIngestMessage | TranscriptIngestPartialMessage | TranscriptIngestFinalMessage | CopilotPromptMessage | SessionStopMessage | SessionPingMessage | SessionResumeMessage | SessionRetryFinalizationMessage;
 export interface SessionStartedMessage {
@@ -236,6 +244,25 @@ export interface CopilotDeltaMessage {
     intent: CopilotStreamableIntent;
     delta: string;
 }
+export interface CopilotNotesEditChange {
+    path: number[] | null;
+    matchNode: TiptapNode | null;
+    replaceWith: TiptapNode[] | null;
+    insertAfter: TiptapNode[];
+}
+export interface CopilotNotesEditMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_NOTES_EDIT;
+    sessionId: string;
+    requestId: string;
+    occurredAt: string;
+    changes: CopilotNotesEditChange[];
+}
+export interface CopilotTidyNotesMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_TIDY_NOTES;
+    sessionId: string;
+    requestId: string;
+    occurredAt: string;
+}
 export interface QualificationFieldEvidence {
     snapshotId: string;
     segmentIndex: number;
@@ -302,6 +329,6 @@ export interface SessionPongMessage {
     sessionId?: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | CopilotTidyNotesMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export {};

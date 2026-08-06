@@ -798,7 +798,7 @@ export interface SearchSnippetHighlight {
   end: number;
 }
 
-export type SearchResultType = "session" | "jobDescription" | "template";
+export type SearchResultType = "session" | "template";
 
 // Shared shape across every result kind. The server always supplies a
 // display-ready `title` (never null) and an empty `snippetText` when a result
@@ -817,18 +817,11 @@ export interface SessionSearchResult extends SearchResultBase {
   type: "session";
 }
 
-export interface JobDescriptionSearchResult extends SearchResultBase {
-  type: "jobDescription";
-}
-
 export interface TemplateSearchResult extends SearchResultBase {
   type: "template";
 }
 
-export type SearchResultItem =
-  | SessionSearchResult
-  | JobDescriptionSearchResult
-  | TemplateSearchResult;
+export type SearchResultItem = SessionSearchResult | TemplateSearchResult;
 
 export interface SearchResponse {
   results: SearchResultItem[];

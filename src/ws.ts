@@ -1,4 +1,5 @@
 import type { CalendarEvent } from "./calendar.js";
+import type { TiptapNode } from "./http.js";
 import { isAiModelId, type AiModelId } from "./aiModels.js";
 
 export const PROTOCOL_VERSION = "2026-04-01";
@@ -29,7 +30,9 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_ENDED: "session:ended",
   SESSION_ARTIFACT_STATUS: "session:artifact_status",
   SESSION_PONG: "session:pong",
-  COPILOT_DELTA: "copilot:delta"
+  COPILOT_DELTA: "copilot:delta",
+  COPILOT_NOTES_EDIT: "copilot:notes_edit",
+  COPILOT_TIDY_NOTES: "copilot:tidy_notes"
 } as const;
 
 export const AUDIO_STREAM_IDS = {
@@ -55,7 +58,6 @@ export interface SessionStartMessage {
   startedAt: string;
   captureConfig: CaptureConfig;
   calendarContext?: CalendarEvent | null;
-  jobDescriptionId?: string | null;
 }
 
 export interface RecallDesktopSdkCaptureConfig {
@@ -163,6 +165,20 @@ export type CopilotIntent =
   | "ask"
   | "what_to_answer";
 
+// Hard cap on the inline screenshot payload (base64 characters). The WS server
+// closes the WHOLE connection (1009) on frames over its 512KiB maxPayload —
+// there is no per-message error for oversize frames — so the client must stay
+// well under it and this cap is the server-side defense. 400K base64 chars
+// (~300KB JPEG) leaves ~112KiB of headroom for the rest of the message.
+export const COPILOT_PROMPT_IMAGE_MAX_BASE64_CHARS = 400_000;
+
+// One screenshot of the user's screen, attached by the in-call composer's eye
+// toggle. Raw base64 — no `data:` prefix, no newlines.
+export interface CopilotPromptImage {
+  mediaType: "image/jpeg";
+  base64: string;
+}
+
 export interface CopilotPromptMessage {
   type: typeof CLIENT_MESSAGE_TYPES.COPILOT_PROMPT;
   sessionId: string;
@@ -174,6 +190,8 @@ export interface CopilotPromptMessage {
   // Optional for back-compat — the server validates + falls back to the copilot
   // default when absent/unknown.
   modelId?: AiModelId;
+  // Screenshot riding this request. ask-intent only (validator-enforced).
+  image?: CopilotPromptImage;
 }
 
 export type ClientMessage =
@@ -326,6 +344,43 @@ export interface CopilotDeltaMessage {
   delta: string;
 }
 
+// One resolved notes edit for the in-call notepad, produced by the copilot's
+// edit_notes tool during an `ask`. Mirrors the backend's folded NoteBlockChange:
+// per target block, at most one replace-or-delete plus inserted siblings. The
+// server resolves ops against the prompt snapshot but persists NOTHING — the
+// renderer's editor owns the doc and applies these by content match, so a block
+// the user edited meanwhile is skipped, never clobbered (Tidy's posture).
+export interface CopilotNotesEditChange {
+  // The target's path in the prompt snapshot ([topIdx] or [topIdx, itemIdx]).
+  // Null only for append, which targets nothing.
+  path: number[] | null;
+  // The block as the model saw it — the client's staleness check. Null = append.
+  matchNode: TiptapNode | null;
+  // What happens to the block itself: null = keep, [] = delete, nodes = replace.
+  replaceWith: TiptapNode[] | null;
+  // Nodes inserted after the block (or at the doc end for append), in op order.
+  insertAfter: TiptapNode[];
+}
+
+export interface CopilotNotesEditMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_NOTES_EDIT;
+  sessionId: string;
+  requestId: string;
+  occurredAt: string;
+  changes: CopilotNotesEditChange[];
+}
+
+// The copilot's tidy_notes tool: "tidy up my notes" is semantically Quick Tidy,
+// not an edit, and the CLIENT owns Tidy's scope (its dirty-diff baseline lives
+// in the renderer). So the server only signals; the renderer triggers the same
+// round-trip its Tidy button does — which no-ops when nothing is dirty.
+export interface CopilotTidyNotesMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_TIDY_NOTES;
+  sessionId: string;
+  requestId: string;
+  occurredAt: string;
+}
+
 export interface QualificationFieldEvidence {
   snapshotId: string;
   segmentIndex: number;
@@ -427,6 +482,8 @@ export type ServerMessage =
   | CopilotDebugContextMessage
   | CopilotResultMessage
   | CopilotDeltaMessage
+  | CopilotNotesEditMessage
+  | CopilotTidyNotesMessage
   | QualificationStateMessage
   | SessionWarningMessage
   | SessionErrorMessage
@@ -482,8 +539,7 @@ function isTimestampedSessionMessage(
   if (timeKey === "startedAt") {
     return (
       isCaptureConfig(value.captureConfig) &&
-      isOptionalCalendarContext(value.calendarContext) &&
-      isOptionalUuidOrNull(value.jobDescriptionId)
+      isOptionalCalendarContext(value.calendarContext)
     );
   }
 
@@ -562,6 +618,12 @@ function isCopilotPromptMessage(
     return false;
   }
 
+  if (typeof value.image !== "undefined") {
+    if (value.intent !== "ask" || !isCopilotPromptImage(value.image)) {
+      return false;
+    }
+  }
+
   if (value.intent === "ask") {
     return (
       typeof value.question === "string" && value.question.trim().length > 0
@@ -573,6 +635,19 @@ function isCopilotPromptMessage(
   }
 
   return typeof value.question === "string";
+}
+
+function isCopilotPromptImage(value: unknown): value is CopilotPromptImage {
+  return (
+    isRecord(value) &&
+    value.mediaType === "image/jpeg" &&
+    typeof value.base64 === "string" &&
+    value.base64.length > 0 &&
+    value.base64.length <= COPILOT_PROMPT_IMAGE_MAX_BASE64_CHARS &&
+    // Single linear pass (~1ms at the cap); rejects data: prefixes, newlines,
+    // and anything a provider would bounce, before a model call is spent on it.
+    /^[A-Za-z0-9+/]+={0,2}$/.test(value.base64)
+  );
 }
 
 function isTranscriptIngestMessage(
@@ -737,10 +812,6 @@ function isCopilotIntent(value: unknown): value is CopilotIntent {
     value === "ask" ||
     value === "what_to_answer"
   );
-}
-
-function isOptionalUuidOrNull(value: unknown): boolean {
-  return typeof value === "undefined" || value === null || isUuidString(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
