@@ -12,7 +12,7 @@ export const AI_MODEL_IDS = [
   "gpt-5.4",
   "gpt-5.4-mini",
   "gpt-5.4-nano",
-  "claude-opus-4-8",
+  "claude-opus-5",
   "claude-sonnet-5",
   "claude-haiku-4-5-20251001"
 ] as const;
@@ -38,7 +38,7 @@ export function isAiModelId(value: unknown): value is AiModelId {
 // dependency-free, alongside the id vocabulary — so both the frontend picker and
 // the backend read one source of truth. The tier threshold lives on each side.
 export const PREMIUM_AI_MODEL_IDS = [
-  "claude-opus-4-8",
+  "claude-opus-5",
   "gpt-5.6-sol",
   "claude-sonnet-5",
   "gpt-5.6-terra"
