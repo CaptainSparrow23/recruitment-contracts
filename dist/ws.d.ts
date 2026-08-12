@@ -123,7 +123,7 @@ export interface TranscriptParticipantIngestMessage {
     receivedAt: string;
     sessionId: string;
 }
-export type CopilotIntent = "say_next" | "ask" | "what_to_answer";
+export type CopilotIntent = "say_next" | "ask" | "what_to_answer" | "help";
 export declare const COPILOT_PROMPT_IMAGE_MAX_BASE64_CHARS = 400000;
 export interface CopilotPromptImage {
     mediaType: "image/jpeg";
@@ -205,6 +205,10 @@ export interface CopilotWhatToAnswerResultPayload {
     kind: "what_to_answer";
     answer: string;
 }
+export interface CopilotHelpResultPayload {
+    kind: "help";
+    answer: string;
+}
 export interface CopilotSayNextResultMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
     sessionId: string;
@@ -235,8 +239,17 @@ export interface CopilotWhatToAnswerResultMessage {
     confidence: CopilotConfidence;
     result: CopilotWhatToAnswerResultPayload;
 }
-export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotWhatToAnswerResultMessage;
-export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next";
+export interface CopilotHelpResultMessage {
+    type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+    sessionId: string;
+    requestId: string;
+    intent: "help";
+    generatedAt: string;
+    basedOnSegmentIndexes: number[];
+    result: CopilotHelpResultPayload;
+}
+export type CopilotResultMessage = CopilotSayNextResultMessage | CopilotAskResultMessage | CopilotWhatToAnswerResultMessage | CopilotHelpResultMessage;
+export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next" | "help";
 export interface CopilotDeltaMessage {
     type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
     sessionId: string;

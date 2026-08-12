@@ -163,7 +163,8 @@ export interface TranscriptParticipantIngestMessage {
 export type CopilotIntent =
   | "say_next"
   | "ask"
-  | "what_to_answer";
+  | "what_to_answer"
+  | "help";
 
 // Hard cap on the inline screenshot payload (base64 characters). The WS server
 // closes the WHOLE connection (1009) on frames over its 512KiB maxPayload —
@@ -190,7 +191,7 @@ export interface CopilotPromptMessage {
   // Optional for back-compat — the server validates + falls back to the copilot
   // default when absent/unknown.
   modelId?: AiModelId;
-  // Screenshot riding this request. ask-intent only (validator-enforced).
+  // Screenshot riding this request. ask/help intents only (validator-enforced).
   image?: CopilotPromptImage;
 }
 
@@ -296,6 +297,13 @@ export interface CopilotWhatToAnswerResultPayload {
   answer: string;
 }
 
+// The in-call Quick Help button — a one-tap "read the room and help me right
+// now" with no typed question. Markdown answer, like ask.
+export interface CopilotHelpResultPayload {
+  kind: "help";
+  answer: string;
+}
+
 export interface CopilotSayNextResultMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
   sessionId: string;
@@ -329,12 +337,25 @@ export interface CopilotWhatToAnswerResultMessage {
   result: CopilotWhatToAnswerResultPayload;
 }
 
+// No `confidence` field: it was a transcript-volume heuristic nothing ever
+// read (the legacy pill UI is gone), so new result messages don't carry it.
+export interface CopilotHelpResultMessage {
+  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
+  sessionId: string;
+  requestId: string;
+  intent: "help";
+  generatedAt: string;
+  basedOnSegmentIndexes: number[];
+  result: CopilotHelpResultPayload;
+}
+
 export type CopilotResultMessage =
   | CopilotSayNextResultMessage
   | CopilotAskResultMessage
-  | CopilotWhatToAnswerResultMessage;
+  | CopilotWhatToAnswerResultMessage
+  | CopilotHelpResultMessage;
 
-export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next";
+export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next" | "help";
 
 export interface CopilotDeltaMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
@@ -619,7 +640,10 @@ function isCopilotPromptMessage(
   }
 
   if (typeof value.image !== "undefined") {
-    if (value.intent !== "ask" || !isCopilotPromptImage(value.image)) {
+    if (
+      (value.intent !== "ask" && value.intent !== "help") ||
+      !isCopilotPromptImage(value.image)
+    ) {
       return false;
     }
   }
@@ -810,7 +834,8 @@ function isCopilotIntent(value: unknown): value is CopilotIntent {
   return (
     value === "say_next" ||
     value === "ask" ||
-    value === "what_to_answer"
+    value === "what_to_answer" ||
+    value === "help"
   );
 }
 
