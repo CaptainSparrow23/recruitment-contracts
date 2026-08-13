@@ -31,8 +31,7 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_ARTIFACT_STATUS: "session:artifact_status",
   SESSION_PONG: "session:pong",
   COPILOT_DELTA: "copilot:delta",
-  COPILOT_NOTES_EDIT: "copilot:notes_edit",
-  COPILOT_TIDY_NOTES: "copilot:tidy_notes"
+  COPILOT_NOTES_EDIT: "copilot:notes_edit"
 } as const;
 
 export const AUDIO_STREAM_IDS = {
@@ -391,17 +390,6 @@ export interface CopilotNotesEditMessage {
   changes: CopilotNotesEditChange[];
 }
 
-// The copilot's tidy_notes tool: "tidy up my notes" is semantically Quick Tidy,
-// not an edit, and the CLIENT owns Tidy's scope (its dirty-diff baseline lives
-// in the renderer). So the server only signals; the renderer triggers the same
-// round-trip its Tidy button does — which no-ops when nothing is dirty.
-export interface CopilotTidyNotesMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_TIDY_NOTES;
-  sessionId: string;
-  requestId: string;
-  occurredAt: string;
-}
-
 export interface QualificationFieldEvidence {
   snapshotId: string;
   segmentIndex: number;
@@ -504,7 +492,6 @@ export type ServerMessage =
   | CopilotResultMessage
   | CopilotDeltaMessage
   | CopilotNotesEditMessage
-  | CopilotTidyNotesMessage
   | QualificationStateMessage
   | SessionWarningMessage
   | SessionErrorMessage

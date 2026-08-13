@@ -29,7 +29,6 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_PONG: "session:pong";
     readonly COPILOT_DELTA: "copilot:delta";
     readonly COPILOT_NOTES_EDIT: "copilot:notes_edit";
-    readonly COPILOT_TIDY_NOTES: "copilot:tidy_notes";
 };
 export declare const AUDIO_STREAM_IDS: {
     readonly MIC: "mic";
@@ -270,12 +269,6 @@ export interface CopilotNotesEditMessage {
     occurredAt: string;
     changes: CopilotNotesEditChange[];
 }
-export interface CopilotTidyNotesMessage {
-    type: typeof SERVER_MESSAGE_TYPES.COPILOT_TIDY_NOTES;
-    sessionId: string;
-    requestId: string;
-    occurredAt: string;
-}
 export interface QualificationFieldEvidence {
     snapshotId: string;
     segmentIndex: number;
@@ -342,6 +335,6 @@ export interface SessionPongMessage {
     sessionId?: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | CopilotTidyNotesMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export {};
