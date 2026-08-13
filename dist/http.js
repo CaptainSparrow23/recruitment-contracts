@@ -50,6 +50,9 @@ export const CHAT_SESSIONS_PATH = "/chat/sessions";
 // Max length of a conversation title (model-generated on the first turn, or
 // derived from the first user message).
 export const CHAT_TITLE_MAX_LENGTH = 100;
+// Max length of ChatRequest.displayText (the short user-visible stand-in for a
+// longer instruction — see ChatRequest).
+export const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
 export const ORG_PATH = "/org";
 export const BILLING_PATH = "/billing";
 export const BILLING_PRICING_PATH = "/billing/pricing";

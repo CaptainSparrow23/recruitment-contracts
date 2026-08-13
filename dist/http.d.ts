@@ -348,6 +348,7 @@ export declare const SEARCH_PATH = "/search";
 export declare const CHAT_PATH = "/chat";
 export declare const CHAT_SESSIONS_PATH = "/chat/sessions";
 export declare const CHAT_TITLE_MAX_LENGTH = 100;
+export declare const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
 export declare const ORG_PATH = "/org";
 export declare const BILLING_PATH = "/billing";
 export declare const BILLING_PRICING_PATH = "/billing/pricing";
@@ -483,6 +484,7 @@ export interface ChatRequest {
     chatSessionId?: string;
     anchorSessionId?: string;
     modelId?: AiModelId;
+    displayText?: string;
 }
 export type ChatSource = {
     kind: "session";

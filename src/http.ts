@@ -639,6 +639,9 @@ export const CHAT_SESSIONS_PATH = "/chat/sessions";
 // Max length of a conversation title (model-generated on the first turn, or
 // derived from the first user message).
 export const CHAT_TITLE_MAX_LENGTH = 100;
+// Max length of ChatRequest.displayText (the short user-visible stand-in for a
+// longer instruction — see ChatRequest).
+export const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
 
 export const ORG_PATH = "/org";
 
@@ -855,6 +858,13 @@ export interface ChatRequest {
   // back-compat — the server validates it against its registry and falls back to
   // the chat default when absent/unknown.
   modelId?: AiModelId;
+  // Short user-visible stand-in for the FINAL user message of `messages`, used
+  // by one-tap quick actions whose real message is a longer hidden instruction.
+  // The model still sees the full message content for THIS turn; the server
+  // persists displayText as the stored user turn instead, so bubbles, replayed
+  // history and later turns all carry the short text. ≤
+  // CHAT_DISPLAY_TEXT_MAX_LENGTH chars; must be non-empty when present.
+  displayText?: string;
 }
 
 // A cited source attached to a persisted assistant turn. Mirrors the live
