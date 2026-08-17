@@ -17,7 +17,6 @@ export const SERVER_MESSAGE_TYPES = {
     TRANSCRIPT_PARTIAL: "transcript:partial",
     TRANSCRIPT_FINAL: "transcript:final",
     COPILOT_STATUS: "copilot:status",
-    COPILOT_DEBUG_CONTEXT: "copilot:debug_context",
     COPILOT_RESULT: "copilot:result",
     QUALIFICATION_STATE: "qualification:state",
     SESSION_WARNING: "session:warning",

@@ -19,7 +19,6 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly TRANSCRIPT_PARTIAL: "transcript:partial";
     readonly TRANSCRIPT_FINAL: "transcript:final";
     readonly COPILOT_STATUS: "copilot:status";
-    readonly COPILOT_DEBUG_CONTEXT: "copilot:debug_context";
     readonly COPILOT_RESULT: "copilot:result";
     readonly QUALIFICATION_STATE: "qualification:state";
     readonly SESSION_WARNING: "session:warning";
@@ -174,24 +173,6 @@ export interface CopilotStatusMessage {
     errorCode?: "no_active_session" | "request_in_flight" | "invalid_prompt" | "provider_timeout" | "provider_error" | "invalid_response" | "ai_quota_exceeded";
     message?: string;
 }
-export interface CopilotDebugContextEntry {
-    providerTranscriptId?: string | null;
-    receivedAt: string;
-    segmentIndex?: number;
-    speakerLabel: string | null;
-    text: string;
-}
-export interface CopilotDebugContextMessage {
-    type: typeof SERVER_MESSAGE_TYPES.COPILOT_DEBUG_CONTEXT;
-    sessionId: string;
-    requestId: string;
-    intent: CopilotIntent;
-    occurredAt: string;
-    basedOnSegmentIndexes: number[];
-    cacheBypassedReason: "live_partial_context_present" | null;
-    finalEntries: CopilotDebugContextEntry[];
-    partialEntries: CopilotDebugContextEntry[];
-}
 export interface CopilotSayNextResultPayload {
     kind: "say_next";
     question: string;
@@ -335,6 +316,6 @@ export interface SessionPongMessage {
     sessionId?: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotDebugContextMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export {};

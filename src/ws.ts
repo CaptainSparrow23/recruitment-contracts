@@ -22,7 +22,6 @@ export const SERVER_MESSAGE_TYPES = {
   TRANSCRIPT_PARTIAL: "transcript:partial",
   TRANSCRIPT_FINAL: "transcript:final",
   COPILOT_STATUS: "copilot:status",
-  COPILOT_DEBUG_CONTEXT: "copilot:debug_context",
   COPILOT_RESULT: "copilot:result",
   QUALIFICATION_STATE: "qualification:state",
   SESSION_WARNING: "session:warning",
@@ -261,26 +260,6 @@ export interface CopilotStatusMessage {
   message?: string;
 }
 
-export interface CopilotDebugContextEntry {
-  providerTranscriptId?: string | null;
-  receivedAt: string;
-  segmentIndex?: number;
-  speakerLabel: string | null;
-  text: string;
-}
-
-export interface CopilotDebugContextMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_DEBUG_CONTEXT;
-  sessionId: string;
-  requestId: string;
-  intent: CopilotIntent;
-  occurredAt: string;
-  basedOnSegmentIndexes: number[];
-  cacheBypassedReason: "live_partial_context_present" | null;
-  finalEntries: CopilotDebugContextEntry[];
-  partialEntries: CopilotDebugContextEntry[];
-}
-
 export interface CopilotSayNextResultPayload {
   kind: "say_next";
   question: string;
@@ -488,7 +467,6 @@ export type ServerMessage =
   | TranscriptPartialMessage
   | TranscriptFinalMessage
   | CopilotStatusMessage
-  | CopilotDebugContextMessage
   | CopilotResultMessage
   | CopilotDeltaMessage
   | CopilotNotesEditMessage
