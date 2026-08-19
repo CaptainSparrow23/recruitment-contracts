@@ -135,11 +135,8 @@ function isCopilotPromptMessage(value) {
     if (typeof value.modelId !== "undefined" && !isAiModelId(value.modelId)) {
         return false;
     }
-    if (typeof value.image !== "undefined") {
-        if ((value.intent !== "ask" && value.intent !== "help") ||
-            !isCopilotPromptImage(value.image)) {
-            return false;
-        }
+    if (typeof value.image !== "undefined" && !isCopilotPromptImage(value.image)) {
+        return false;
     }
     if (value.intent === "ask") {
         return (typeof value.question === "string" && value.question.trim().length > 0);
@@ -262,10 +259,7 @@ function isOptionalTimelineNs(value) {
         (typeof value === "string" && /^\d+$/.test(value)));
 }
 function isCopilotIntent(value) {
-    return (value === "say_next" ||
-        value === "ask" ||
-        value === "what_to_answer" ||
-        value === "help");
+    return value === "ask" || value === "help";
 }
 function isRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);

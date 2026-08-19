@@ -158,11 +158,7 @@ export interface TranscriptParticipantIngestMessage {
   sessionId: string;
 }
 
-export type CopilotIntent =
-  | "say_next"
-  | "ask"
-  | "what_to_answer"
-  | "help";
+export type CopilotIntent = "ask" | "help";
 
 // Hard cap on the inline screenshot payload (base64 characters). The WS server
 // closes the WHOLE connection (1009) on frames over its 512KiB maxPayload —
@@ -189,7 +185,7 @@ export interface CopilotPromptMessage {
   // Optional for back-compat — the server validates + falls back to the copilot
   // default when absent/unknown.
   modelId?: AiModelId;
-  // Screenshot riding this request. ask/help intents only (validator-enforced).
+  // Screenshot riding this request.
   image?: CopilotPromptImage;
 }
 
@@ -227,7 +223,6 @@ export type TranscriptAudioSource = AudioStreamId | "unknown";
 export type AudioStreamId = (typeof AUDIO_STREAM_IDS)[keyof typeof AUDIO_STREAM_IDS];
 
 export type CopilotStatus = "started" | "in_progress" | "completed" | "failed";
-export type CopilotConfidence = "low" | "medium" | "high";
 export interface CopilotSource {
   title: string;
   url: string;
@@ -260,18 +255,8 @@ export interface CopilotStatusMessage {
   message?: string;
 }
 
-export interface CopilotSayNextResultPayload {
-  kind: "say_next";
-  question: string;
-}
-
 export interface CopilotAskResultPayload {
   kind: "ask";
-  answer: string;
-}
-
-export interface CopilotWhatToAnswerResultPayload {
-  kind: "what_to_answer";
   answer: string;
 }
 
@@ -282,17 +267,6 @@ export interface CopilotHelpResultPayload {
   answer: string;
 }
 
-export interface CopilotSayNextResultMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-  sessionId: string;
-  requestId: string;
-  intent: "say_next";
-  generatedAt: string;
-  basedOnSegmentIndexes: number[];
-  confidence: CopilotConfidence;
-  result: CopilotSayNextResultPayload;
-}
-
 export interface CopilotAskResultMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
   sessionId: string;
@@ -300,23 +274,9 @@ export interface CopilotAskResultMessage {
   intent: "ask";
   generatedAt: string;
   basedOnSegmentIndexes: number[];
-  confidence: CopilotConfidence;
   result: CopilotAskResultPayload;
 }
 
-export interface CopilotWhatToAnswerResultMessage {
-  type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
-  sessionId: string;
-  requestId: string;
-  intent: "what_to_answer";
-  generatedAt: string;
-  basedOnSegmentIndexes: number[];
-  confidence: CopilotConfidence;
-  result: CopilotWhatToAnswerResultPayload;
-}
-
-// No `confidence` field: it was a transcript-volume heuristic nothing ever
-// read (the legacy pill UI is gone), so new result messages don't carry it.
 export interface CopilotHelpResultMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_RESULT;
   sessionId: string;
@@ -328,18 +288,14 @@ export interface CopilotHelpResultMessage {
 }
 
 export type CopilotResultMessage =
-  | CopilotSayNextResultMessage
   | CopilotAskResultMessage
-  | CopilotWhatToAnswerResultMessage
   | CopilotHelpResultMessage;
-
-export type CopilotStreamableIntent = "what_to_answer" | "ask" | "say_next" | "help";
 
 export interface CopilotDeltaMessage {
   type: typeof SERVER_MESSAGE_TYPES.COPILOT_DELTA;
   sessionId: string;
   requestId: string;
-  intent: CopilotStreamableIntent;
+  intent: CopilotIntent;
   delta: string;
 }
 
@@ -604,13 +560,8 @@ function isCopilotPromptMessage(
     return false;
   }
 
-  if (typeof value.image !== "undefined") {
-    if (
-      (value.intent !== "ask" && value.intent !== "help") ||
-      !isCopilotPromptImage(value.image)
-    ) {
-      return false;
-    }
+  if (typeof value.image !== "undefined" && !isCopilotPromptImage(value.image)) {
+    return false;
   }
 
   if (value.intent === "ask") {
@@ -796,12 +747,7 @@ function isOptionalTimelineNs(value: unknown): boolean {
 }
 
 function isCopilotIntent(value: unknown): value is CopilotIntent {
-  return (
-    value === "say_next" ||
-    value === "ask" ||
-    value === "what_to_answer" ||
-    value === "help"
-  );
+  return value === "ask" || value === "help";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
