@@ -843,7 +843,14 @@ export interface SearchResponse {
 }
 
 export interface ChatRequest {
-  messages: Array<{ role: "user" | "assistant"; content: string }>;
+  // The new user turn. When present the server owns the history — it loads,
+  // windows and renders the stored thread itself — and `messages` is ignored.
+  message?: string;
+  // Deprecated — legacy clients send their full local thread; the server keeps
+  // only its last user turn and discards the rest. Accepted for one release so
+  // older app builds keep working; new clients send `message` instead.
+  // Exactly one of `message` / `messages` must carry the new turn.
+  messages?: Array<{ role: "user" | "assistant"; content: string }>;
   // Append to an existing conversation. Omit to start a new one — the server
   // creates it lazily and returns its id on the "done" event.
   chatSessionId?: string;
@@ -858,8 +865,9 @@ export interface ChatRequest {
   // back-compat — the server validates it against its registry and falls back to
   // the chat default when absent/unknown.
   modelId?: AiModelId;
-  // Short user-visible stand-in for the FINAL user message of `messages`, used
-  // by one-tap quick actions whose real message is a longer hidden instruction.
+  // Short user-visible stand-in for the new user turn (`message`, or the final
+  // user message of legacy `messages`), used by one-tap quick actions whose
+  // real message is a longer hidden instruction.
   // The model still sees the full message content for THIS turn; the server
   // persists displayText as the stored user turn instead, so bubbles, replayed
   // history and later turns all carry the short text. ≤
@@ -954,6 +962,12 @@ export interface PersistedChatMessage {
   content: string;
   // Present only on assistant turns that cited sessions.
   sources?: ChatSource[];
+  // The meeting attached when this user turn was sent. Absent on assistant
+  // turns and on turns sent before per-turn anchors were persisted. `title` is
+  // the meeting's display title as resolved at send time, so a later rename
+  // does not rewrite history — clients render it as stored rather than
+  // re-resolving the session.
+  anchor?: { sessionId: string; title: string };
   createdAt: string;
 }
 

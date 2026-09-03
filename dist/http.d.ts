@@ -477,7 +477,8 @@ export interface SearchResponse {
     results: SearchResultItem[];
 }
 export interface ChatRequest {
-    messages: Array<{
+    message?: string;
+    messages?: Array<{
         role: "user" | "assistant";
         content: string;
     }>;
@@ -538,6 +539,10 @@ export interface PersistedChatMessage {
     role: "user" | "assistant";
     content: string;
     sources?: ChatSource[];
+    anchor?: {
+        sessionId: string;
+        title: string;
+    };
     createdAt: string;
 }
 export declare const CHAT_SESSIONS_PAGE_SIZE = 5;
