@@ -507,6 +507,9 @@ export type ChatStreamEvent = {
 } | ({
     type: "source";
 } & ChatSource) | {
+    type: "chat_session";
+    chatSessionId: string;
+} | {
     type: "done";
     sources: ChatSource[];
     chatSessionId: string;

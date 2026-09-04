@@ -899,11 +899,17 @@ export type ChatStreamEvent =
   | { type: "delta"; content: string }
   | { type: "status"; message: string }
   | ({ type: "source" } & ChatSource)
+  // The conversation this turn is being written to, announced before any
+  // content. The row is committed before the stream opens, so sending it first
+  // means a turn that dies mid-stream — a terminal error, a dropped connection,
+  // a body that just ends — still leaves the client holding the id, and the
+  // retry appends to the same conversation instead of orphaning it.
+  | { type: "chat_session"; chatSessionId: string }
   | {
       type: "done";
       sources: ChatSource[];
-      // Id of the conversation these turns were persisted to. Lets the client
-      // adopt the id of a newly (lazily) created conversation.
+      // The same id `chat_session` already announced, kept for clients that
+      // only learn it here.
       chatSessionId: string;
     }
   // Terminal failure mid-stream — the server closes the stream after this
