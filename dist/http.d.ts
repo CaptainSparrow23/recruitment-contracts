@@ -566,4 +566,34 @@ export interface RenameChatSessionRequest {
 export interface RenameChatSessionResponse {
     title: string;
 }
+export declare const ISSUE_REPORTS_PATH = "/issue-reports";
+export declare const ISSUE_REPORT_DETAILS_MAX_LENGTH = 4000;
+export declare const ISSUE_REPORT_MESSAGE_MAX_LENGTH = 20000;
+export declare const CHAT_MESSAGE_ISSUE_REASONS: readonly ["not_accurate", "wrong_meeting_context", "incomplete", "inappropriate", "other"];
+export type ChatMessageIssueReason = (typeof CHAT_MESSAGE_ISSUE_REASONS)[number];
+export declare function isChatMessageIssueReason(value: unknown): value is ChatMessageIssueReason;
+export declare const GENERAL_ISSUE_REASONS: readonly ["bug", "recording_transcript", "inappropriate_ai_content", "billing_account", "other"];
+export type GeneralIssueReason = (typeof GENERAL_ISSUE_REASONS)[number];
+export declare function isGeneralIssueReason(value: unknown): value is GeneralIssueReason;
+export interface IssueReportClient {
+    appVersion: string;
+    platform: string;
+}
+export type IssueReportKind = IssueReportRequest["kind"];
+export type IssueReportRequest = {
+    kind: "chat_message";
+    chatSessionId?: string;
+    messageContent: string;
+    reason?: ChatMessageIssueReason;
+    details?: string;
+    client?: IssueReportClient;
+} | {
+    kind: "general";
+    reason?: GeneralIssueReason;
+    details: string;
+    client?: IssueReportClient;
+};
+export interface IssueReportResponse {
+    ok: true;
+}
 export {};

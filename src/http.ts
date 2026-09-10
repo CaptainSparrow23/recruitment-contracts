@@ -1009,3 +1009,78 @@ export interface RenameChatSessionRequest {
 export interface RenameChatSessionResponse {
   title: string;
 }
+
+// ─── Issue reports ───────────────────────────────────────────────────────────
+// In-app "Report an issue" surface (Microsoft Store policy 11.16: users must be
+// able to report inappropriate AI content to the developer). Reports are emailed
+// to the team inbox — there is no DB record in v1.
+export const ISSUE_REPORTS_PATH = "/issue-reports";
+// Free-text `details` cap (matches the marketing contact form).
+export const ISSUE_REPORT_DETAILS_MAX_LENGTH = 4000;
+// Cap on the reported assistant message body. Clients slice to this before
+// sending; the server rejects anything longer.
+export const ISSUE_REPORT_MESSAGE_MAX_LENGTH = 20_000;
+
+// Why a chat assistant message was thumbed down. Runtime arrays so the app
+// renders the same options the backend validates against.
+export const CHAT_MESSAGE_ISSUE_REASONS = [
+  "not_accurate",
+  "wrong_meeting_context",
+  "incomplete",
+  "inappropriate",
+  "other"
+] as const;
+export type ChatMessageIssueReason = (typeof CHAT_MESSAGE_ISSUE_REASONS)[number];
+export function isChatMessageIssueReason(
+  value: unknown
+): value is ChatMessageIssueReason {
+  return (CHAT_MESSAGE_ISSUE_REASONS as readonly unknown[]).includes(value);
+}
+
+// Reasons for the general "Report an issue" form (Help modal).
+export const GENERAL_ISSUE_REASONS = [
+  "bug",
+  "recording_transcript",
+  "inappropriate_ai_content",
+  "billing_account",
+  "other"
+] as const;
+export type GeneralIssueReason = (typeof GENERAL_ISSUE_REASONS)[number];
+export function isGeneralIssueReason(value: unknown): value is GeneralIssueReason {
+  return (GENERAL_ISSUE_REASONS as readonly unknown[]).includes(value);
+}
+
+// Reporter's build, for triage. Populated by the app from __APP_VERSION__ and
+// the Electron platform (the same values the old Help-modal mailto carried).
+export interface IssueReportClient {
+  appVersion: string;
+  platform: string;
+}
+
+export type IssueReportKind = IssueReportRequest["kind"];
+
+export type IssueReportRequest =
+  | {
+      kind: "chat_message";
+      // The conversation the message belongs to. Optional for resilience; when
+      // present it must be the caller's own chat (404 otherwise).
+      chatSessionId?: string;
+      // The assistant turn being reported, verbatim.
+      // ≤ ISSUE_REPORT_MESSAGE_MAX_LENGTH.
+      messageContent: string;
+      reason?: ChatMessageIssueReason;
+      // Optional free text. ≤ ISSUE_REPORT_DETAILS_MAX_LENGTH.
+      details?: string;
+      client?: IssueReportClient;
+    }
+  | {
+      kind: "general";
+      reason?: GeneralIssueReason;
+      // Required, non-empty. ≤ ISSUE_REPORT_DETAILS_MAX_LENGTH.
+      details: string;
+      client?: IssueReportClient;
+    };
+
+export interface IssueReportResponse {
+  ok: true;
+}

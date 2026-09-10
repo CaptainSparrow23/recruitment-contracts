@@ -69,3 +69,36 @@ export const CHAT_SESSIONS_PAGE_SIZE = 5;
 // Upper bound on how many sessions the list endpoint returns in one response
 // (and its default when no `limit` is given). Caps the "fetch all" payload.
 export const CHAT_SESSIONS_MAX_LIMIT = 500;
+// ─── Issue reports ───────────────────────────────────────────────────────────
+// In-app "Report an issue" surface (Microsoft Store policy 11.16: users must be
+// able to report inappropriate AI content to the developer). Reports are emailed
+// to the team inbox — there is no DB record in v1.
+export const ISSUE_REPORTS_PATH = "/issue-reports";
+// Free-text `details` cap (matches the marketing contact form).
+export const ISSUE_REPORT_DETAILS_MAX_LENGTH = 4000;
+// Cap on the reported assistant message body. Clients slice to this before
+// sending; the server rejects anything longer.
+export const ISSUE_REPORT_MESSAGE_MAX_LENGTH = 20_000;
+// Why a chat assistant message was thumbed down. Runtime arrays so the app
+// renders the same options the backend validates against.
+export const CHAT_MESSAGE_ISSUE_REASONS = [
+    "not_accurate",
+    "wrong_meeting_context",
+    "incomplete",
+    "inappropriate",
+    "other"
+];
+export function isChatMessageIssueReason(value) {
+    return CHAT_MESSAGE_ISSUE_REASONS.includes(value);
+}
+// Reasons for the general "Report an issue" form (Help modal).
+export const GENERAL_ISSUE_REASONS = [
+    "bug",
+    "recording_transcript",
+    "inappropriate_ai_content",
+    "billing_account",
+    "other"
+];
+export function isGeneralIssueReason(value) {
+    return GENERAL_ISSUE_REASONS.includes(value);
+}
