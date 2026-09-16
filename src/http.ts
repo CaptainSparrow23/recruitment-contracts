@@ -449,6 +449,9 @@ export interface UserProfile {
   sendFollowUpEmails: boolean;
   hideInCallFromScreenShare: boolean;
   onboardingCompletedAt: string | null;
+  // Stamped once, on the first confirmed filled-template download (every tier,
+  // never cleared). Drives the app's sidebar "Getting started" checklist.
+  firstDocumentDownloadedAt: string | null;
   // What the user told us about themselves in Settings. Both feed the identity
   // block every prompt renders, so the assistant knows who it is helping instead
   // of inferring it from the transcript. Null = not set (the default).

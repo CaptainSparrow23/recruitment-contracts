@@ -251,6 +251,7 @@ export interface UserProfile {
     sendFollowUpEmails: boolean;
     hideInCallFromScreenShare: boolean;
     onboardingCompletedAt: string | null;
+    firstDocumentDownloadedAt: string | null;
     userContext: string | null;
     userRole: string | null;
 }
