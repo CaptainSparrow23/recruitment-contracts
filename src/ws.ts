@@ -56,6 +56,10 @@ export interface SessionStartMessage {
   startedAt: string;
   captureConfig: CaptureConfig;
   calendarContext?: CalendarEvent | null;
+  // The client's IANA zone (e.g. "Europe/London"), so the server can render
+  // startedAt as the user's local date for the AI prompts. Optional: older
+  // clients omit it and the server falls back to UTC.
+  timeZone?: string;
 }
 
 export interface RecallDesktopSdkCaptureConfig {
@@ -481,11 +485,24 @@ function isTimestampedSessionMessage(
   if (timeKey === "startedAt") {
     return (
       isCaptureConfig(value.captureConfig) &&
-      isOptionalCalendarContext(value.calendarContext)
+      isOptionalCalendarContext(value.calendarContext) &&
+      isOptionalTimeZone(value.timeZone)
     );
   }
 
   return true;
+}
+
+// Absent is fine (older clients); present must be a short non-blank string.
+// IANA validity is the server's job — a wrong guess here would reject the
+// whole session start.
+function isOptionalTimeZone(value: unknown): boolean {
+  return (
+    value === undefined ||
+    (typeof value === "string" &&
+      value.trim().length > 0 &&
+      value.length <= 64)
+  );
 }
 
 function isCaptureConfig(value: unknown): value is CaptureConfig {

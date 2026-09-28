@@ -487,6 +487,7 @@ export interface ChatRequest {
     anchorSessionId?: string;
     modelId?: AiModelId;
     displayText?: string;
+    timeZone?: string;
 }
 export type ChatSource = {
     kind: "session";

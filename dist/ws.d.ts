@@ -44,6 +44,7 @@ export interface SessionStartMessage {
     startedAt: string;
     captureConfig: CaptureConfig;
     calendarContext?: CalendarEvent | null;
+    timeZone?: string;
 }
 export interface RecallDesktopSdkCaptureConfig {
     transport: typeof CAPTURE_TRANSPORTS.RECALL_DESKTOP_SDK;
