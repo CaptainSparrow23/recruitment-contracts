@@ -876,6 +876,10 @@ export interface ChatRequest {
   // history and later turns all carry the short text. ≤
   // CHAT_DISPLAY_TEXT_MAX_LENGTH chars; must be non-empty when present.
   displayText?: string;
+  // The client's IANA zone. The server stamps each turn with its own clock;
+  // this only decides which calendar day that clock is rendered in. Optional;
+  // the server falls back to UTC.
+  timeZone?: string;
 }
 
 // A cited source attached to a persisted assistant turn. Mirrors the live

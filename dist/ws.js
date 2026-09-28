@@ -81,9 +81,19 @@ function isTimestampedSessionMessage(value, timeKey) {
     }
     if (timeKey === "startedAt") {
         return (isCaptureConfig(value.captureConfig) &&
-            isOptionalCalendarContext(value.calendarContext));
+            isOptionalCalendarContext(value.calendarContext) &&
+            isOptionalTimeZone(value.timeZone));
     }
     return true;
+}
+// Absent is fine (older clients); present must be a short non-blank string.
+// IANA validity is the server's job — a wrong guess here would reject the
+// whole session start.
+function isOptionalTimeZone(value) {
+    return (value === undefined ||
+        (typeof value === "string" &&
+            value.trim().length > 0 &&
+            value.length <= 64));
 }
 function isCaptureConfig(value) {
     return (isRecord(value) &&
