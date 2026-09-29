@@ -113,6 +113,9 @@ export interface DeleteCalendarConnectionResponse {
 
 export interface CalendarEventsResponse {
   events: CalendarEvent[];
+  // Providers whose events are missing because their fetch failed. Only sent
+  // to clients that opt in (CALENDAR_EVENTS_ALLOW_PARTIAL_PARAM).
+  failedProviders?: CalendarProvider[];
 }
 
 export const MANUAL_EVENT_TITLE_MAX_LENGTH = 200;
