@@ -71,6 +71,7 @@ export interface DeleteCalendarConnectionResponse {
 }
 export interface CalendarEventsResponse {
     events: CalendarEvent[];
+    failedProviders?: CalendarProvider[];
 }
 export declare const MANUAL_EVENT_TITLE_MAX_LENGTH = 200;
 export interface CreateManualEventRequest {

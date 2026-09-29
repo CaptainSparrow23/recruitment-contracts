@@ -10,6 +10,7 @@ export declare const ME_WELCOME_PATH = "/me/welcome";
 export declare const ME_ONBOARDING_COMPLETE_PATH = "/me/onboarding/complete";
 export declare const CALENDAR_PATH = "/calendar";
 export declare const CALENDAR_MANUAL_EVENTS_PATH = "/calendar/manual-events";
+export declare const CALENDAR_EVENTS_ALLOW_PARTIAL_PARAM = "allowPartial";
 export declare const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export declare const SESSIONS_PATH = "/sessions";
 export declare const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";

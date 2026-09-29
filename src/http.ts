@@ -24,6 +24,9 @@ export const ME_WELCOME_PATH = "/me/welcome";
 export const ME_ONBOARDING_COMPLETE_PATH = "/me/onboarding/complete";
 export const CALENDAR_PATH = "/calendar";
 export const CALENDAR_MANUAL_EVENTS_PATH = "/calendar/manual-events";
+// GET /calendar/events?allowPartial=1: a failing provider comes back in
+// `failedProviders` instead of failing the whole request with a 502.
+export const CALENDAR_EVENTS_ALLOW_PARTIAL_PARAM = "allowPartial";
 export const SESSION_ARTIFACTS_BASE_PATH = "/sessions";
 export const SESSIONS_PATH = "/sessions";
 export const RECALL_SDK_UPLOAD_PATH = "/recall/sdk-upload";
