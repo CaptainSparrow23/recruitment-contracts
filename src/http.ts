@@ -53,7 +53,7 @@ export interface ReadinessResponse {
   };
 }
 
-export type SessionFinalizationStatus = "pending" | "ready" | "failed";
+export type SessionFinalizationStatus = "pending" | "ready" | "failed" | "draft";
 
 export type TiptapNode = {
   type: string;
