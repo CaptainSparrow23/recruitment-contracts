@@ -944,6 +944,10 @@ export type ChatStreamEvent =
       // doc's enumeration — [topIdx] or [topIdx, listItemIdx]. The notepad sweeps
       // exactly these. Empty when the edit only removed blocks or emptied the doc.
       changedBlocks: number[][];
+      // Which notepad `doc` belongs to. Absent means the Enhanced notes;
+      // "original" is an edit to a not-yet-recorded note, whose notepad is the
+      // user's own notes.
+      target?: "original" | "enhanced";
     }
   // The agent used edit_qualification to change the anchored meeting's
   // qualification sheet answers. Carries the full new state of each changed field

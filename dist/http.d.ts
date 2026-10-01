@@ -528,6 +528,7 @@ export type ChatStreamEvent = {
     doc: TiptapDoc | null;
     tidiedAt: string;
     changedBlocks: number[][];
+    target?: "original" | "enhanced";
 } | {
     type: "qualification_updated";
     sessionId: string;
