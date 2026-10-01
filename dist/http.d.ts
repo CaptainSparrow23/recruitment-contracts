@@ -127,6 +127,7 @@ export interface UpdateSessionNotesResponse {
 }
 export interface CreateSessionNoteRequest {
     calendarEvent?: CalendarEvent | null;
+    timeZone?: string;
 }
 export interface CreateSessionShareLinkRequest {
     pattern?: SharedNotesPattern;

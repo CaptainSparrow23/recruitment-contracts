@@ -245,6 +245,8 @@ export interface UpdateSessionNotesResponse {
 // client-minted id. Answers with SessionDetailResponse.
 export interface CreateSessionNoteRequest {
   calendarEvent?: CalendarEvent | null;
+  // The client's IANA zone, so the note's date reads as the user's local day.
+  timeZone?: string;
 }
 
 // POST /sessions/:sessionId/share-link — mints (or returns the existing)
