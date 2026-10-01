@@ -521,7 +521,7 @@ function isOptionalCalendarContext(
   );
 }
 
-function isCalendarEvent(value: unknown): value is CalendarEvent {
+export function isCalendarEvent(value: unknown): value is CalendarEvent {
   return (
     isRecord(value) &&
     typeof value.id === "string" &&

@@ -125,6 +125,9 @@ export interface UpdateSessionNotesResponse {
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
 }
+export interface CreateSessionNoteRequest {
+    calendarEvent?: CalendarEvent | null;
+}
 export interface CreateSessionShareLinkRequest {
     pattern?: SharedNotesPattern;
     background?: SharedNotesBackground;

@@ -241,6 +241,12 @@ export interface UpdateSessionNotesResponse {
   userNotesTidied: TiptapDoc | null;
 }
 
+// PUT /sessions/:sessionId — creates a note before any recording, on a
+// client-minted id. Answers with SessionDetailResponse.
+export interface CreateSessionNoteRequest {
+  calendarEvent?: CalendarEvent | null;
+}
+
 // POST /sessions/:sessionId/share-link — mints (or returns the existing)
 // reusable public link for a meeting's notes. The optional style picks how the
 // public page is dressed; re-posting an existing link with a new style updates

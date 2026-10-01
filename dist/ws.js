@@ -103,7 +103,7 @@ function isCaptureConfig(value) {
 function isOptionalCalendarContext(value) {
     return (typeof value === "undefined" || value === null || isCalendarEvent(value));
 }
-function isCalendarEvent(value) {
+export function isCalendarEvent(value) {
     return (isRecord(value) &&
         typeof value.id === "string" &&
         value.id.trim().length > 0 &&
