@@ -33,7 +33,7 @@ export interface ReadinessResponse {
         objectStore: "ready" | "not_ready";
     };
 }
-export type SessionFinalizationStatus = "pending" | "ready" | "failed";
+export type SessionFinalizationStatus = "pending" | "ready" | "failed" | "draft";
 export type TiptapNode = {
     type: string;
     attrs?: Record<string, unknown>;
@@ -124,6 +124,10 @@ export interface UpdateSessionNotesRequest {
 export interface UpdateSessionNotesResponse {
     userNotes: TiptapDoc | null;
     userNotesTidied: TiptapDoc | null;
+}
+export interface CreateSessionNoteRequest {
+    calendarEvent?: CalendarEvent | null;
+    timeZone?: string;
 }
 export interface CreateSessionShareLinkRequest {
     pattern?: SharedNotesPattern;
@@ -525,6 +529,7 @@ export type ChatStreamEvent = {
     doc: TiptapDoc | null;
     tidiedAt: string;
     changedBlocks: number[][];
+    target?: "original" | "enhanced";
 } | {
     type: "qualification_updated";
     sessionId: string;

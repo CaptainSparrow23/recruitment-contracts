@@ -53,7 +53,7 @@ export interface ReadinessResponse {
   };
 }
 
-export type SessionFinalizationStatus = "pending" | "ready" | "failed";
+export type SessionFinalizationStatus = "pending" | "ready" | "failed" | "draft";
 
 export type TiptapNode = {
   type: string;
@@ -239,6 +239,14 @@ export interface UpdateSessionNotesRequest {
 export interface UpdateSessionNotesResponse {
   userNotes: TiptapDoc | null;
   userNotesTidied: TiptapDoc | null;
+}
+
+// PUT /sessions/:sessionId — creates a note before any recording, on a
+// client-minted id. Answers with SessionDetailResponse.
+export interface CreateSessionNoteRequest {
+  calendarEvent?: CalendarEvent | null;
+  // The client's IANA zone, so the note's date reads as the user's local day.
+  timeZone?: string;
 }
 
 // POST /sessions/:sessionId/share-link — mints (or returns the existing)
@@ -938,6 +946,10 @@ export type ChatStreamEvent =
       // doc's enumeration — [topIdx] or [topIdx, listItemIdx]. The notepad sweeps
       // exactly these. Empty when the edit only removed blocks or emptied the doc.
       changedBlocks: number[][];
+      // Which notepad `doc` belongs to. Absent means the Enhanced notes;
+      // "original" is an edit to a not-yet-recorded note, whose notepad is the
+      // user's own notes.
+      target?: "original" | "enhanced";
     }
   // The agent used edit_qualification to change the anchored meeting's
   // qualification sheet answers. Carries the full new state of each changed field
