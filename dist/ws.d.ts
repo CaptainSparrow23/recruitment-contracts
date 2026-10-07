@@ -289,4 +289,5 @@ export interface SessionPongMessage {
 export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function isCalendarEvent(value: unknown): value is CalendarEvent;
+export declare function isCopilotPromptImage(value: unknown): value is CopilotPromptImage;
 export {};

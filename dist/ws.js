@@ -156,7 +156,8 @@ function isCopilotPromptMessage(value) {
     }
     return typeof value.question === "string";
 }
-function isCopilotPromptImage(value) {
+// Exported: POST /chat validates ChatRequest.image with it too.
+export function isCopilotPromptImage(value) {
     return (isRecord(value) &&
         value.mediaType === "image/jpeg" &&
         typeof value.base64 === "string" &&

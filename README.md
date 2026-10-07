@@ -11,7 +11,7 @@ The frontend and backend never import each other; they talk only over HTTP, WebS
 | Module | Holds |
 |---|---|
 | `index.ts` | Re-exports everything from the other modules (`export * from ...`). |
-| `http.ts` | HTTP path constants (`HEALTH_PATH`, `SESSIONS_PATH`, …) plus request/response types for sessions, billing, org, chat, folders, templates, etc. |
+| `http.ts` | HTTP path constants (`HEALTH_PATH`, `SESSIONS_PATH`, …) plus request/response types for sessions, billing, org, chat (incl. `CHAT_QUICK_HELP_DISPLAY_TEXT`, the persisted in-call Quick Help turn), folders, templates, etc. |
 | `ws.ts` | WebSocket message types (client→server and server→client), copilot intents, qualification field statuses, `PROTOCOL_VERSION`, and the runtime validator `isClientMessage`. |
 | `calendar.ts` | Calendar providers, event shapes, and manual-event colors. |
 | `sessionTitle.ts` | `resolveSessionTitle` / `hasResolvedSessionTitle` — title-resolution helpers used by both apps. |
@@ -35,7 +35,7 @@ The package exposes typed ESM subpaths (see `package.json` `exports`):
 
 ## Runtime validators
 
-The exported runtime guard is `isClientMessage(value): value is ClientMessage` — the backend runs it on every inbound WebSocket message before handling it, so malformed or unknown messages are rejected at the boundary. The per-message-type checks it delegates to are internal to the module.
+The exported runtime guards are `isClientMessage(value): value is ClientMessage` — the backend runs it on every inbound WebSocket message before handling it, so malformed or unknown messages are rejected at the boundary — and `isCopilotPromptImage(value)`, which `POST /chat` reuses to validate `ChatRequest.image`. The other per-message-type checks are internal to the module.
 
 ## Scripts
 

@@ -1,4 +1,4 @@
-import type { QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
+import type { CopilotNotesEditChange, CopilotPromptImage, QualificationFieldState, QualificationFieldStatus, SessionArtifactKind, TranscriptProviderMetadata, TranscriptSpeakerMetadata, TranscriptWord } from "./ws.js";
 import type { CalendarEvent } from "./calendar.js";
 import type { AiModelId } from "./aiModels.js";
 import type { SharedNotesBackground, SharedNotesPattern, ShareScope } from "./sharedNotesStyle.js";
@@ -355,6 +355,7 @@ export declare const CHAT_PATH = "/chat";
 export declare const CHAT_SESSIONS_PATH = "/chat/sessions";
 export declare const CHAT_TITLE_MAX_LENGTH = 100;
 export declare const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
+export declare const CHAT_QUICK_HELP_DISPLAY_TEXT = "Help me";
 export declare const ORG_PATH = "/org";
 export declare const BILLING_PATH = "/billing";
 export declare const BILLING_PRICING_PATH = "/billing/pricing";
@@ -493,6 +494,8 @@ export interface ChatRequest {
     modelId?: AiModelId;
     displayText?: string;
     timeZone?: string;
+    quickHelp?: boolean;
+    image?: CopilotPromptImage;
 }
 export type ChatSource = {
     kind: "session";
@@ -516,6 +519,7 @@ export type ChatStreamEvent = {
 } & ChatSource) | {
     type: "chat_session";
     chatSessionId: string;
+    hasImage?: boolean;
 } | {
     type: "done";
     sources: ChatSource[];
@@ -530,6 +534,7 @@ export type ChatStreamEvent = {
     tidiedAt: string;
     changedBlocks: number[][];
     target?: "original" | "enhanced";
+    changes?: CopilotNotesEditChange[];
 } | {
     type: "qualification_updated";
     sessionId: string;

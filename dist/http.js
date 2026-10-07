@@ -56,6 +56,10 @@ export const CHAT_TITLE_MAX_LENGTH = 100;
 // Max length of ChatRequest.displayText (the short user-visible stand-in for a
 // longer instruction — see ChatRequest).
 export const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
+// The persisted user turn of an in-call Quick Help tap. The server's help
+// ladder reads earlier "Help me" turns as "that help missed, go deeper", so the
+// stored text must be exactly this on every backend and client.
+export const CHAT_QUICK_HELP_DISPLAY_TEXT = "Help me";
 export const ORG_PATH = "/org";
 export const BILLING_PATH = "/billing";
 export const BILLING_PRICING_PATH = "/billing/pricing";

@@ -1,4 +1,6 @@
 import type {
+  CopilotNotesEditChange,
+  CopilotPromptImage,
   QualificationFieldState,
   QualificationFieldStatus,
   SessionArtifactKind,
@@ -656,6 +658,10 @@ export const CHAT_TITLE_MAX_LENGTH = 100;
 // Max length of ChatRequest.displayText (the short user-visible stand-in for a
 // longer instruction — see ChatRequest).
 export const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
+// The persisted user turn of an in-call Quick Help tap. The server's help
+// ladder reads earlier "Help me" turns as "that help missed, go deeper", so the
+// stored text must be exactly this on every backend and client.
+export const CHAT_QUICK_HELP_DISPLAY_TEXT = "Help me";
 
 export const ORG_PATH = "/org";
 
@@ -873,7 +879,9 @@ export interface ChatRequest {
   // interview as the subject and answers from it by default, while keeping full
   // access to the rest of the corpus for comparison questions. This is the
   // interview id — NOT the conversation id (`chatSessionId`) nor a cited source
-  // (`ChatSource.sessionId`).
+  // (`ChatSource.sessionId`). When it names a meeting that is being recorded
+  // right now (a draft note with a live session), the turn runs in live mode:
+  // low effort, the transcript so far, in-the-room answers. See quickHelp/image.
   anchorSessionId?: string;
   // Caller-selected model for this turn (from the model picker). Optional for
   // back-compat — the server validates it against its registry and falls back to
@@ -891,6 +899,15 @@ export interface ChatRequest {
   // this only decides which calendar day that clock is rendered in. Optional;
   // the server falls back to UTC.
   timeZone?: string;
+  // In-call Quick Help: the server supplies the model-facing instruction and
+  // persists CHAT_QUICK_HELP_DISPLAY_TEXT as the turn. Only honoured on a live
+  // anchor; otherwise the turn runs as the plain `message`, which the client
+  // sends as "Help me" so an older backend degrades the same way.
+  quickHelp?: boolean;
+  // One screenshot riding this turn (the in-call eye). Request-only: never
+  // persisted, validated with isCopilotPromptImage, kept only on a live anchor
+  // (the chat_session event's hasImage says whether it was).
+  image?: CopilotPromptImage;
 }
 
 // A cited source attached to a persisted assistant turn. Mirrors the live
@@ -922,7 +939,14 @@ export type ChatStreamEvent =
   // means a turn that dies mid-stream — a terminal error, a dropped connection,
   // a body that just ends — still leaves the client holding the id, and the
   // retry appends to the same conversation instead of orphaning it.
-  | { type: "chat_session"; chatSessionId: string }
+  | {
+      type: "chat_session";
+      chatSessionId: string;
+      // True when the request's `image` rides this turn to the model. Absent
+      // or false (older backend, non-live anchor, live mode switched off) means
+      // the screenshot was dropped, so the client can caption it as such.
+      hasImage?: boolean;
+    }
   | {
       type: "done";
       sources: ChatSource[];
@@ -933,10 +957,11 @@ export type ChatStreamEvent =
   // Terminal failure mid-stream — the server closes the stream after this
   // without a "done", so the client must finalize the message itself.
   | { type: "error"; message: string }
-  // The agent used the edit_notes tool to change the anchored meeting's Enhanced
-  // notes. Carries the freshly persisted doc (null when the edit emptied it) so
-  // the notepad adopts it live via applyUserNotesTidiedOverride. Not terminal —
-  // the stream continues; tidiedAt is the persisted timestamp.
+  // The agent used the edit_notes tool to change the anchored meeting's notes:
+  // the Enhanced notes, or the user's own notes on a not-yet-recorded or live
+  // note (see `target`). Carries the freshly persisted doc (null when the edit
+  // emptied it) so the notepad adopts it via applyUserNotesTidiedOverride. Not
+  // terminal — the stream continues; tidiedAt is the persisted timestamp.
   | {
       type: "notes_updated";
       sessionId: string;
@@ -950,6 +975,11 @@ export type ChatStreamEvent =
       // "original" is an edit to a not-yet-recorded note, whose notepad is the
       // user's own notes.
       target?: "original" | "enhanced";
+      // Live anchor only: the same edit as block changes for the in-call editor
+      // to apply by signature match (copilot:notes_edit semantics; the server
+      // persists nothing for a live edit). When present a live notepad applies
+      // these and must NOT adopt `doc` whole.
+      changes?: CopilotNotesEditChange[];
     }
   // The agent used edit_qualification to change the anchored meeting's
   // qualification sheet answers. Carries the full new state of each changed field
