@@ -33,3 +33,29 @@ export function relabelSpeakerChannel(input) {
     }
     return input.fallback;
 }
+// The user's name for a transcript speaker, or null when none is set. Keyed on
+// the raw id (the label only stands in for rows that never had one), and read
+// as an own property so a key like "constructor" cannot leak a prototype value.
+export function renamedSpeaker(names, rawId, label) {
+    if (!names) {
+        return null;
+    }
+    const key = rawId?.trim() || label?.trim() || "";
+    if (!key || !Object.prototype.hasOwnProperty.call(names, key)) {
+        return null;
+    }
+    const name = names[key];
+    return typeof name === "string" && name.length > 0 ? name : null;
+}
+// Names land inside "[seg:N | name | time]" lines, so the delimiters and
+// control characters become spaces; empty after trimming means "clear".
+export function normalizeSpeakerName(raw) {
+    if (typeof raw !== "string") {
+        return null;
+    }
+    const cleaned = raw
+        .replace(/[\u0000-\u001f\u007f|[\]]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    return cleaned.length > 0 ? cleaned : null;
+}

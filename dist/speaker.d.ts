@@ -5,3 +5,5 @@ export declare function relabelSpeakerChannel(input: {
     counterpartName: string | null;
     fallback: string | null;
 }): string | null;
+export declare function renamedSpeaker(names: Record<string, string> | null | undefined, rawId: string | null | undefined, label: string | null | undefined): string | null;
+export declare function normalizeSpeakerName(raw: string | null | undefined): string | null;

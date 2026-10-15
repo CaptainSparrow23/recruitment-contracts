@@ -106,6 +106,7 @@ export interface SessionDetail {
     } | null;
     isManualAudio: boolean;
     participants?: SessionParticipant[];
+    speakerNames?: Record<string, string>;
     isIntro?: boolean;
     introAvatar?: "founder" | "welcome";
 }
@@ -115,6 +116,14 @@ export interface RenameSessionRequest {
 }
 export interface RenameSessionResponse {
     userMeetingTitle: string | null;
+}
+export declare const SPEAKER_NAME_MAX_LENGTH = 100;
+export interface RenameSpeakerRequest {
+    speakerId: string;
+    name: string | null;
+}
+export interface RenameSpeakerResponse {
+    speakerNames: Record<string, string>;
 }
 export declare const USER_NOTES_MAX_BYTES: number;
 export interface UpdateSessionNotesRequest {

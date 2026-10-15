@@ -211,6 +211,10 @@ export interface SessionDetail {
   // (and, via SessionSummary, the recent-meetings rows). Optional: old/phone
   // sessions omit it.
   participants?: SessionParticipant[];
+  // User-given speaker names keyed by the raw transcript speaker id. Applied at
+  // render; the stored transcript keeps its original labels. Optional: older
+  // backends omit it.
+  speakerNames?: Record<string, string>;
   // The seeded one-time intro/"Welcome to sorinai" meeting. The detail view hides
   // the My-notes/Enhanced sub-tab pill and locks to Enhanced for it (only the
   // Enhanced doc has content). Absent/false for real sessions.
@@ -229,6 +233,19 @@ export interface RenameSessionRequest {
 
 export interface RenameSessionResponse {
   userMeetingTitle: string | null;
+}
+
+export const SPEAKER_NAME_MAX_LENGTH = 100;
+
+// PUT /sessions/:sessionId/speaker-names — one speaker at a time; null clears
+// that speaker's name. Answers with the whole merged map.
+export interface RenameSpeakerRequest {
+  speakerId: string;
+  name: string | null;
+}
+
+export interface RenameSpeakerResponse {
+  speakerNames: Record<string, string>;
 }
 
 export const USER_NOTES_MAX_BYTES = 256 * 1024;
