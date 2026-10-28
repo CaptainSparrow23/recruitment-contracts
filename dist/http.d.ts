@@ -268,6 +268,7 @@ export interface UserProfile {
     firstDocumentDownloadedAt: string | null;
     userContext: string | null;
     userRole: string | null;
+    workspaceId?: string | null;
 }
 export interface SyncProfileRequest {
     email: string | null;
