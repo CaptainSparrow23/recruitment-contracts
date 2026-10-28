@@ -382,7 +382,10 @@ export interface SessionErrorMessage {
     | "session_evicted"
     | "no_active_session"
     | "resume_unavailable"
-    | "unsupported_message";
+    | "unsupported_message"
+    // The desktop build is older than the backend supports: no meeting may
+    // start until the app is updated (quit and reopen installs it).
+    | "update_required";
   message: string;
 }
 
