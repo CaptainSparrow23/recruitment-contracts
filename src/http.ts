@@ -490,10 +490,12 @@ export interface UserProfile {
   // an older build never fails to parse a role added since it shipped; the server
   // validates against the allow-list on write.
   userRole: string | null;
-  // Set by the sign-in sync (POST /me) only: the workspace to open, which is the
-  // token's, else the person's first one, else one created for them. The app
-  // refreshes its token into it.
+  // Set by the sign-in sync (POST /me) only. `workspaceId` is the workspace to
+  // open: the token's, else the default. The app refreshes its token into it.
+  // `defaultWorkspaceId` is the workspace made for the person, recorded once:
+  // the one they can't delete and land in after leaving another.
   workspaceId?: string | null;
+  defaultWorkspaceId?: string | null;
 }
 
 export interface SyncProfileRequest {

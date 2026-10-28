@@ -269,6 +269,7 @@ export interface UserProfile {
     userContext: string | null;
     userRole: string | null;
     workspaceId?: string | null;
+    defaultWorkspaceId?: string | null;
 }
 export interface SyncProfileRequest {
     email: string | null;
