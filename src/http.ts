@@ -190,6 +190,10 @@ export interface SessionDetail {
   // regenerate across reloads/navigation instead of a stuck "Generating…". Absent =
   // no terminal failure (still rendering, succeeded, or no document template).
   documentRenderFailed?: boolean;
+  // A finished recording exists for this meeting (Recall completed the upload),
+  // so GET /sessions/:id/media can return playback links. Absent on older
+  // backends, which the app reads as "none".
+  hasRecording?: boolean;
   // A template operation is running for this session right now — a switch resolving
   // a new template's values, or a document being (re)rendered. Present for as long as
   // the job is live; null once it completes or terminally fails.
@@ -523,6 +527,17 @@ export interface SessionDetailResponse {
 
 export interface SessionTranscriptResponse {
   entries: SessionTranscriptEntry[];
+}
+
+// GET /sessions/:sessionId/media — playback links for the meeting's recording,
+// fetched fresh from Recall on every call (they are pre-signed and expire). Each
+// is present only for media Recall has finished; audio exists for every
+// recording, video only for a filmed meeting. 404 `no_media` when there is none.
+export interface SessionMediaResponse {
+  video: { url: string } | null;
+  audio: { url: string } | null;
+  // When the links should be considered stale and asked for again.
+  expiresAt: string;
 }
 
 // ─── Folders ───

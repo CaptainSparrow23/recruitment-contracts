@@ -100,6 +100,7 @@ export interface SessionDetail {
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     documentRenderFailed?: boolean;
+    hasRecording?: boolean;
     activeFillJob?: {
         jobId: string;
         startedAt: string;
@@ -290,6 +291,15 @@ export interface SessionDetailResponse {
 }
 export interface SessionTranscriptResponse {
     entries: SessionTranscriptEntry[];
+}
+export interface SessionMediaResponse {
+    video: {
+        url: string;
+    } | null;
+    audio: {
+        url: string;
+    } | null;
+    expiresAt: string;
 }
 export declare const FOLDERS_PATH = "/folders";
 export declare const FOLDER_NAME_MAX_LENGTH = 100;
