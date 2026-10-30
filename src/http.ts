@@ -663,6 +663,10 @@ export interface CreateRecallSdkUploadRequest {
     url?: string | null;
   } | null;
   sessionId: string;
+  // Record video of the detected meeting. The app sends true only where video
+  // cannot raise the macOS Screen Recording prompt (Windows, or a Mac where Raw
+  // Media is expected or Screen Recording is already granted). Absent = no video.
+  video?: boolean | null;
 }
 
 export interface CreateRecallSdkUploadResponse {

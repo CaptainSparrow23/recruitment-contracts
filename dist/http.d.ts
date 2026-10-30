@@ -356,6 +356,7 @@ export interface CreateRecallSdkUploadRequest {
         url?: string | null;
     } | null;
     sessionId: string;
+    video?: boolean | null;
 }
 export interface CreateRecallSdkUploadResponse {
     sdkUploadId: string;
