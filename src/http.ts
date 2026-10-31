@@ -540,6 +540,10 @@ export interface SessionMediaResponse {
   audio: { url: string; sizeBytes?: number | null } | null;
   // When the links should be considered stale and asked for again.
   expiresAt: string;
+  // Recall is still producing the file a player would use (the video, or an
+  // audio-only recording's audio), so its link is missing for now: ask again
+  // shortly. Absent on older backends.
+  processing?: boolean;
 }
 
 // ─── Folders ───
