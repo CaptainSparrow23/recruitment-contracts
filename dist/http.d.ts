@@ -301,7 +301,6 @@ export interface SessionMediaResponse {
         url: string;
         sizeBytes?: number | null;
     } | null;
-    expiresAt: string;
     processing?: boolean;
 }
 export declare const FOLDERS_PATH = "/folders";

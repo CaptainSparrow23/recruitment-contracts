@@ -190,9 +190,7 @@ export interface SessionDetail {
   // regenerate across reloads/navigation instead of a stuck "Generating…". Absent =
   // no terminal failure (still rendering, succeeded, or no document template).
   documentRenderFailed?: boolean;
-  // A finished recording exists for this meeting (Recall completed the upload),
-  // so GET /sessions/:id/media can return playback links. Absent on older
-  // backends, which the app reads as "none".
+  // Recall finished the upload, so /media has links. Absent on older backends.
   hasRecording?: boolean;
   // A template operation is running for this session right now — a switch resolving
   // a new template's values, or a document being (re)rendered. Present for as long as
@@ -529,20 +527,13 @@ export interface SessionTranscriptResponse {
   entries: SessionTranscriptEntry[];
 }
 
-// GET /sessions/:sessionId/media — playback links for the meeting's recording,
-// fetched fresh from Recall on every call (they are pre-signed and expire). Each
-// is present only for media Recall has finished; audio exists for every
-// recording, video only for a filmed meeting. 404 `no_media` when there is none.
+// GET /sessions/:sessionId/media — fresh pre-signed links (they expire); 404
+// `no_media` when there is none. video null = not filmed (or not ready, see processing).
 export interface SessionMediaResponse {
-  // sizeBytes: the file's size when Recall reports it (the video's, for the
-  // modal's "MP4 · 186 MB"); absent on older backends.
+  // sizeBytes: the video's size, for the modal. Absent on older backends.
   video: { url: string; sizeBytes?: number | null } | null;
   audio: { url: string; sizeBytes?: number | null } | null;
-  // When the links should be considered stale and asked for again.
-  expiresAt: string;
-  // Recall is still producing the file a player would use (the video, or an
-  // audio-only recording's audio), so its link is missing for now: ask again
-  // shortly. Absent on older backends.
+  // The file to play is still being produced: ask again. Absent on older backends.
   processing?: boolean;
 }
 
@@ -684,9 +675,7 @@ export interface CreateRecallSdkUploadRequest {
     url?: string | null;
   } | null;
   sessionId: string;
-  // Record video of the detected meeting. The app sends true only where video
-  // cannot raise the macOS Screen Recording prompt (Windows, or a Mac where Raw
-  // Media is expected or Screen Recording is already granted). Absent = no video.
+  // true only where filming can't raise the macOS Screen Recording prompt.
   video?: boolean | null;
 }
 
