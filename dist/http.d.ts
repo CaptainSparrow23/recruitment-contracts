@@ -295,9 +295,11 @@ export interface SessionTranscriptResponse {
 export interface SessionMediaResponse {
     video: {
         url: string;
+        sizeBytes?: number | null;
     } | null;
     audio: {
         url: string;
+        sizeBytes?: number | null;
     } | null;
     expiresAt: string;
 }

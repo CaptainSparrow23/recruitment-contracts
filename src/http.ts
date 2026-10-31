@@ -534,8 +534,10 @@ export interface SessionTranscriptResponse {
 // is present only for media Recall has finished; audio exists for every
 // recording, video only for a filmed meeting. 404 `no_media` when there is none.
 export interface SessionMediaResponse {
-  video: { url: string } | null;
-  audio: { url: string } | null;
+  // sizeBytes: the file's size when Recall reports it (the video's, for the
+  // modal's "MP4 · 186 MB"); absent on older backends.
+  video: { url: string; sizeBytes?: number | null } | null;
+  audio: { url: string; sizeBytes?: number | null } | null;
   // When the links should be considered stale and asked for again.
   expiresAt: string;
 }
