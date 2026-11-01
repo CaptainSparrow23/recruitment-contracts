@@ -530,9 +530,8 @@ export interface SessionTranscriptResponse {
 // GET /sessions/:sessionId/media — fresh pre-signed links (they expire); 404
 // `no_media` when there is none. video null = not filmed (or not ready, see processing).
 export interface SessionMediaResponse {
-  // sizeBytes: the video's size, for the modal. Absent on older backends.
-  video: { url: string; sizeBytes?: number | null } | null;
-  audio: { url: string; sizeBytes?: number | null } | null;
+  video: { url: string } | null;
+  audio: { url: string } | null;
   // The file to play is still being produced: ask again. Absent on older backends.
   processing?: boolean;
 }
