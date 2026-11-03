@@ -30,7 +30,8 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_ARTIFACT_STATUS: "session:artifact_status",
   SESSION_PONG: "session:pong",
   COPILOT_DELTA: "copilot:delta",
-  COPILOT_NOTES_EDIT: "copilot:notes_edit"
+  COPILOT_NOTES_EDIT: "copilot:notes_edit",
+  MEETING_SHARED: "meeting:shared"
 } as const;
 
 export const AUDIO_STREAM_IDS = {
@@ -425,6 +426,18 @@ export interface SessionPongMessage {
   receivedAt: string;
 }
 
+// Pushed to a teammate's open windows when a meeting is shared with them. Not
+// tied to a live session; offline recipients find it in GET /shared-with-me.
+export interface MeetingSharedMessage {
+  type: typeof SERVER_MESSAGE_TYPES.MEETING_SHARED;
+  sessionId: string;
+  organizationId: string;
+  title: string;
+  sharedBy: { name: string | null };
+  note: string | null;
+  sharedAt: string;
+}
+
 export type ServerMessage =
   | SessionStartedMessage
   | TranscriptPartialMessage
@@ -438,7 +451,8 @@ export type ServerMessage =
   | SessionErrorMessage
   | SessionEndedMessage
   | SessionArtifactStatusMessage
-  | SessionPongMessage;
+  | SessionPongMessage
+  | MeetingSharedMessage;
 
 export function isClientMessage(value: unknown): value is ClientMessage {
   if (!isRecord(value) || typeof value.type !== "string") {

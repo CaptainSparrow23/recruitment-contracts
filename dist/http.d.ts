@@ -110,6 +110,10 @@ export interface SessionDetail {
     speakerNames?: Record<string, string>;
     isIntro?: boolean;
     introAvatar?: "founder" | "welcome";
+    access?: "owner" | "viewer";
+    owner?: {
+        name: string | null;
+    };
 }
 export declare const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export interface RenameSessionRequest {
@@ -300,6 +304,45 @@ export interface SessionMediaResponse {
         url: string;
     } | null;
     processing?: boolean;
+}
+export declare const WORKSPACE_MEMBERS_PATH = "/workspace/members";
+export declare const SHARED_WITH_ME_PATH = "/shared-with-me";
+export declare const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
+export declare const MEETING_SHARE_MAX_RECIPIENTS = 50;
+export interface WorkspaceMember {
+    actorId: string;
+    name: string | null;
+    email: string | null;
+    pictureUrl: string | null;
+}
+export interface WorkspaceMembersResponse {
+    members: WorkspaceMember[];
+}
+export interface ShareMeetingRequest {
+    actorIds: string[];
+    note?: string | null;
+}
+export interface MeetingShareRecipient {
+    actorId: string;
+    sharedAt: string;
+}
+export interface MeetingSharesResponse {
+    recipients: MeetingShareRecipient[];
+}
+export interface SharedMeetingSummary {
+    sessionId: string;
+    title: string;
+    startedAt: string;
+    endedAt: string | null;
+    sharedBy: {
+        name: string | null;
+    };
+    note: string | null;
+    sharedAt: string;
+    unread: boolean;
+}
+export interface SharedWithMeResponse {
+    meetings: SharedMeetingSummary[];
 }
 export declare const FOLDERS_PATH = "/folders";
 export declare const FOLDER_NAME_MAX_LENGTH = 100;

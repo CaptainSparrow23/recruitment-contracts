@@ -28,6 +28,7 @@ export declare const SERVER_MESSAGE_TYPES: {
     readonly SESSION_PONG: "session:pong";
     readonly COPILOT_DELTA: "copilot:delta";
     readonly COPILOT_NOTES_EDIT: "copilot:notes_edit";
+    readonly MEETING_SHARED: "meeting:shared";
 };
 export declare const AUDIO_STREAM_IDS: {
     readonly MIC: "mic";
@@ -286,7 +287,18 @@ export interface SessionPongMessage {
     sessionId?: string;
     receivedAt: string;
 }
-export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage;
+export interface MeetingSharedMessage {
+    type: typeof SERVER_MESSAGE_TYPES.MEETING_SHARED;
+    sessionId: string;
+    organizationId: string;
+    title: string;
+    sharedBy: {
+        name: string | null;
+    };
+    note: string | null;
+    sharedAt: string;
+}
+export type ServerMessage = SessionStartedMessage | TranscriptPartialMessage | TranscriptFinalMessage | CopilotStatusMessage | CopilotResultMessage | CopilotDeltaMessage | CopilotNotesEditMessage | QualificationStateMessage | SessionWarningMessage | SessionErrorMessage | SessionEndedMessage | SessionArtifactStatusMessage | SessionPongMessage | MeetingSharedMessage;
 export declare function isClientMessage(value: unknown): value is ClientMessage;
 export declare function isCalendarEvent(value: unknown): value is CalendarEvent;
 export declare function isCopilotPromptImage(value: unknown): value is CopilotPromptImage;

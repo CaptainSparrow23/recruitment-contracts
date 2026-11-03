@@ -225,6 +225,11 @@ export interface SessionDetail {
   // "founder"), so opening one can be attributed in analytics. Derived from the
   // seed title server-side; absent for real meetings and renamed intro notes.
   introAvatar?: "founder" | "welcome";
+  // "viewer" = a teammate shared this meeting with the caller: read-only. Absent
+  // (older backends) means "owner".
+  access?: "owner" | "viewer";
+  // Who owns the meeting. Sent to viewers only.
+  owner?: { name: string | null };
 }
 
 export const USER_MEETING_TITLE_MAX_LENGTH = 200;
@@ -534,6 +539,65 @@ export interface SessionMediaResponse {
   audio: { url: string } | null;
   // The file to play is still being produced: ask again. Absent on older backends.
   processing?: boolean;
+}
+
+// ─── Sharing a meeting with teammates ───
+// View-only access for people in the meeting's workspace. Only the owner can
+// share, list or remove recipients.
+export const WORKSPACE_MEMBERS_PATH = "/workspace/members";
+export const SHARED_WITH_ME_PATH = "/shared-with-me";
+// Characters, not words: about 80-100 words. The note is stored on every
+// recipient's row and sent in each notification.
+export const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
+export const MEETING_SHARE_MAX_RECIPIENTS = 50;
+
+// GET /workspace/members — active members of the token's workspace, caller left out.
+export interface WorkspaceMember {
+  actorId: string;
+  name: string | null;
+  email: string | null;
+  pictureUrl: string | null;
+}
+
+export interface WorkspaceMembersResponse {
+  members: WorkspaceMember[];
+}
+
+// POST /sessions/:sessionId/shares. People who already have access are left
+// as they are. Answers with MeetingSharesResponse.
+export interface ShareMeetingRequest {
+  actorIds: string[];
+  note?: string | null;
+}
+
+// Names come from GET /workspace/members: a recipient who is no longer an
+// active member can't open the meeting, so the share window leaves them out.
+export interface MeetingShareRecipient {
+  actorId: string;
+  sharedAt: string;
+}
+
+// GET/POST /sessions/:sessionId/shares, DELETE /sessions/:sessionId/shares/:actorId:
+// who has access now.
+export interface MeetingSharesResponse {
+  recipients: MeetingShareRecipient[];
+}
+
+export interface SharedMeetingSummary {
+  sessionId: string;
+  title: string;
+  startedAt: string;
+  endedAt: string | null;
+  sharedBy: { name: string | null };
+  note: string | null;
+  sharedAt: string;
+  // Not opened yet: the dot in "Shared with me".
+  unread: boolean;
+}
+
+// GET /shared-with-me — for the token's workspace, newest share first.
+export interface SharedWithMeResponse {
+  meetings: SharedMeetingSummary[];
 }
 
 // ─── Folders ───

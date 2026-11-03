@@ -21,6 +21,15 @@ export const USER_MEETING_TITLE_MAX_LENGTH = 200;
 export const SPEAKER_NAME_MAX_LENGTH = 100;
 export const USER_NOTES_MAX_BYTES = 256 * 1024;
 export const QUALIFICATION_FIELD_VALUE_MAX_LENGTH = 4000;
+// ─── Sharing a meeting with teammates ───
+// View-only access for people in the meeting's workspace. Only the owner can
+// share, list or remove recipients.
+export const WORKSPACE_MEMBERS_PATH = "/workspace/members";
+export const SHARED_WITH_ME_PATH = "/shared-with-me";
+// Characters, not words: about 80-100 words. The note is stored on every
+// recipient's row and sent in each notification.
+export const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
+export const MEETING_SHARE_MAX_RECIPIENTS = 50;
 // ─── Folders ───
 // Lightweight, per-account groupings for organizing sessions. A folder owns no
 // data: deleting one unfiles its sessions (folder_id -> NULL) rather than
