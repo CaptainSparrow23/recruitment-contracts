@@ -593,6 +593,10 @@ export interface SharedMeetingSummary {
   sharedAt: string;
   // Not opened yet: the dot in "Shared with me".
   unread: boolean;
+  // The meeting's notes, as in SessionSummary, for the card's preview. Absent
+  // from a backend that predates them.
+  userNotes?: TiptapDoc | null;
+  userNotesTidied?: TiptapDoc | null;
 }
 
 // GET /shared-with-me — for the token's workspace, newest share first.

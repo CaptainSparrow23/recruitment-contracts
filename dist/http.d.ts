@@ -340,6 +340,8 @@ export interface SharedMeetingSummary {
     note: string | null;
     sharedAt: string;
     unread: boolean;
+    userNotes?: TiptapDoc | null;
+    userNotesTidied?: TiptapDoc | null;
 }
 export interface SharedWithMeResponse {
     meetings: SharedMeetingSummary[];
