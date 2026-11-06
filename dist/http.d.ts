@@ -342,6 +342,7 @@ export interface SharedMeetingSummary {
     unread: boolean;
     userNotes?: TiptapDoc | null;
     userNotesTidied?: TiptapDoc | null;
+    folderId?: string | null;
 }
 export interface SharedWithMeResponse {
     meetings: SharedMeetingSummary[];
@@ -542,6 +543,9 @@ interface SearchResultBase {
 }
 export interface SessionSearchResult extends SearchResultBase {
     type: "session";
+    sharedBy?: {
+        name: string | null;
+    };
 }
 export interface TemplateSearchResult extends SearchResultBase {
     type: "template";

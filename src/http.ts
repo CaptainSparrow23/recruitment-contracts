@@ -597,6 +597,9 @@ export interface SharedMeetingSummary {
   // from a backend that predates them.
   userNotes?: TiptapDoc | null;
   userNotesTidied?: TiptapDoc | null;
+  // The recipient's own folder for it. Absent from a backend that predates
+  // filing.
+  folderId?: string | null;
 }
 
 // GET /shared-with-me — for the token's workspace, newest share first.
@@ -954,6 +957,8 @@ interface SearchResultBase {
 
 export interface SessionSearchResult extends SearchResultBase {
   type: "session";
+  // Only on a meeting a teammate shared with the caller.
+  sharedBy?: { name: string | null };
 }
 
 export interface TemplateSearchResult extends SearchResultBase {
