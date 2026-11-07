@@ -76,6 +76,10 @@ export interface SessionSummary {
     hasLiveFillJob?: boolean;
     participants?: SessionParticipant[];
     introAvatar?: "founder" | "welcome";
+    access?: "owner" | "viewer";
+    owner?: {
+        name: string | null;
+    };
 }
 export interface SessionDetail {
     id: string;
@@ -365,15 +369,24 @@ export interface Folder {
     createdAt: string;
     updatedAt: string;
     sessionCount?: number;
+    isShared?: boolean;
+    isOwn?: boolean;
 }
 export interface FolderListResponse {
     folders: Folder[];
+}
+export interface SetFolderSharingRequest {
+    isShared: boolean;
+}
+export interface SetFolderSharingResponse {
+    folder: Folder;
 }
 export interface CreateFolderRequest {
     name: string;
     icon?: string | null;
     iconImage?: string | null;
     color?: string | null;
+    isShared?: boolean;
 }
 export interface CreateFolderResponse {
     folder: Folder;

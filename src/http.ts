@@ -148,6 +148,10 @@ export interface SessionSummary {
   // light tile). Derived from the seed title server-side; absent for real meetings
   // (and for a renamed intro meeting, which falls back to the initial).
   introAvatar?: "founder" | "welcome";
+  // "viewer" = a teammate's meeting listed in a team folder: read-only. Absent
+  // means "owner". Same shapes as on SessionDetail.
+  access?: "owner" | "viewer";
+  owner?: { name: string | null };
 }
 
 export interface SessionDetail {
@@ -658,10 +662,24 @@ export interface Folder {
   // Number of sessions filed under this folder. Populated by GET /folders; may
   // be omitted on create/rename responses (clients re-list to refresh counts).
   sessionCount?: number;
+  // Team folder: everyone in the workspace sees it. Absent = private.
+  isShared?: boolean;
+  // false = a teammate's team folder. Absent = the caller's own.
+  isOwn?: boolean;
 }
 
 export interface FolderListResponse {
   folders: Folder[];
+}
+
+// PUT /folders/:folderId/sharing. To team: the maker only, never "My notes".
+// To private: the maker or a workspace admin; teammates' meetings leave it.
+export interface SetFolderSharingRequest {
+  isShared: boolean;
+}
+
+export interface SetFolderSharingResponse {
+  folder: Folder;
 }
 
 export interface CreateFolderRequest {
@@ -672,6 +690,8 @@ export interface CreateFolderRequest {
   iconImage?: string | null;
   // Hex tint for the icon chip ("#rrggbb"), or null.
   color?: string | null;
+  // Make it a team folder straight away. Needs a workspace.
+  isShared?: boolean;
 }
 
 export interface CreateFolderResponse {
