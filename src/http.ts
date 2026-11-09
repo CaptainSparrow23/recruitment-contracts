@@ -148,7 +148,7 @@ export interface SessionSummary {
   // light tile). Derived from the seed title server-side; absent for real meetings
   // (and for a renamed intro meeting, which falls back to the initial).
   introAvatar?: "founder" | "welcome";
-  // "viewer" = a teammate's meeting listed in a team folder: read-only. Absent
+  // "viewer" = a teammate's meeting listed in a shared folder: read-only. Absent
   // means "owner". Same shapes as on SessionDetail.
   access?: "owner" | "viewer";
   owner?: { name: string | null };
@@ -662,24 +662,43 @@ export interface Folder {
   // Number of sessions filed under this folder. Populated by GET /folders; may
   // be omitted on create/rename responses (clients re-list to refresh counts).
   sessionCount?: number;
-  // Team folder: everyone in the workspace sees it. Absent = private.
+  // Listed under Shared folders: its owner and `people` see it. Absent = private.
   isShared?: boolean;
-  // false = a teammate's team folder. Absent = the caller's own.
+  // false = a teammate's shared folder. Absent = the caller's own.
   isOwn?: boolean;
+  // Who made it: an actor id, as in WorkspaceMember.
+  ownerId?: string;
+  // On a shared folder: the actor ids on its list, the owner not among them.
+  people?: string[];
 }
 
 export interface FolderListResponse {
   folders: Folder[];
 }
 
-// PUT /folders/:folderId/sharing. To team: the maker only, never "My notes".
-// To private: the maker or a workspace admin; teammates' meetings leave it.
+// The most people one PATCH /folders/:folderId/people may add or remove.
+export const FOLDER_PEOPLE_MAX = 200;
+
+// PUT /folders/:folderId/sharing makes a folder private: its whole list goes,
+// and everyone's meetings but the owner's leave it. Sharing is by people only.
 export interface SetFolderSharingRequest {
-  isShared: boolean;
+  isShared: false;
 }
 
+// Also the answer to PATCH /folders/:folderId/people.
 export interface SetFolderSharingResponse {
-  folder: Folder;
+  // As the caller now sees it; null once they no longer can (they left, or
+  // made someone else's folder private).
+  folder: Folder | null;
+}
+
+// PATCH /folders/:folderId/people changes who a folder is shared with, in one
+// go. Adds are workspace members; removing someone takes their meetings out of
+// the folder, and your own id is leaving. Never the owner. A private folder
+// with people added is shared; one with nobody left is private again.
+export interface UpdateFolderPeopleRequest {
+  add?: string[];
+  remove?: string[];
 }
 
 export interface CreateFolderRequest {
@@ -690,8 +709,6 @@ export interface CreateFolderRequest {
   iconImage?: string | null;
   // Hex tint for the icon chip ("#rrggbb"), or null.
   color?: string | null;
-  // Make it a team folder straight away. Needs a workspace.
-  isShared?: boolean;
 }
 
 export interface CreateFolderResponse {

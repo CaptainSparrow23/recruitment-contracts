@@ -371,22 +371,28 @@ export interface Folder {
     sessionCount?: number;
     isShared?: boolean;
     isOwn?: boolean;
+    ownerId?: string;
+    people?: string[];
 }
 export interface FolderListResponse {
     folders: Folder[];
 }
+export declare const FOLDER_PEOPLE_MAX = 200;
 export interface SetFolderSharingRequest {
-    isShared: boolean;
+    isShared: false;
 }
 export interface SetFolderSharingResponse {
-    folder: Folder;
+    folder: Folder | null;
+}
+export interface UpdateFolderPeopleRequest {
+    add?: string[];
+    remove?: string[];
 }
 export interface CreateFolderRequest {
     name: string;
     icon?: string | null;
     iconImage?: string | null;
     color?: string | null;
-    isShared?: boolean;
 }
 export interface CreateFolderResponse {
     folder: Folder;

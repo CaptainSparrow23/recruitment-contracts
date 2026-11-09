@@ -55,6 +55,8 @@ export const FOLDER_ICON_IMAGE_MAX_LENGTH = 200_000;
 // no folder.
 export const SESSIONS_FOLDER_QUERY_PARAM = "folderId";
 export const UNFILED_FOLDER_SENTINEL = "unfiled";
+// The most people one PATCH /folders/:folderId/people may add or remove.
+export const FOLDER_PEOPLE_MAX = 200;
 export const SEARCH_PATH = "/search";
 export const CHAT_PATH = "/chat";
 // Persisted chat conversations ("Recent" history). A child path of CHAT_PATH so
