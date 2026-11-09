@@ -351,6 +351,46 @@ export interface SharedMeetingSummary {
 export interface SharedWithMeResponse {
     meetings: SharedMeetingSummary[];
 }
+export declare const NOTIFICATIONS_PATH = "/notifications";
+export declare const NOTIFICATIONS_WINDOW_MS: number;
+export type AppNotification = {
+    kind: "added_to_folder";
+    at: string;
+    by: {
+        actorId: string;
+        name: string | null;
+    };
+    folder: {
+        id: string;
+        name: string;
+    };
+} | {
+    kind: "meeting_added";
+    at: string;
+    by: {
+        actorId: string;
+        name: string | null;
+    };
+    folder: {
+        id: string;
+        name: string;
+    };
+    meeting: {
+        sessionId: string;
+        title: string;
+    };
+} | {
+    kind: "document_ready";
+    at: string;
+    meeting: {
+        sessionId: string;
+        title: string;
+    };
+    format: "pdf" | "docx";
+};
+export interface NotificationsResponse {
+    notifications: AppNotification[];
+}
 export declare const FOLDERS_PATH = "/folders";
 export declare const FOLDER_NAME_MAX_LENGTH = 100;
 export declare const FOLDER_ICON_MAX_LENGTH = 24;

@@ -30,6 +30,13 @@ export const SHARED_WITH_ME_PATH = "/shared-with-me";
 // recipient's row and sent in each notification.
 export const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
 export const MEETING_SHARE_MAX_RECIPIENTS = 50;
+// ─── Notifications (the bell) ───
+// Read from where each piece of news already lives, so a line goes when what
+// it's about does (a share removed, a meeting taken out, you off a folder).
+// Shares stay on GET /shared-with-me; the app merges the two.
+export const NOTIFICATIONS_PATH = "/notifications";
+// How far back the bell looks.
+export const NOTIFICATIONS_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 // ─── Folders ───
 // Lightweight, per-account groupings for organizing sessions. A folder owns no
 // data: deleting one unfiles its sessions (folder_id -> NULL) rather than

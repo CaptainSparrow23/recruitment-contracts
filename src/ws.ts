@@ -31,7 +31,8 @@ export const SERVER_MESSAGE_TYPES = {
   SESSION_PONG: "session:pong",
   COPILOT_DELTA: "copilot:delta",
   COPILOT_NOTES_EDIT: "copilot:notes_edit",
-  MEETING_SHARED: "meeting:shared"
+  MEETING_SHARED: "meeting:shared",
+  FOLDER_ADDED: "folder:added"
 } as const;
 
 export const AUDIO_STREAM_IDS = {
@@ -438,6 +439,13 @@ export interface MeetingSharedMessage {
   sharedAt: string;
 }
 
+// Someone added you to a shared folder: re-read the folders and the bell.
+export interface FolderAddedMessage {
+  type: typeof SERVER_MESSAGE_TYPES.FOLDER_ADDED;
+  organizationId: string;
+  folderId: string;
+}
+
 export type ServerMessage =
   | SessionStartedMessage
   | TranscriptPartialMessage
@@ -452,7 +460,8 @@ export type ServerMessage =
   | SessionEndedMessage
   | SessionArtifactStatusMessage
   | SessionPongMessage
-  | MeetingSharedMessage;
+  | MeetingSharedMessage
+  | FolderAddedMessage;
 
 export function isClientMessage(value: unknown): value is ClientMessage {
   if (!isRecord(value) || typeof value.type !== "string") {

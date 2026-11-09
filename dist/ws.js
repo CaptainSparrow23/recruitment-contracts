@@ -26,7 +26,8 @@ export const SERVER_MESSAGE_TYPES = {
     SESSION_PONG: "session:pong",
     COPILOT_DELTA: "copilot:delta",
     COPILOT_NOTES_EDIT: "copilot:notes_edit",
-    MEETING_SHARED: "meeting:shared"
+    MEETING_SHARED: "meeting:shared",
+    FOLDER_ADDED: "folder:added"
 };
 export const AUDIO_STREAM_IDS = {
     MIC: "mic",

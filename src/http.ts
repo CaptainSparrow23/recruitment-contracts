@@ -611,6 +611,45 @@ export interface SharedWithMeResponse {
   meetings: SharedMeetingSummary[];
 }
 
+// ─── Notifications (the bell) ───
+// Read from where each piece of news already lives, so a line goes when what
+// it's about does (a share removed, a meeting taken out, you off a folder).
+// Shares stay on GET /shared-with-me; the app merges the two.
+export const NOTIFICATIONS_PATH = "/notifications";
+// How far back the bell looks.
+export const NOTIFICATIONS_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+
+// `at` is ISO: when the reader could first see it. `by.actorId` tells two
+// people apart (the bell folds by it); `by.name` is null for someone with no
+// profile, as after deleting their account.
+export type AppNotification =
+  | {
+      kind: "added_to_folder";
+      at: string;
+      by: { actorId: string; name: string | null };
+      folder: { id: string; name: string };
+    }
+  | {
+      // One per meeting; the bell folds them per person, folder and day.
+      kind: "meeting_added";
+      at: string;
+      by: { actorId: string; name: string | null };
+      folder: { id: string; name: string };
+      meeting: { sessionId: string; title: string };
+    }
+  | {
+      // The meeting's current document, at its latest render.
+      kind: "document_ready";
+      at: string;
+      meeting: { sessionId: string; title: string };
+      format: "pdf" | "docx";
+    };
+
+// GET /notifications — for the token's workspace, newest first; empty without one.
+export interface NotificationsResponse {
+  notifications: AppNotification[];
+}
+
 // ─── Folders ───
 // Lightweight, per-account groupings for organizing sessions. A folder owns no
 // data: deleting one unfiles its sessions (folder_id -> NULL) rather than
