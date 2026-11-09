@@ -638,11 +638,12 @@ export type AppNotification =
       meeting: { sessionId: string; title: string };
     }
   | {
-      // The meeting's current document, at its latest render.
+      // The meeting's current document, at its latest render, named by the
+      // template it filled in.
       kind: "document_ready";
       at: string;
       meeting: { sessionId: string; title: string };
-      format: "pdf" | "docx";
+      template: { name: string };
     };
 
 // GET /notifications — for the token's workspace, newest first; empty without one.

@@ -386,7 +386,9 @@ export type AppNotification = {
         sessionId: string;
         title: string;
     };
-    format: "pdf" | "docx";
+    template: {
+        name: string;
+    };
 };
 export interface NotificationsResponse {
     notifications: AppNotification[];
