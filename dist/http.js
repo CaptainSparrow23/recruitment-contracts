@@ -38,9 +38,9 @@ export const NOTIFICATIONS_PATH = "/notifications";
 // How far back the bell looks.
 export const NOTIFICATIONS_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 // ─── Folders ───
-// Lightweight, per-account groupings for organizing sessions. A folder owns no
-// data: deleting one unfiles its sessions (folder_id -> NULL) rather than
-// deleting them.
+// Lightweight, per-account groupings for organizing sessions; a note can be in
+// many. A folder owns no data: deleting one takes its notes out of it rather
+// than deleting them.
 export const FOLDERS_PATH = "/folders";
 export const FOLDER_NAME_MAX_LENGTH = 100;
 // `icon` holds EITHER a Lucide icon key (kebab-case ASCII, e.g. "briefcase") for

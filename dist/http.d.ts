@@ -71,6 +71,7 @@ export interface SessionSummary {
     calendarEvent: CalendarEvent | null;
     createdAt: string;
     folderId: string | null;
+    folderIds?: string[];
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     hasLiveFillJob?: boolean;
@@ -101,6 +102,7 @@ export interface SessionDetail {
     qualificationStates: QualificationStateSummary[];
     createdAt: string;
     folderId: string | null;
+    folderIds?: string[];
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
     documentRenderFailed?: boolean;
@@ -347,6 +349,7 @@ export interface SharedMeetingSummary {
     userNotes?: TiptapDoc | null;
     userNotesTidied?: TiptapDoc | null;
     folderId?: string | null;
+    folderIds?: string[];
 }
 export interface SharedWithMeResponse {
     meetings: SharedMeetingSummary[];

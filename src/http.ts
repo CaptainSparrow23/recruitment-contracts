@@ -122,7 +122,12 @@ export interface SessionSummary {
   userNotesTidied: TiptapDoc | null;
   calendarEvent: CalendarEvent | null;
   createdAt: string;
+  // Always null from the 2.2.0 backend, which sends folderIds; kept until the
+  // release so released builds still compile.
   folderId: string | null;
+  // The folders the reader sees that hold this note (a note can be in many).
+  // Absent from a backend that predates them.
+  folderIds?: string[];
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
   // A template fill job is running for this meeting: the automatic post-meeting
@@ -185,7 +190,9 @@ export interface SessionDetail {
   // state is `qualificationState` above; `templateId` is the active template.
   qualificationStates: QualificationStateSummary[];
   createdAt: string;
+  // As in SessionSummary: null from the 2.2.0 backend, which sends folderIds.
   folderId: string | null;
+  folderIds?: string[];
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
   // The async document render for the active template terminally FAILED (the fill
@@ -602,8 +609,10 @@ export interface SharedMeetingSummary {
   userNotes?: TiptapDoc | null;
   userNotesTidied?: TiptapDoc | null;
   // The recipient's own folder for it. Absent from a backend that predates
-  // filing.
+  // filing, and from 2.2.0, which sends folderIds.
   folderId?: string | null;
+  // The folders the recipient sees that hold it.
+  folderIds?: string[];
 }
 
 // GET /shared-with-me — for the token's workspace, newest share first.
@@ -652,9 +661,9 @@ export interface NotificationsResponse {
 }
 
 // ─── Folders ───
-// Lightweight, per-account groupings for organizing sessions. A folder owns no
-// data: deleting one unfiles its sessions (folder_id -> NULL) rather than
-// deleting them.
+// Lightweight, per-account groupings for organizing sessions; a note can be in
+// many. A folder owns no data: deleting one takes its notes out of it rather
+// than deleting them.
 export const FOLDERS_PATH = "/folders";
 export const FOLDER_NAME_MAX_LENGTH = 100;
 // `icon` holds EITHER a Lucide icon key (kebab-case ASCII, e.g. "briefcase") for
@@ -690,17 +699,18 @@ export interface Folder {
   // Hex tint ("#rrggbb") applied to the icon chip. Only meaningful for icon-key
   // icons; null for legacy emoji, uploaded pictures, and un-iconed folders.
   color: string | null;
-  // The seeded "My notes" space every account owns. It's a normal folder
-  // except it can't be deleted (new notes fall back to it). At most one per
-  // account.
+  // The seeded All notes folder, one per account in each workspace. It holds no
+  // notes but lists every one of its owner's; it can't be deleted and nothing
+  // is added to it.
   isDefault: boolean;
   // User-controlled sort order in the sidebar (ascending). Set by dragging
   // spaces to reorder them; every folder has one (lower = higher in the list).
   position: number;
   createdAt: string;
   updatedAt: string;
-  // Number of sessions filed under this folder. Populated by GET /folders; may
-  // be omitted on create/rename responses (clients re-list to refresh counts).
+  // Number of notes in it (All notes: all your own, welcome notes aside).
+  // Populated by GET /folders; may be omitted on create/rename responses
+  // (clients re-list to refresh counts).
   sessionCount?: number;
   // Listed under Shared folders: its owner and `people` see it. Absent = private.
   isShared?: boolean;
