@@ -1013,13 +1013,19 @@ export interface GetCheckoutResultResponse {
   result: CheckoutResult | null;
 }
 
+export const WORKSPACE_INVITE_MAX = 50;
+
 export interface CreateOrganizationRequest {
   name: string;
+  // Email addresses to invite to the new workspace.
+  invite?: string[];
 }
 
 export interface CreateOrganizationResponse {
   organizationId: string;
   organizationName: string;
+  // Addresses whose invitation wasn't sent. The workspace exists either way.
+  invitesFailed?: string[];
 }
 
 export interface SearchSnippetHighlight {
@@ -1079,6 +1085,9 @@ export interface ChatRequest {
   // right now (a draft note with a live session), the turn runs in live mode:
   // low effort, the transcript so far, in-the-room answers. See quickHelp/image.
   anchorSessionId?: string;
+  // The folder chip: a Folder id. The turn tells the model which folder it was
+  // sent with; a folder the caller can't see is ignored. A meeting chip wins.
+  anchorFolderId?: string;
   // Caller-selected model for this turn (from the model picker). Optional for
   // back-compat — the server validates it against its registry and falls back to
   // the chat default when absent/unknown.

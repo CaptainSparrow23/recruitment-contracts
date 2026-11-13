@@ -584,12 +584,15 @@ export interface CheckoutResult {
 export interface GetCheckoutResultResponse {
     result: CheckoutResult | null;
 }
+export declare const WORKSPACE_INVITE_MAX = 50;
 export interface CreateOrganizationRequest {
     name: string;
+    invite?: string[];
 }
 export interface CreateOrganizationResponse {
     organizationId: string;
     organizationName: string;
+    invitesFailed?: string[];
 }
 export interface SearchSnippetHighlight {
     start: number;
@@ -626,6 +629,7 @@ export interface ChatRequest {
     }>;
     chatSessionId?: string;
     anchorSessionId?: string;
+    anchorFolderId?: string;
     modelId?: AiModelId;
     displayText?: string;
     timeZone?: string;

@@ -88,6 +88,7 @@ export const BILLING_PORTAL_PATH = "/billing/portal";
 export const BILLING_DETAILS_PATH = "/billing/details";
 export const STRIPE_WEBHOOK_PATH = "/webhooks/stripe";
 export const WORKOS_WEBHOOK_PATH = "/webhooks/workos";
+export const WORKSPACE_INVITE_MAX = 50;
 // Recent panel page size — kept small so the chat landing stays compact (paged
 // with prev/next arrows, not a growing scrollable list). The client fetches the
 // whole list once and slices it into pages of this size locally.
