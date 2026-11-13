@@ -568,6 +568,8 @@ export interface WorkspaceMember {
   name: string | null;
   email: string | null;
   pictureUrl: string | null;
+  // Holds the Admin role. Absent from a backend that predates it.
+  isAdmin?: boolean;
 }
 
 export interface WorkspaceMembersResponse {

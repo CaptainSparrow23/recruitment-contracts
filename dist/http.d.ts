@@ -320,6 +320,7 @@ export interface WorkspaceMember {
     name: string | null;
     email: string | null;
     pictureUrl: string | null;
+    isAdmin?: boolean;
 }
 export interface WorkspaceMembersResponse {
     members: WorkspaceMember[];
