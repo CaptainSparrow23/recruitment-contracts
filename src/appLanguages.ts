@@ -1,7 +1,7 @@
 // The languages Sorinai exists in. One list for the app, which runs in one of
 // them per launch, and the server, which keeps each person's for its emails and
 // starter content. A language joins only once its texts exist on both sides.
-export const APP_LANGUAGES = ["en"] as const;
+export const APP_LANGUAGES = ["en", "es", "pt-BR", "de", "fr", "it"] as const;
 
 export type AppLanguage = (typeof APP_LANGUAGES)[number];
 
