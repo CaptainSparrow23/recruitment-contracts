@@ -520,6 +520,10 @@ export interface SyncProfileRequest {
   email: string | null;
   fullName: string | null;
   pictureUrl: string | null;
+  // The language the app is running in, one of APP_LANGUAGES. A plain string on
+  // the wire, like userRole: the server keeps it only if it knows it. Apps from
+  // before languages send nothing.
+  language?: string;
 }
 
 export interface UpdateProfilePreferencesRequest {

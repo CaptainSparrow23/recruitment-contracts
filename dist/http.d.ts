@@ -286,6 +286,7 @@ export interface SyncProfileRequest {
     email: string | null;
     fullName: string | null;
     pictureUrl: string | null;
+    language?: string;
 }
 export interface UpdateProfilePreferencesRequest {
     sendFollowUpEmails?: boolean;

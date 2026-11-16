@@ -23,13 +23,15 @@ export function speakerLabel(speaker) {
 // "host" (the recruiter's mic) → "You", "guest" (the counterpart) → the
 // candidate's name, falling back to "Them". Any other speaker id is left to
 // the caller-provided `fallback` (e.g. a named meeting participant's label).
+// `labels` is for the app, which shows the two stand-ins in its own language;
+// the server leaves it out and keeps the English ones the prompts are written for.
 export function relabelSpeakerChannel(input) {
     const channel = input.speakerId?.trim().toLowerCase();
     if (channel === "host") {
-        return "You";
+        return input.labels?.you ?? "You";
     }
     if (channel === "guest") {
-        return input.counterpartName ?? "Them";
+        return input.counterpartName ?? input.labels?.them ?? "Them";
     }
     return input.fallback;
 }
