@@ -563,9 +563,71 @@ export interface BillingInvoice {
     /** Stripe-hosted invoice page; null when Stripe didn't provide one. */
     hostedInvoiceUrl: string | null;
 }
+/** What Stripe will charge next for a paid plan, in Stripe's own numbers.
+ *  Amounts are in the currency's smallest unit. */
+export interface BillingNextCharge {
+    /** What Stripe will charge: its amount due, after any credit the customer holds. */
+    amount: number;
+    /** ISO 4217 code, lower-case as Stripe returns it. */
+    currency: string;
+    /** ISO timestamp of the day Stripe charges it. */
+    date: string;
+    /** How many members the plan is billed for; 1 on Personal. */
+    members: number;
+    /** One member for one period. */
+    unitAmount: number;
+    /** members × unitAmount, worked out by the server so no client multiplies. */
+    planAmount: number;
+    interval: BillingInterval;
+    /** The part of `amount` that is for members who joined or left since the last
+     *  bill: above zero for joiners, below zero for leavers, 0 when there are none. */
+    memberChangesAmount: number;
+    /** Credit the customer already held that Stripe takes off this bill; 0 when
+     *  there is none. `amount` is planAmount + memberChangesAmount − this. */
+    creditApplied: number;
+    /** The card Stripe will charge. Null when it has none, or holds something
+     *  that is not a card. */
+    card: {
+        brand: string;
+        last4: string;
+    } | null;
+}
+/** The one bill a plan that is set to end is still charged: what is waiting for
+ *  members who joined since its last bill. */
+export interface BillingLastCharge {
+    /** What Stripe will charge, in the currency's smallest unit. Above zero. */
+    amount: number;
+    currency: string;
+    /** ISO timestamp of the day the plan ends and Stripe charges it. */
+    date: string;
+    /** The card Stripe will charge; null as on `BillingNextCharge`. */
+    card: {
+        brand: string;
+        last4: string;
+    } | null;
+}
+/** A bill Stripe tried to collect and could not, and that is still owed. */
+export interface BillingOverduePayment {
+    /** What is still owed on it, in the currency's smallest unit. */
+    amount: number;
+    currency: string;
+    /** ISO timestamp of the day Stripe first tried to collect it. */
+    date: string;
+    /** ISO timestamp of Stripe's next try. Null when it has none planned, which
+     *  is the case after a decline it won't retry until the card is changed. */
+    nextAttempt: string | null;
+}
 export interface BillingDetails {
     paymentMethod: BillingPaymentMethod | null;
     invoices: BillingInvoice[];
+    /** Left out when there is no paid plan, when the plan is set to end, in a
+     *  trial or overdue, when Stripe's preview can't be read, and by older servers. */
+    nextCharge?: BillingNextCharge;
+    /** Sent in place of `nextCharge` for a plan that is set to end and still has
+     *  something to pay. */
+    lastCharge?: BillingLastCharge;
+    /** Sent in place of `nextCharge` while Stripe is retrying a failed payment. */
+    overduePayment?: BillingOverduePayment;
 }
 export interface CreateCheckoutSessionRequest {
     tier: "personal" | "business";
