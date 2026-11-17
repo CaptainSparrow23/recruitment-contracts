@@ -911,6 +911,9 @@ export interface BillingState {
   cancelAtPeriodEnd: boolean;
   stripeCustomerId: string | null;
   quantity: number;
+  // What a paid plan is billed: monthly or yearly. Left out with no paid plan,
+  // for a price no longer sold, and by older servers.
+  interval?: BillingInterval;
   // Set when the resolved billing customer belongs to an organization. Lets
   // clients display "Business · Acme Recruiting" without a separate /org call,
   // and lets desktop clients (whose tokens carry no org claim) still see the
@@ -940,6 +943,26 @@ export interface BillingState {
   // client to know the period is daily-and-UTC — exactly the internal policy
   // this convention keeps on the backend.
   aiActionsResetAt: string | null;
+  // For each plan, the refusal a purchase of it would get right now, or null.
+  // Sent only to someone who can manage the workspace, so a client can say it
+  // before the click. Absent means not known: an older server, or it couldn't
+  // be worked out.
+  purchaseRefusals?: Record<"personal" | "business", CheckoutRefusalReason | null>;
+}
+
+/** Why the backend won't start a purchase. */
+export type CheckoutRefusalReason =
+  | "workspace_on_business"
+  | "teammate_already_pays"
+  | "personal_is_for_one_person";
+
+/** The checkout's 422 reply. */
+export interface CheckoutRefusedResponse {
+  error: CheckoutRefusalReason;
+  /** The sentence for the buyer, in English. */
+  message: string;
+  /** For clients that word the refusal themselves; null when we can't name it. */
+  workspaceName: string | null;
 }
 
 // ── Billing details (payment method + invoices) ──

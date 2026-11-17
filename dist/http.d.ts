@@ -522,12 +522,24 @@ export interface BillingState {
     cancelAtPeriodEnd: boolean;
     stripeCustomerId: string | null;
     quantity: number;
+    interval?: BillingInterval;
     organizationId: string | null;
     organizationName: string | null;
     sessionsStarted: number;
     documentDownloadsRemaining: number | null;
     aiActionsRemaining: number | null;
     aiActionsResetAt: string | null;
+    purchaseRefusals?: Record<"personal" | "business", CheckoutRefusalReason | null>;
+}
+/** Why the backend won't start a purchase. */
+export type CheckoutRefusalReason = "workspace_on_business" | "teammate_already_pays" | "personal_is_for_one_person";
+/** The checkout's 422 reply. */
+export interface CheckoutRefusedResponse {
+    error: CheckoutRefusalReason;
+    /** The sentence for the buyer, in English. */
+    message: string;
+    /** For clients that word the refusal themselves; null when we can't name it. */
+    workspaceName: string | null;
 }
 /** Stripe billing-portal deep-link flows we expose. */
 export type BillingPortalFlow = "payment_method_update" | "subscription_cancel";
