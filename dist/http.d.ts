@@ -479,6 +479,7 @@ export interface CreateRecallSdkUploadRequest {
     } | null;
     sessionId: string;
     video?: boolean | null;
+    inPerson?: boolean | null;
 }
 export interface CreateRecallSdkUploadResponse {
     sdkUploadId: string;
@@ -530,6 +531,8 @@ export interface BillingState {
     aiActionsRemaining: number | null;
     aiActionsResetAt: string | null;
     purchaseRefusals?: Record<"personal" | "business", CheckoutRefusalReason | null>;
+    templateCallsRemaining?: number | null;
+    newSharingAllowed?: boolean;
 }
 /** Why the backend won't start a purchase. */
 export type CheckoutRefusalReason = "workspace_on_business" | "teammate_already_pays" | "personal_is_for_one_person";

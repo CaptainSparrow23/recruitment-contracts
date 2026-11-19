@@ -840,6 +840,9 @@ export interface CreateRecallSdkUploadRequest {
   sessionId: string;
   // true only where filming can't raise the macOS Screen Recording prompt.
   video?: boolean | null;
+  // The New Note window's "Is this an in-person meeting?" tick. Only a plain
+  // recording acts on it; absent means no.
+  inPerson?: boolean | null;
 }
 
 export interface CreateRecallSdkUploadResponse {
@@ -948,6 +951,12 @@ export interface BillingState {
   // before the click. Absent means not known: an older server, or it couldn't
   // be worked out.
   purchaseRefusals?: Record<"personal" | "business", CheckoutRefusalReason | null>;
+  // Calls that may still run a template this calendar month; null means no
+  // limit. Absent means the plan gates are off, or an older server.
+  templateCallsRemaining?: number | null;
+  // False when a new share inside the workspace would be refused. Absent
+  // means allowed.
+  newSharingAllowed?: boolean;
 }
 
 /** Why the backend won't start a purchase. */
