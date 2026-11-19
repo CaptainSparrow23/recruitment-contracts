@@ -195,6 +195,9 @@ export interface SessionDetail {
   folderIds?: string[];
   finalizationStatus?: SessionFinalizationStatus;
   finalizationErrorMessage?: string | null;
+  // Ticked in person when the note was made. A start uses it only while the note
+  // is still a draft, so a retry keeps it and a start after a recording doesn't.
+  inPerson?: boolean;
   // The async document render for the active template terminally FAILED (the fill
   // worker gave up after all attempts) and hasn't since been regenerated. Durable
   // (derived from the persisted fill job) so the download button can offer a
@@ -282,6 +285,8 @@ export interface UpdateSessionNotesResponse {
 // client-minted id. Answers with SessionDetailResponse.
 export interface CreateSessionNoteRequest {
   calendarEvent?: CalendarEvent | null;
+  // The New Note window's "Is this an in-person meeting?" tick, saved on the note.
+  inPerson?: boolean;
   // The client's IANA zone, so the note's date reads as the user's local day.
   timeZone?: string;
 }
@@ -951,9 +956,15 @@ export interface BillingState {
   // before the click. Absent means not known: an older server, or it couldn't
   // be worked out.
   purchaseRefusals?: Record<"personal" | "business", CheckoutRefusalReason | null>;
-  // Calls that may still run a template this calendar month; null means no
-  // limit. Absent means the plan gates are off, or an older server.
+  // Calls that may still run a template in the account's current cycle; null
+  // means no limit. Absent means the plan gates are off, or an older server.
   templateCallsRemaining?: number | null;
+  // ISO instant when templateCallsRemaining goes back to the plan's full
+  // number. Null when there is no time to give: nothing used yet on the free
+  // plan, no limit, or the plan ends first. Absent means the plan gates are
+  // off, or an older server. Sent rather than worked out by the client: each
+  // account has its own cycle.
+  templateCallsResetAt?: string | null;
   // False when a new share inside the workspace would be refused. Absent
   // means allowed.
   newSharingAllowed?: boolean;

@@ -105,6 +105,7 @@ export interface SessionDetail {
     folderIds?: string[];
     finalizationStatus?: SessionFinalizationStatus;
     finalizationErrorMessage?: string | null;
+    inPerson?: boolean;
     documentRenderFailed?: boolean;
     hasRecording?: boolean;
     activeFillJob?: {
@@ -147,6 +148,7 @@ export interface UpdateSessionNotesResponse {
 }
 export interface CreateSessionNoteRequest {
     calendarEvent?: CalendarEvent | null;
+    inPerson?: boolean;
     timeZone?: string;
 }
 export interface CreateSessionShareLinkRequest {
@@ -532,6 +534,7 @@ export interface BillingState {
     aiActionsResetAt: string | null;
     purchaseRefusals?: Record<"personal" | "business", CheckoutRefusalReason | null>;
     templateCallsRemaining?: number | null;
+    templateCallsResetAt?: string | null;
     newSharingAllowed?: boolean;
 }
 /** Why the backend won't start a purchase. */
