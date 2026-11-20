@@ -764,6 +764,10 @@ export type ChatStreamEvent = {
     updatedAt: string;
 } | {
     type: "answer_reset";
+} | {
+    type: "template_created";
+    templateId: string;
+    name: string;
 };
 export interface ChatSessionSummary {
     id: string;

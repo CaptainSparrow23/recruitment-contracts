@@ -32,7 +32,8 @@ export const SERVER_MESSAGE_TYPES = {
   COPILOT_DELTA: "copilot:delta",
   COPILOT_NOTES_EDIT: "copilot:notes_edit",
   MEETING_SHARED: "meeting:shared",
-  FOLDER_ADDED: "folder:added"
+  FOLDER_ADDED: "folder:added",
+  TEMPLATE_ADDED: "template:added"
 } as const;
 
 export const AUDIO_STREAM_IDS = {
@@ -446,6 +447,14 @@ export interface FolderAddedMessage {
   folderId: string;
 }
 
+// A chat (Claude, ChatGPT or Sorinai's own) made a template for you: re-read
+// the template list.
+export interface TemplateAddedMessage {
+  type: typeof SERVER_MESSAGE_TYPES.TEMPLATE_ADDED;
+  organizationId: string | null;
+  templateId: string;
+}
+
 export type ServerMessage =
   | SessionStartedMessage
   | TranscriptPartialMessage
@@ -461,7 +470,8 @@ export type ServerMessage =
   | SessionArtifactStatusMessage
   | SessionPongMessage
   | MeetingSharedMessage
-  | FolderAddedMessage;
+  | FolderAddedMessage
+  | TemplateAddedMessage;
 
 export function isClientMessage(value: unknown): value is ClientMessage {
   if (!isRecord(value) || typeof value.type !== "string") {

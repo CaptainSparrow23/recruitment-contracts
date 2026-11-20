@@ -27,7 +27,8 @@ export const SERVER_MESSAGE_TYPES = {
     COPILOT_DELTA: "copilot:delta",
     COPILOT_NOTES_EDIT: "copilot:notes_edit",
     MEETING_SHARED: "meeting:shared",
-    FOLDER_ADDED: "folder:added"
+    FOLDER_ADDED: "folder:added",
+    TEMPLATE_ADDED: "template:added"
 };
 export const AUDIO_STREAM_IDS = {
     MIC: "mic",

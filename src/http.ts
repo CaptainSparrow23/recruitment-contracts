@@ -1313,7 +1313,10 @@ export type ChatStreamEvent =
   // emitted submit_answer alongside other pending tools, so its answer is
   // deferred and re-streams cleanly next iteration. The client resets the
   // accumulated answer text so it isn't duplicated.
-  | { type: "answer_reset" };
+  | { type: "answer_reset" }
+  // The agent used create_template and the template is saved: the panel offers
+  // to open it. Not terminal.
+  | { type: "template_created"; templateId: string; name: string };
 
 // ─── Chat session history ───
 // One persisted conversation. Drives the "Recent" list.
