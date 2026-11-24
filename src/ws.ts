@@ -435,7 +435,8 @@ export interface MeetingSharedMessage {
   sessionId: string;
   organizationId: string;
   title: string;
-  sharedBy: { name: string | null };
+  // email: as on SharedMeetingSummary.
+  sharedBy: { name: string | null; email?: string | null };
   note: string | null;
   sharedAt: string;
 }

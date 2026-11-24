@@ -318,6 +318,8 @@ export declare const WORKSPACE_MEMBERS_PATH = "/workspace/members";
 export declare const SHARED_WITH_ME_PATH = "/shared-with-me";
 export declare const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
 export declare const MEETING_SHARE_MAX_RECIPIENTS = 50;
+export declare const MEETING_SHARE_EMAILS_PER_DAY = 20;
+export declare const MEETING_SHARE_WAIT_DAYS = 90;
 export interface WorkspaceMember {
     actorId: string;
     name: string | null;
@@ -330,11 +332,13 @@ export interface WorkspaceMembersResponse {
 }
 export interface ShareMeetingRequest {
     actorIds: string[];
+    emails?: string[];
     note?: string | null;
 }
 export interface MeetingShareRecipient {
     actorId: string;
     sharedAt: string;
+    email?: string;
 }
 export interface MeetingSharesResponse {
     recipients: MeetingShareRecipient[];
@@ -346,6 +350,7 @@ export interface SharedMeetingSummary {
     endedAt: string | null;
     sharedBy: {
         name: string | null;
+        email?: string | null;
     };
     note: string | null;
     sharedAt: string;

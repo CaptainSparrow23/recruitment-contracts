@@ -30,6 +30,10 @@ export const SHARED_WITH_ME_PATH = "/shared-with-me";
 // recipient's row and sent in each notification.
 export const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
 export const MEETING_SHARE_MAX_RECIPIENTS = 50;
+// New email addresses one person may share to in 24 hours.
+export const MEETING_SHARE_EMAILS_PER_DAY = 20;
+// How long a share to an address with no account waits for a sign-up.
+export const MEETING_SHARE_WAIT_DAYS = 90;
 // ─── Notifications (the bell) ───
 // Read from where each piece of news already lives, so a line goes when what
 // it's about does (a share removed, a meeting taken out, you off a folder).

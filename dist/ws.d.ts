@@ -296,6 +296,7 @@ export interface MeetingSharedMessage {
     title: string;
     sharedBy: {
         name: string | null;
+        email?: string | null;
     };
     note: string | null;
     sharedAt: string;

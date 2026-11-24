@@ -570,6 +570,10 @@ export const SHARED_WITH_ME_PATH = "/shared-with-me";
 // recipient's row and sent in each notification.
 export const MEETING_SHARE_NOTE_MAX_LENGTH = 500;
 export const MEETING_SHARE_MAX_RECIPIENTS = 50;
+// New email addresses one person may share to in 24 hours.
+export const MEETING_SHARE_EMAILS_PER_DAY = 20;
+// How long a share to an address with no account waits for a sign-up.
+export const MEETING_SHARE_WAIT_DAYS = 90;
 
 // GET /workspace/members — active members of the token's workspace, caller left out.
 export interface WorkspaceMember {
@@ -588,19 +592,27 @@ export interface WorkspaceMembersResponse {
 // POST /sessions/:sessionId/shares. People who already have access are left
 // as they are. Answers with MeetingSharesResponse.
 export interface ShareMeetingRequest {
+  // Teammates. May be empty when emails names someone.
   actorIds: string[];
+  // Anyone, in the workspace or not. Each gets an email.
+  emails?: string[];
   note?: string | null;
 }
 
 // Names come from GET /workspace/members: a recipient who is no longer an
 // active member can't open the meeting, so the share window leaves them out.
 export interface MeetingShareRecipient {
+  // On a share made by address this is the address itself until that person
+  // signs up.
   actorId: string;
   sharedAt: string;
+  // The address typed, on a share made by address.
+  email?: string;
 }
 
 // GET/POST /sessions/:sessionId/shares, DELETE /sessions/:sessionId/shares/:actorId:
-// who has access now.
+// who has access now. The delete also takes the address of a share made by
+// address in place of :actorId.
 export interface MeetingSharesResponse {
   recipients: MeetingShareRecipient[];
 }
@@ -610,7 +622,9 @@ export interface SharedMeetingSummary {
   title: string;
   startedAt: string;
   endedAt: string | null;
-  sharedBy: { name: string | null };
+  // email: the sharer's sign-in address, on a share made by address. Their
+  // name is whatever their profile says.
+  sharedBy: { name: string | null; email?: string | null };
   note: string | null;
   sharedAt: string;
   // Not opened yet: the dot in "Shared with me".
@@ -626,7 +640,8 @@ export interface SharedMeetingSummary {
   folderIds?: string[];
 }
 
-// GET /shared-with-me — for the token's workspace, newest share first.
+// GET /shared-with-me — teammates' shares in the token's workspace and every
+// share made to the person's address, newest share first.
 export interface SharedWithMeResponse {
   meetings: SharedMeetingSummary[];
 }
