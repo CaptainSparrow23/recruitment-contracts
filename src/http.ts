@@ -608,6 +608,10 @@ export interface MeetingShareRecipient {
   sharedAt: string;
   // The address typed, on a share made by address.
   email?: string;
+  // Once an account holds a share made by address: that person's name and
+  // picture, as their own profile has them.
+  name?: string | null;
+  pictureUrl?: string | null;
 }
 
 // GET/POST /sessions/:sessionId/shares, DELETE /sessions/:sessionId/shares/:actorId:

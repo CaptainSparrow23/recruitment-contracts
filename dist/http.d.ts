@@ -339,6 +339,8 @@ export interface MeetingShareRecipient {
     actorId: string;
     sharedAt: string;
     email?: string;
+    name?: string | null;
+    pictureUrl?: string | null;
 }
 export interface MeetingSharesResponse {
     recipients: MeetingShareRecipient[];
