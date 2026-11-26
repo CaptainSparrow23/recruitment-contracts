@@ -500,6 +500,36 @@ export declare const CHAT_SESSIONS_PATH = "/chat/sessions";
 export declare const CHAT_TITLE_MAX_LENGTH = 100;
 export declare const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
 export declare const CHAT_QUICK_HELP_DISPLAY_TEXT = "Help me";
+export declare const CHAT_FILES_PATH = "/chat/files";
+export type ChatFileKind = "image" | "pdf" | "docx" | "xlsx" | "pptx" | "csv" | "text";
+export interface ChatFile {
+    id: string;
+    name: string;
+    kind: ChatFileKind;
+    mediaType: string;
+    sizeBytes: number;
+    pages: number;
+}
+export interface ChatFileUploadResponse {
+    file: ChatFile;
+}
+export type ChatFileErrorCode = "unsupported_format" | "file_too_large" | "file_too_long" | "unreadable_file" | "chat_files_full" | "chat_file_unavailable";
+export declare const CHAT_FILE_MAX_BYTES: number;
+export declare const CHAT_FILES_PER_MESSAGE = 5;
+export declare const CHAT_FILES_MAX_PAGES = 100;
+export declare const CHAT_FILE_KINDS_SENT_WHOLE: readonly ChatFileKind[];
+export declare function chatFileSentWhole(kind: ChatFileKind): boolean;
+export declare const CHAT_FILES_MAX_PICTURE_PDF_BYTES: number;
+export declare const CHAT_FILE_TEXT_CHARS_PER_PAGE = 3000;
+export declare const CHAT_FILE_IMAGE_MAX_EDGE = 2000;
+export declare const CHAT_FILE_TYPES: Readonly<Record<string, {
+    kind: ChatFileKind;
+    mediaType: string;
+}>>;
+export declare function chatFileTypeFor(name: string, mediaType?: string): {
+    kind: ChatFileKind;
+    mediaType: string;
+} | null;
 export declare const ORG_PATH = "/org";
 export declare const BILLING_PATH = "/billing";
 export declare const BILLING_PRICING_PATH = "/billing/pricing";
@@ -724,6 +754,7 @@ export interface ChatRequest {
     timeZone?: string;
     quickHelp?: boolean;
     image?: CopilotPromptImage;
+    fileIds?: string[];
 }
 export type ChatSource = {
     kind: "session";
@@ -791,6 +822,7 @@ export interface PersistedChatMessage {
         sessionId: string;
         title: string;
     };
+    files?: ChatFile[];
     createdAt: string;
 }
 export declare const CHAT_SESSIONS_PAGE_SIZE = 5;

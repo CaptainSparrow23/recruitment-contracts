@@ -890,6 +890,98 @@ export const CHAT_DISPLAY_TEXT_MAX_LENGTH = 200;
 // stored text must be exactly this on every backend and client.
 export const CHAT_QUICK_HELP_DISPLAY_TEXT = "Help me";
 
+// ─── Files added to a chat ───
+// Uploaded on their own (multipart, field "file") as soon as they're added; the
+// turn that carries them sends only their ids. A child of CHAT_PATH, so it
+// inherits auth.
+export const CHAT_FILES_PATH = "/chat/files";
+
+export type ChatFileKind = "image" | "pdf" | "docx" | "xlsx" | "pptx" | "csv" | "text";
+
+// `pages` is what the file counts against the chat's limit: a PDF's pages, 1 for
+// a picture, and one per CHAT_FILE_TEXT_CHARS_PER_PAGE characters of the text the
+// AI reads from any other file.
+export interface ChatFile {
+  id: string;
+  name: string;
+  kind: ChatFileKind;
+  mediaType: string;
+  sizeBytes: number;
+  pages: number;
+}
+
+export interface ChatFileUploadResponse {
+  file: ChatFile;
+}
+
+// The `error` codes an upload or a turn with files can answer with.
+export type ChatFileErrorCode =
+  | "unsupported_format"
+  | "file_too_large"
+  | "file_too_long"
+  | "unreadable_file"
+  | "chat_files_full"
+  // A send named a file that isn't the sender's or was already sent.
+  | "chat_file_unavailable";
+
+export const CHAT_FILE_MAX_BYTES = 10 * 1024 * 1024;
+export const CHAT_FILES_PER_MESSAGE = 5;
+// Per chat, because every file is sent to the AI again on each later turn.
+export const CHAT_FILES_MAX_PAGES = 100;
+// Pictures and PDFs go to the AI as themselves; other files as the text read
+// from them.
+export const CHAT_FILE_KINDS_SENT_WHOLE: readonly ChatFileKind[] = ["image", "pdf"];
+export function chatFileSentWhole(kind: ChatFileKind): boolean {
+  return CHAT_FILE_KINDS_SENT_WHOLE.includes(kind);
+}
+// Per chat, for the files sent whole: each turn reads them back from storage,
+// and they cost the server several times their size in memory while it runs.
+// The others weigh nothing there and count by their pages alone.
+export const CHAT_FILES_MAX_PICTURE_PDF_BYTES = 12 * 1024 * 1024;
+export const CHAT_FILE_TEXT_CHARS_PER_PAGE = 3000;
+// The app redraws pictures to at most this many pixels on the long side.
+export const CHAT_FILE_IMAGE_MAX_EDGE = 2000;
+
+// The files a chat accepts, by extension.
+export const CHAT_FILE_TYPES: Readonly<
+  Record<string, { kind: ChatFileKind; mediaType: string }>
+> = {
+  png: { kind: "image", mediaType: "image/png" },
+  jpg: { kind: "image", mediaType: "image/jpeg" },
+  jpeg: { kind: "image", mediaType: "image/jpeg" },
+  webp: { kind: "image", mediaType: "image/webp" },
+  gif: { kind: "image", mediaType: "image/gif" },
+  pdf: { kind: "pdf", mediaType: "application/pdf" },
+  docx: {
+    kind: "docx",
+    mediaType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  },
+  xlsx: {
+    kind: "xlsx",
+    mediaType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  pptx: {
+    kind: "pptx",
+    mediaType: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  },
+  csv: { kind: "csv", mediaType: "text/csv" },
+  txt: { kind: "text", mediaType: "text/plain" },
+  md: { kind: "text", mediaType: "text/markdown" }
+};
+
+// By extension first; the media type only for a name without a known one.
+export function chatFileTypeFor(
+  name: string,
+  mediaType?: string
+): { kind: ChatFileKind; mediaType: string } | null {
+  const extension = /\.([a-z0-9]+)$/i.exec(name)?.[1]?.toLowerCase();
+  if (extension && CHAT_FILE_TYPES[extension]) {
+    return CHAT_FILE_TYPES[extension];
+  }
+  const media = mediaType?.toLowerCase();
+  return Object.values(CHAT_FILE_TYPES).find((type) => type.mediaType === media) ?? null;
+}
+
 export const ORG_PATH = "/org";
 
 export const BILLING_PATH = "/billing";
@@ -1240,6 +1332,9 @@ export interface ChatRequest {
   // persisted, validated with isCopilotPromptImage, kept only on a live anchor
   // (the chat_session event's hasImage says whether it was).
   image?: CopilotPromptImage;
+  // Files added to this turn, by the ids CHAT_FILES_PATH returned (at most
+  // CHAT_FILES_PER_MESSAGE). With files, `message` may be empty.
+  fileIds?: string[];
 }
 
 // A cited source attached to a persisted assistant turn. Mirrors the live
@@ -1361,6 +1456,8 @@ export interface PersistedChatMessage {
   // does not rewrite history — clients render it as stored rather than
   // re-resolving the session.
   anchor?: { sessionId: string; title: string };
+  // The files the user added to this turn.
+  files?: ChatFile[];
   createdAt: string;
 }
 
