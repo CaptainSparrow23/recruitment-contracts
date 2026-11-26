@@ -935,9 +935,10 @@ export function chatFileSentWhole(kind: ChatFileKind): boolean {
   return CHAT_FILE_KINDS_SENT_WHOLE.includes(kind);
 }
 // Per chat, for the files sent whole: each turn reads them back from storage,
-// and they cost the server several times their size in memory while it runs.
-// The others weigh nothing there and count by their pages alone.
-export const CHAT_FILES_MAX_PICTURE_PDF_BYTES = 12 * 1024 * 1024;
+// and they cost the server many times their size in memory while it runs. The
+// others weigh nothing there and count by their pages alone. One PDF or picture
+// can be no bigger than this either.
+export const CHAT_FILES_MAX_PICTURE_PDF_BYTES = 8 * 1024 * 1024;
 export const CHAT_FILE_TEXT_CHARS_PER_PAGE = 3000;
 // The app redraws pictures to at most this many pixels on the long side.
 export const CHAT_FILE_IMAGE_MAX_EDGE = 2000;
