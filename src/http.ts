@@ -1032,7 +1032,8 @@ export interface BillingState {
   stripeCustomerId: string | null;
   quantity: number;
   // What a paid plan is billed: monthly or yearly. Left out with no paid plan,
-  // for a price no longer sold, and by older servers.
+  // when Stripe bills its price some other way or can't be asked, and by
+  // older servers.
   interval?: BillingInterval;
   // Set when the resolved billing customer belongs to an organization. Lets
   // clients display "Business · Acme Recruiting" without a separate /org call,
