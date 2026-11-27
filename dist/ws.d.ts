@@ -259,7 +259,7 @@ export interface SessionWarningMessage {
 export interface SessionErrorMessage {
     type: typeof SERVER_MESSAGE_TYPES.SESSION_ERROR;
     sessionId?: string;
-    code: "invalid_message" | "rate_limit_exceeded" | "session_conflict" | "session_evicted" | "no_active_session" | "resume_unavailable" | "unsupported_message" | "update_required";
+    code: "invalid_message" | "rate_limit_exceeded" | "session_conflict" | "session_evicted" | "no_active_session" | "resume_unavailable" | "unsupported_message" | "update_required" | "recording_minutes_used_up";
     message: string;
 }
 export type SessionArtifactKind = "filled_template";

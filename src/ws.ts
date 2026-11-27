@@ -388,7 +388,10 @@ export interface SessionErrorMessage {
     | "unsupported_message"
     // The desktop build is older than the backend supports: no meeting may
     // start until the app is updated (quit and reopen installs it).
-    | "update_required";
+    | "update_required"
+    // The account's recording minutes are used up: this start is refused. A
+    // meeting already running is never sent it.
+    | "recording_minutes_used_up";
   message: string;
 }
 

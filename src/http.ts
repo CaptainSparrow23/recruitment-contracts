@@ -1081,6 +1081,13 @@ export interface BillingState {
   // False when a new share inside the workspace would be refused. Absent
   // means allowed.
   newSharingAllowed?: boolean;
+  // Whole recording minutes left in the account's current cycle; null means no
+  // limit. Absent means the plan gates are off, or an older server.
+  recordingMinutesRemaining?: number | null;
+  // ISO instant when recordingMinutesRemaining goes back to the plan's full
+  // number. Null when there is no time to give: nothing recorded yet on the
+  // free plan, no limit, or the plan ends first. Absent as above.
+  recordingMinutesResetAt?: string | null;
 }
 
 /** Why the backend won't start a purchase. */

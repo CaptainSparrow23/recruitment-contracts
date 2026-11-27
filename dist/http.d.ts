@@ -573,6 +573,8 @@ export interface BillingState {
     templateCallsRemaining?: number | null;
     templateCallsResetAt?: string | null;
     newSharingAllowed?: boolean;
+    recordingMinutesRemaining?: number | null;
+    recordingMinutesResetAt?: string | null;
 }
 /** Why the backend won't start a purchase. */
 export type CheckoutRefusalReason = "workspace_on_business" | "teammate_already_pays" | "personal_is_for_one_person";
